@@ -1,0 +1,160 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Scan vulnerabilities from host
+
+- debug: msg="Scanning {{ hostScan }}"
+
+- name: Create Target
+  shell: ([ -n "{{ hostScan }}" ] && omp -u admin -w {{ passwdAdmin }} --xml="<create_target><name>{{ hostScan }}</name><hosts>{{ hostScan }}</hosts><alive_tests>Consider Alive</alive_tests></create_target>") || echo "" executable=/bin/bash
+  ignore_errors: yes
+  register: createTarget
+  changed_when: createTarget.stdout.find('201') != -1
+
+- name: Create Task
+  shell: ([ -n "{{ hostScan }}" ] && (target=$(omp -u admin -w {{ passwdAdmin }} -T|tr '\t' ' '|tr -s ' '|grep -i ' {{ hostScan }}$'|tail -1|cut -d ' ' -f1); [ -n "$target" ] && omp -u admin -w {{ passwdAdmin }} -C -n '{{ hostScan }}' --target="$target" --config="{{ ompConfig.stdout }}")) || echo "" executable=/bin/bash 
+  register: tasksList
+  ignore_errors: yes
+  changed_when: tasksList.stdout != ""
+
+- name: Modify Task to add readUser as observer
+  shell: '([ -n "{{ tasksList.stdout }}" ] && omp -u admin -w {{ passwdAdmin }} --xml="<modify_task task_id=\"{{ tasksList.stdout }}\"><observers>{{ readUser }}</observers></modify_task>") || echo "" executable=/bin/bash'
+  ignore_errors: yes
+  changed_when: False
+  when: readUser != "" and tasksList.stdout is defined and tasksList.stdout != ""
+
+- name: Get PID
+  shell: echo "$$" executable=/bin/bash
+  register: PID
+  changed_when: False
+  ignore_errors: yes
+
+- name: Get Start Scanning (Timestamp)
+  shell: date +"%y%m%d%H%M%S" executable=/bin/bash
+  register: startScan 
+  changed_when: False
+  ignore_errors: yes
+
+- name: Execute Task
+  shell: '([ -n "{{ tasksList.stdout }}" ] && (omp -u admin -w {{ passwdAdmin }} -S "{{ tasksList.stdout }}" && (taskDone=""; while [ -z "$taskDone" ]; do sleep 60; taskDone=$(omp -u admin -w {{ passwdAdmin }} -G|grep "{{ tasksList.stdout }}"|grep -i "Done"); done))) || echo "" executable=/bin/bash'
+  register: runTasksList
+  ignore_errors: yes
+  changed_when: runTasksList.stdout != ""
+  when: tasksList.stdout is defined and tasksList.stdout != ""
+
+- name: Create HTML report
+  shell: '([ -n "{{ runTasksList.stdout }}" ] && (omp -u admin -w {{ passwdAdmin }} -R "{{ runTasksList.stdout }}" -f "{{ ompFormatHTML.stdout }}" > /tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-{{ startScan.stdout }}.html)) || echo "No" executable=/bin/bash'
+  register: createHTMLReport
+  ignore_errors: yes
+  changed_when: createHTMLReport.stdout != "No"
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Create PDF report
+  shell: '([ -n "{{ runTasksList.stdout }}" ] && (omp -u admin -w {{ passwdAdmin }} -R "{{ runTasksList.stdout }}" -f "{{ ompFormatPDF.stdout }}" > /tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-{{ startScan.stdout }}.pdf)) || echo "No" executable=/bin/bash'
+  register: createPDFReport
+  ignore_errors: yes
+  changed_when: createPDFReport.stdout != "No"
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Create TXT report
+  shell: '([ -n "{{ runTasksList.stdout }}" ] && (omp -u admin -w {{ passwdAdmin }} -R "{{ runTasksList.stdout }}" -f "{{ ompFormatTXT.stdout }}" > /tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-{{ startScan.stdout }}.txt)) || echo "No" executable=/bin/bash'
+  register: createTXTReport
+  ignore_errors: yes
+  changed_when: createTXTReport.stdout != "No"
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Create XML report
+  shell: '([ -n "{{ runTasksList.stdout }}" ] && (omp -u admin -w {{ passwdAdmin }} -R "{{ runTasksList.stdout }}" -f "{{ ompFormatXML.stdout }}" > /tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-{{ startScan.stdout }}.xml)) || echo "No" executable=/bin/bash'
+  register: createXMLReport
+  ignore_errors: yes
+  changed_when: createXMLReport.stdout != "No"
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Create Openvas directory
+  file: path={{ pathApacheHTML }}/openvas-reports state=directory owner={{ userApache }} group={{ userApache }} mode=0755
+  delegate_to: "{{ hostWeb }}"
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Create target directory 
+  file: path={{ pathApacheHTML }}/openvas-reports/{{ hostScan }} state=directory owner={{ userApache }} group={{ userApache }} mode=0755
+  delegate_to: "{{ hostWeb }}"
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Copy HTML report to Ansible server
+  fetch: src=/tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-{{ startScan.stdout }}.html dest=/tmp/ flat=yes
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Copy PDF report to Ansible server
+  fetch: src=/tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-{{ startScan.stdout }}.pdf dest=/tmp/ flat=yes
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Copy TXT report to Ansible server
+  fetch: src=/tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-{{ startScan.stdout }}.txt dest=/tmp/ flat=yes
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Copy XML report to Ansible server
+  fetch: src=/tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-{{ startScan.stdout }}.xml dest=/tmp/ flat=yes
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Copy HTML report to Web Server
+  copy: src=/tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-{{ startScan.stdout }}.html dest={{ pathApacheHTML }}/openvas-reports/{{ hostScan }}/{{ hostScan }}-{{ startScan.stdout }}.html owner={{ userApache }} group={{ userApache }} mode=0644
+  ignore_errors: yes
+  delegate_to: "{{ hostWeb }}"
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Copy PDF report to Web Server
+  copy: src=/tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-{{ startScan.stdout }}.pdf dest={{ pathApacheHTML }}/openvas-reports/{{ hostScan }}/{{ hostScan }}-{{ startScan.stdout }}.pdf owner={{ userApache }} group={{ userApache }} mode=0644
+  ignore_errors: yes
+  delegate_to: "{{ hostWeb }}"
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Copy TXT report to Web Server
+  copy: src=/tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-{{ startScan.stdout }}.txt dest={{ pathApacheHTML }}/openvas-reports/{{ hostScan }}/{{ hostScan }}-{{ startScan.stdout }}.txt owner={{ userApache }} group={{ userApache }} mode=0644
+  ignore_errors: yes
+  delegate_to: "{{ hostWeb }}"
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Copy XML report to Web Server
+  copy: src=/tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-{{ startScan.stdout }}.xml dest={{ pathApacheHTML }}/openvas-reports/{{ hostScan }}/{{ hostScan }}-{{ startScan.stdout }}.xml owner={{ userApache }} group={{ userApache }} mode=0644
+  ignore_errors: yes
+  delegate_to: "{{ hostWeb }}"
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
+
+- name: Delete reports in Openvas server
+  shell: (rm -rf /tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-*) 2>/dev/null executable=/bin/bash  
+  ignore_errors: yes
+ 
+- name: Delete reports in Ansible server
+  shell: (rm -rf /tmp/openvas-{{ PID.stdout }}-{{ hostScan }}-*) 2>/dev/null executable=/bin/bash 
+  ignore_errors: yes
+  delegate_to: "{{ hostAnsible }}"
+
+- name: Getting data 
+  action: openvas_facts host="{{ hostScan }}" scanID="{{ runTasksList.stdout }}" passwd="{{ passwdAdmin }}"
+  register: openvasFacts
+  changed_when: False
+  ignore_errors: yes
+
+- name: Generate sql file for Openvas (in Mysql Server)
+  template: src=root/inventory/outsiders/out_dataOpenvas.sql.j2 dest={{ pathInventoryDirectory }}/outsiders/{{ hostScan }}_openvas.{{ PID.stdout }}.sql owner=root group=root mode=0640
+  delegate_to: "{{ hostMysql }}"
+  ignore_errors: yes
+  when: openvas is defined
+
+- name: Get timeStamp
+  shell: echo $(date "+%Y-%m-%d %H:%M:%S") executable=/bin/bash
+  register: timeStamp
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  when: openvas is defined
+
+- name: Execute script out.py (in Mysql Server) for every openvas 
+  shell: '{{ pathInventoryDirectory }}/outsiders/out.py {{ hostScan }} "{{ PID.stdout }}" > /dev/null 2> /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp; [ -s /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp ] && (echo "### ERROR openvas - out.py {{ hostScan }} {{ PID.stdout }} - $(date) ###" >> /var/log/ansible/mysql-errors.log; cat /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp >> /var/log/ansible/mysql-errors.log); rm -f /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp executable=/bin/bash'
+  delegate_to: "{{ hostMysql }}"
+  when: openvas is defined
+

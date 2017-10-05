@@ -1,0 +1,368 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Hardware of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["ansible_architecture"] is defined %}
+
+CHECK_HARD_ARCHITECTURE: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Architecture' AND Name='Architecture' AND Value='{{ hostvars[inventory_hostname]["ansible_architecture"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_ARCHITECTURE: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Architecture' AND Name='Architecture' AND Value='{{ hostvars[inventory_hostname]["ansible_architecture"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_ARCHITECTURE: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Architecture', 'Hardware Architecture', 1);
+
+INSERT_HARD_ARCHITECTURE: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'Architecture', 'Architecture', '{{ hostvars[inventory_hostname]["ansible_architecture"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_memtotal_mb"] is defined %}
+
+CHECK_HARD_MEMORY: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Memory' AND Name='Memory' AND Value='{{ hostvars[inventory_hostname]["ansible_memtotal_mb"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_MEMORY: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Memory' AND Name='Memory' AND Value='{{ hostvars[inventory_hostname]["ansible_memtotal_mb"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_MEMORY: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Memory', 'RAM Memory (MB)', 1);
+
+INSERT_HARD_MEMORY: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Memory', 'Memory', '{{ hostvars[inventory_hostname]["ansible_memtotal_mb"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_processor"] is defined %}
+
+CHECK_HARD_PROCESSOR: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='Processor Type' AND Value='{{ hostvars[inventory_hostname]["ansible_processor"][0] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_PROCESSOR: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='Processor Type' AND Value='{{ hostvars[inventory_hostname]["ansible_processor"][0] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_PROCESSOR: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Processor', 'Processor', 1);
+
+INSERT_HARD_PROCESSOR: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Processor', 'Processor Type', '{{ hostvars[inventory_hostname]["ansible_processor"][0] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_processor_count"] is defined %}
+
+CHECK_HARD_PROCESSOR_COUNT: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='Processor count' AND Value='{{ hostvars[inventory_hostname]["ansible_processor_count"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_PROCESSOR_COUNT: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='Processor count' AND Value='{{ hostvars[inventory_hostname]["ansible_processor_count"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_PROCESSOR_COUNT: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Processor', 'Processor', 1);
+
+INSERT_HARD_PROCESSOR_COUNT: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Processor', 'Processor count', '{{ hostvars[inventory_hostname]["ansible_processor_count"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_processor_cores"] is defined %}
+
+CHECK_HARD_PROCESSOR_CORES: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='Processor cores' AND Value='{{ hostvars[inventory_hostname]["ansible_processor_cores"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_PROCESSOR_CORES: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='Processor cores' AND Value='{{ hostvars[inventory_hostname]["ansible_processor_cores"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_PROCESSOR_CORES: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Processor', 'Processor', 1);
+
+INSERT_HARD_PROCESSOR_CORES: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Processor', 'Processor cores', '{{ hostvars[inventory_hostname]["ansible_processor_cores"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_processor_threads_per_core"] is defined %}
+
+CHECK_HARD_PROCESSOR_THREADS: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='Core threads' AND Value='{{ hostvars[inventory_hostname]["ansible_processor_threads_per_core"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_PROCESSOR_THREADS: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='Core threads' AND Value='{{ hostvars[inventory_hostname]["ansible_processor_threads_per_core"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_PROCESSOR_THREADS: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Processor', 'Processor', 1);
+
+INSERT_HARD_PROCESSOR_THREADS: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Processor', 'Core threads', '{{ hostvars[inventory_hostname]["ansible_processor_threads_per_core"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_processor_vcpus"] is defined %}
+
+CHECK_HARD_PROCESSOR_VCPUS: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='Total virtual CPUs' AND Value='{{ hostvars[inventory_hostname]["ansible_processor_vcpus"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_PROCESSOR_VCPUS: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='Total virtual CPUs' AND Value='{{ hostvars[inventory_hostname]["ansible_processor_vcpus"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_PROCESSOR_VCPUS: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Processor', 'Processor', 1);
+
+INSERT_HARD_PROCESSOR_VCPUS: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Processor', 'Total virtual CPUs', '{{ hostvars[inventory_hostname]["ansible_processor_vcpus"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["memory"] is defined %}
+
+{% if hostvars[inventory_hostname]["memory"]["Maximum Memory Module Size"] is defined %}
+
+CHECK_HARD_MEMORY_MODULESIZE: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Memory' AND Name='Maximum Memory Module Size' AND Value='{{ hostvars[inventory_hostname]["memory"]["Maximum Memory Module Size"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_MEMORY_MODULESIZE: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Memory' AND Name='Maximum Memory Module Size' AND Value='{{ hostvars[inventory_hostname]["memory"]["Maximum Memory Module Size"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_MEMORY_MODULESIZE: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Memory', 'RAM Memory (MB)', 1);
+
+INSERT_HARD_MEMORY_MODULESIZE: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Memory', 'Maximum Memory Module Size', '{{ hostvars[inventory_hostname]["memory"]["Maximum Memory Module Size"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["memory"]["Associated Memory Slots"] is defined %}
+
+CHECK_HARD_MEMORY_SLOTS: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Memory' AND Name='Associated Memory Slots' AND Value='{{ hostvars[inventory_hostname]["memory"]["Associated Memory Slots"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_MEMORY_SLOTS: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Memory' AND Name='Associated Memory Slots' AND Value='{{ hostvars[inventory_hostname]["memory"]["Associated Memory Slots"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_MEMORY_SLOTS: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Memory', 'RAM Memory (MB)', 1);
+
+INSERT_HARD_MEMORY_SLOTS: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Memory', 'Associated Memory Slots', '{{ hostvars[inventory_hostname]["memory"]["Associated Memory Slots"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["system"] is defined %}
+
+{% if hostvars[inventory_hostname]["system"]["Manufacturer"] is defined %}
+
+CHECK_HARD_SYSTEM_MANUFACTURER: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Manufacturer' AND Value='{{ hostvars[inventory_hostname]["system"]["Manufacturer"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_SYSTEM_MANUFACTURER: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Manufacturer' AND Value='{{ hostvars[inventory_hostname]["system"]["Manufacturer"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_SYSTEM_MANUFACTURER: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_SYSTEM_MANUFACTURER: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'System', 'Manufacturer', '{{ hostvars[inventory_hostname]["system"]["Manufacturer"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["system"]["Product Name"] is defined %}
+
+CHECK_HARD_SYSTEM_PRODUCT: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Product Name' AND Value='{{ hostvars[inventory_hostname]["system"]["Product Name"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_SYSTEM_PRODUCT: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Product Name' AND Value='{{ hostvars[inventory_hostname]["system"]["Product Name"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_SYSTEM_PRODUCT: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_SYSTEM_PRODUCT: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'System', 'Product Name', '{{ hostvars[inventory_hostname]["system"]["Product Name"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["system"]["Version"] is defined %}
+
+CHECK_HARD_SYSTEM_VERSION: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Version' AND Value='{{ hostvars[inventory_hostname]["system"]["Version"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_SYSTEM_VERSION: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Version' AND Value='{{ hostvars[inventory_hostname]["system"]["Version"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_SYSTEM_VERSION: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_SYSTEM_VERSION: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'System', 'Version', '{{ hostvars[inventory_hostname]["system"]["Version"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["system"]["Serial Number"] is defined %}
+
+CHECK_HARD_SYSTEM_NUMBER: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Serial Number' AND Value='{{ hostvars[inventory_hostname]["system"]["Serial Number"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_SYSTEM_NUMBER: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Serial Number' AND Value='{{ hostvars[inventory_hostname]["system"]["Serial Number"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_SYSTEM_NUMBER: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_SYSTEM_NUMBER: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'System', 'Serial Number', '{{ hostvars[inventory_hostname]["system"]["Serial Number"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["system"]["UUID"] is defined %}
+
+CHECK_HARD_SYSTEM_UUID: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='UUID' AND Value='{{ hostvars[inventory_hostname]["system"]["UUID"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_SYSTEM_UUID: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='UUID' AND Value='{{ hostvars[inventory_hostname]["system"]["UUID"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_SYSTEM_UUID: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_SYSTEM_UUID: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'System', 'UUID', '{{ hostvars[inventory_hostname]["system"]["UUID"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["system"]["Wake-Up Type"] is defined %}
+
+CHECK_HARD_SYSTEM_WAKEUP: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Wake-Up Type' AND Value='{{ hostvars[inventory_hostname]["system"]["Wake-Up Type"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_SYSTEM_WAKEUP: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Wake-Up Type' AND Value='{{ hostvars[inventory_hostname]["system"]["Wake-Up Type"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_SYSTEM_WAKEUP: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_SYSTEM_WAKEUP: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'System', 'Wake-Up Type', '{{ hostvars[inventory_hostname]["system"]["Wake-Up Type"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["bios"] is defined %}
+
+{% if hostvars[inventory_hostname]["bios"]["Vendor"] is defined %}
+
+CHECK_HARD_BIOS_VENDOR: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='BIOS' AND Name='Vendor' AND Value='{{ hostvars[inventory_hostname]["bios"]["Vendor"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_BIOS_VENDOR: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='BIOS' AND Name='Vendor' AND Value='{{ hostvars[inventory_hostname]["bios"]["Vendor"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_BIOS_VENDOR: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('BIOS', 'BIOS', 1);
+
+INSERT_HARD_BIOS_VENDOR: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'BIOS', 'Vendor', '{{ hostvars[inventory_hostname]["bios"]["Vendor"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["bios"]["Release Date"] is defined %}
+
+CHECK_HARD_BIOS_DATE: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='BIOS' AND Name='Release Date' AND Value='{{ hostvars[inventory_hostname]["bios"]["Release Date"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_BIOS_DATE: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='BIOS' AND Name='Release Date' AND Value='{{ hostvars[inventory_hostname]["bios"]["Release Date"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_BIOS_DATE: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('BIOS', 'BIOS', 1);
+
+INSERT_HARD_BIOS_DATE: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'BIOS', 'Release Date', '{{ hostvars[inventory_hostname]["bios"]["Release Date"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["bios"]["Version"] is defined %}
+
+CHECK_HARD_BIOS_VERSION: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='BIOS' AND Name='Version' AND Value='{{ hostvars[inventory_hostname]["bios"]["Version"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_BIOS_VERSION: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='BIOS' AND Name='Version' AND Value='{{ hostvars[inventory_hostname]["bios"]["Version"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_BIOS_VERSION: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('BIOS', 'BIOS', 1);
+
+INSERT_HARD_BIOS_VERSION: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'BIOS', 'Version', '{{ hostvars[inventory_hostname]["bios"]["Version"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["bios"]["ROM Size"] is defined %}
+
+CHECK_HARD_BIOS_ROM: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='BIOS' AND Name='ROM Size' AND Value='{{ hostvars[inventory_hostname]["bios"]["ROM Size"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_BIOS_ROM: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='BIOS' AND Name='ROM Size' AND Value='{{ hostvars[inventory_hostname]["bios"]["ROM Size"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_BIOS_ROM: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('BIOS', 'BIOS', 1);
+
+INSERT_HARD_BIOS_ROM: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'BIOS', 'ROM Size', '{{ hostvars[inventory_hostname]["bios"]["ROM Size"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["bios"]["Runtime Size"] is defined %}
+
+CHECK_HARD_BIOS_RUNTIME: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='BIOS' AND Name='Runtime Size' AND Value='{{ hostvars[inventory_hostname]["bios"]["Runtime Size"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_BIOS_RUNTIME: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='BIOS' AND Name='Runtime Size' AND Value='{{ hostvars[inventory_hostname]["bios"]["Runtime Size"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_BIOS_RUNTIME: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('BIOS', 'BIOS', 1);
+
+INSERT_HARD_BIOS_RUNTIME: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'BIOS', 'Runtime Size', '{{ hostvars[inventory_hostname]["bios"]["Runtime Size"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["baseboard"] is defined %}
+
+{% if hostvars[inventory_hostname]["baseboard"]["Manufacturer"] is defined %}
+
+CHECK_HARD_BASEBOARD_MANUFACTURER: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Baseboard' AND Name='Manufacturer' AND Value='{{ hostvars[inventory_hostname]["baseboard"]["Manufacturer"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_BASEBOARD_MANUFACTURER: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Baseboard' AND Name='Manufacturer' AND Value='{{ hostvars[inventory_hostname]["baseboard"]["Manufacturer"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_BASEBOARD_MANUFACTURER: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Baseboard', 'Baseboard', 1);
+
+INSERT_HARD_BASEBOARD_MANUFACTURER: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Baseboard', 'Manufacturer', '{{ hostvars[inventory_hostname]["baseboard"]["Manufacturer"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["baseboard"]["Product Name"] is defined %}
+
+CHECK_HARD_BASEBOARD_PRODUCT: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Baseboard' AND Name='Product Name' AND Value='{{ hostvars[inventory_hostname]["baseboard"]["Product Name"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_BASEBOARD_PRODUCT: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Baseboard' AND Name='Product Name' AND Value='{{ hostvars[inventory_hostname]["baseboard"]["Product Name"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_BASEBOARD_PRODUCT: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Baseboard', 'Baseboard', 1);
+
+INSERT_HARD_BASEBOARD_PRODUCT: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Baseboard', 'Product Name', '{{ hostvars[inventory_hostname]["baseboard"]["Product Name"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["baseboard"]["Version"] is defined %}
+
+CHECK_HARD_BASEBOARD_VERSION: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Baseboard' AND Name='Version' AND Value='{{ hostvars[inventory_hostname]["baseboard"]["Version"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_BASEBOARD_VERSION: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Baseboard' AND Name='Version' AND Value='{{ hostvars[inventory_hostname]["baseboard"]["Version"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_BASEBOARD_VERSION: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Baseboard', 'Baseboard', 1);
+
+INSERT_HARD_BASEBOARD_VERSION: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Baseboard', 'Version', '{{ hostvars[inventory_hostname]["baseboard"]["Version"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["baseboard"]["Serial Number"] is defined %}
+
+CHECK_HARD_BASEBOARD_NUMBER: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Baseboard' AND Name='Serial Number' AND Value='{{ hostvars[inventory_hostname]["baseboard"]["Serial Number"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_BASEBOARD_NUMBER: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Baseboard' AND Name='Serial Number' AND Value='{{ hostvars[inventory_hostname]["baseboard"]["Serial Number"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_BASEBOARD_NUMBER: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Baseboard', 'Baseboard', 1);
+
+INSERT_HARD_BASEBOARD_NUMBER: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Baseboard', 'Serial Number', '{{ hostvars[inventory_hostname]["baseboard"]["Serial Number"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["chassis"] is defined %}
+
+{% if hostvars[inventory_hostname]["chassis"]["Manufacturer"] is defined %}
+
+CHECK_HARD_CHASSIS_MANUFACTURER: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Chassis' AND Name='Manufacturer' AND Value='{{ hostvars[inventory_hostname]["chassis"]["Manufacturer"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_CHASSIS_MANUFACTURER: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Chassis' AND Name='Manufacturer' AND Value='{{ hostvars[inventory_hostname]["chassis"]["Manufacturer"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_CHASSIS_MANUFACTURER: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Chassis', 'Chassis', 1);
+
+INSERT_HARD_CHASSIS_MANUFACTURER: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Chassis', 'Manufacturer', '{{ hostvars[inventory_hostname]["chassis"]["Manufacturer"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["chassis"]["Type"] is defined %}
+
+CHECK_HARD_CHASSIS_TYPE: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Chassis' AND Name='Type' AND Value='{{ hostvars[inventory_hostname]["chassis"]["Type"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_CHASSIS_TYPE: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Chassis' AND Name='Type' AND Value='{{ hostvars[inventory_hostname]["chassis"]["Type"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_CHASSIS_TYPE: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Chassis', 'Chassis', 1);
+
+INSERT_HARD_CHASSIS_TYPE: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Chassis', 'Type', '{{ hostvars[inventory_hostname]["chassis"]["Type"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["chassis"]["Version"] is defined %}
+
+CHECK_HARD_CHASSIS_VERSION: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Chassis' AND Name='Version' AND Value='{{ hostvars[inventory_hostname]["chassis"]["Version"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_CHASSIS_VERSION: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Chassis' AND Name='Version' AND Value='{{ hostvars[inventory_hostname]["chassis"]["Version"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_CHASSIS_VERSION: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Chassis', 'Chassis', 1);
+
+INSERT_HARD_CHASSIS_VERSION: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Chassis', 'Version', '{{ hostvars[inventory_hostname]["chassis"]["Version"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["chassis"]["Serial Number"] is defined %}
+
+CHECK_HARD_CHASSIS_NUMBER: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Chassis' AND Name='Serial Number' AND Value='{{ hostvars[inventory_hostname]["chassis"]["Serial Number"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_CHASSIS_NUMBER: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Chassis' AND Name='Serial Number' AND Value='{{ hostvars[inventory_hostname]["chassis"]["Serial Number"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_CHASSIS_NUMBER: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Chassis', 'Chassis', 1);
+
+INSERT_HARD_CHASSIS_NUMBER: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Chassis', 'Serial Number', '{{ hostvars[inventory_hostname]["chassis"]["Serial Number"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% endif %}
+
+END-CHECK_HARDWARE: SELECT * from Hardware WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_HARDWARE: UPDATE Hardware SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

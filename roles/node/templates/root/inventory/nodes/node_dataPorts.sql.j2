@@ -1,0 +1,47 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for TCP & UDP ports of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["tcp"] is defined -%}
+
+{% for portTCP in hostvars[inventory_hostname]["tcp"] -%}
+
+CHECK_PORT_TCP_{{ portTCP["port"] }}: SELECT * FROM ServerPort WHERE Server='{{ inventory_hostname }}' AND Protocol='TCP' AND Port={{ portTCP["port"] }} AND Process='{{ portTCP["process"] }}' AND IP4={{ portTCP["ip4"] }} AND BindIP4='{{ portTCP["bindIP4"] }}' AND IP6={{ portTCP["ip6"] }} AND BindIP6='{{ portTCP["bindIP6"] }}' AND Access="IN" AND Auto AND End IS NULL;
+
+UPDATE_PORT_TCP_{{ portTCP["port"] }}: UPDATE ServerPort SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Protocol='TCP' AND Port={{ portTCP["port"] }} AND Process='{{ portTCP["process"] }}' AND IP4={{ portTCP["ip4"] }} AND BindIP4='{{ portTCP["bindIP4"] }}' AND IP6={{ portTCP["ip6"] }} AND BindIP6='{{ portTCP["bindIP6"] }}' AND Access="IN" AND Auto AND End IS NULL;
+
+INSERT_PORT_TCP_{{ portTCP["port"] }}: INSERT IGNORE INTO Protocol (Name, Descrip, Auto) VALUES ('TCP', 'TCP Protocol', 1);
+
+INSERT_PORT_TCP_{{ portTCP["port"] }}: INSERT IGNORE INTO Port (Port, Protocol, Descrip, Auto) VALUES ({{ portTCP["port"] }}, 'TCP', 'TCP Port {{ portTCP["port"] }}', 1);
+
+INSERT_PORT_TCP_{{ portTCP["port"] }}: INSERT INTO ServerPort (Server,Port,Protocol,Process,IP4,BindIP4,IP6,BindIP6,Access,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', {{ portTCP["port"] }}, 'TCP', '{{ portTCP["process"] }}', {{ portTCP["ip4"] }}, '{{ portTCP["bindIP4"] }}', {{ portTCP["ip6"] }}, '{{ portTCP["bindIP6"] }}', "IN", NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["udp"] is defined -%}
+
+{% for portUDP in hostvars[inventory_hostname]["udp"] -%}
+
+CHECK_PORT_UDP_{{ portUDP["port"] }}: SELECT * FROM ServerPort WHERE Server='{{ inventory_hostname }}' AND Protocol='UDP' AND Port={{ portUDP["port"] }} AND Process='{{ portUDP["process"] }}' AND IP4={{ portUDP["ip4"] }} AND BindIP4='{{ portUDP["bindIP4"] }}' AND IP6={{ portUDP["ip6"] }} AND BindIP6='{{ portUDP["bindIP6"] }}' AND Access="IN" AND Auto AND End IS NULL;
+
+UPDATE_PORT_UDP_{{ portUDP["port"] }}: UPDATE ServerPort SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Protocol='UDP' AND Port={{ portUDP["port"] }} AND Process='{{ portUDP["process"] }}' AND IP4={{ portUDP["ip4"] }} AND BindIP4='{{ portUDP["bindIP4"] }}' AND IP6={{ portUDP["ip6"] }} AND BindIP6='{{ portUDP["bindIP6"] }}' AND Access="IN" AND Auto AND End IS NULL;
+
+INSERT_PORT_UDP_{{ portUDP["port"] }}: INSERT IGNORE INTO Protocol (Name, Descrip, Auto) VALUES ('UDP', 'UDP Protocol', 1);
+
+INSERT_PORT_UDP_{{ portUDP["port"] }}: INSERT IGNORE INTO Port (Port, Protocol, Descrip, Auto) VALUES ({{ portUDP["port"] }}, 'UDP', 'UDP Port {{ portUDP["port"] }}', 1);
+
+INSERT_PORT_UDP_{{ portUDP["port"] }}: INSERT INTO ServerPort (Server,Port,Protocol,Process,IP4,BindIP4,IP6,BindIP6,Access,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', {{ portUDP["port"] }}, 'UDP', '{{ portUDP["process"] }}', {{ portUDP["ip4"] }}, '{{ portUDP["bindIP4"] }}', {{ portUDP["ip6"] }}, '{{ portUDP["bindIP6"] }}', "IN", NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+END-CHECK_PORTS: SELECT * from ServerPort WHERE Server='{{ inventory_hostname }}' AND Access="IN" AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_PORTS: UPDATE ServerPort SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Access="IN" AND Auto AND End IS NULL AND Checked<'##checkedTime##';

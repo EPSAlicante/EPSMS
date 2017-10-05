@@ -1,0 +1,33 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Made by EPS Monitoring System
+
+# Host {{ item.name }}
+
+define host {
+        use                     linux-server
+        host_name               {{ item.name|lower }} 
+        alias                  	{{ item.name|lower }} 
+        address                	{{ item.IP }} 
+{% if item.access != "ping" and item.access != "" -%}
+	check_command		check_tcp!{{ item.access }}
+{% endif -%}
+        }
+
+{% if item.tcp is defined -%}
+{% for portTCP in item.tcp -%}
+# TCP Port {{ portTCP }}
+define service{
+        use                             generic-service         ; Name of service template to use
+        host_name                       {{ item.name|lower }} 
+        service_description             TCP Port {{ portTCP }} OUTSIDE
+        check_command                   check_tcp!{{ portTCP }}
+        }
+
+{% endfor %}
+{% endif %}

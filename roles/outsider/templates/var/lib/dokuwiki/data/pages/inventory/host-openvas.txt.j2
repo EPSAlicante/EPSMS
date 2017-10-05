@@ -1,0 +1,24 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[ Servers | Back to Main page]]
+
+
+==== Host {{ item.name }}: Vulnerability scanning (Openvas)  ====
+
+{% if hostvars[inventory_hostname]["%s-openvas" % (item.name) ] is defined -%}
+^  Scanning (Last 100)  ^^^^^^^^^
+^  Date  ^  Severity  ^  CVSS  ^  High  ^  Medium  ^  Low  ^  Log  ^  False Positive  ^  Report  ^ 
+{% for scan in hostvars[inventory_hostname]["%s-openvas" % (item.name)] -%}
+|  {{ scan.Date }}  |  {{ scan.Severity }}  |  {{ scan.CVSS }}  |  {{ scan.TotalHigh }}  |  {{ scan.TotalMedium }}  |  {{ scan.TotalLow }}  |  {{ scan.TotalLog }}  |  {{ scan.TotalFalsePositive }}  |  [[ {{ "https://%s/openvas-reports/%s/%s-%s.html" % (hostnameWeb, item.name, item.name, scan.DateString) }} | HTML ]] - [[ {{ "https://%s/openvas-reports/%s/%s-%s.pdf" % (hostnameWeb, item.name, item.name, scan.DateString) }} | PDF ]] - [[ {{ "https://%s/openvas-reports/%s/%s-%s.txt" % (hostnameWeb, item.name, item.name, scan.DateString) }} | TXT ]] - [[ {{ "https://%s/openvas-reports/%s/%s-%s.xml" % (hostnameWeb, item.name, item.name, scan.DateString) }} | XML ]]  |
+{% endfor %}
+{% endif %}
+
+
+
+[[ Servers | Back to Main page]]
+

@@ -1,0 +1,58 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# OpenVas Server Read Only User Configuration 
+
+- name: Delete read only user if it changed
+  shell: openvasmd --delete-user={{ readUserOld|default('') }} executable=/bin/bash
+  notify: restart openvas-manager
+  ignore_errors: yes
+  when: readUserOld|default('') != "" and readUser != readUserOld|default('')
+
+- name: Check read only user
+  shell: (openvasmd --list-users|grep "{{ readUser }}") || echo "No" executable=/bin/bash
+  register: readUserCreated
+  changed_when: False
+  ignore_errors: yes
+  when: readUser != ""
+
+- name: Disable pwpolicy to create read only user
+  lineinfile: name=/etc/openvas/pwpolicy.conf state=present regexp="^\!/\^\.{" line="#!/^.{999999999,}$/"
+  when: readUser != "" and readUserCreated.stdout == "No"
+
+- name: Create read only user
+  shell: openvasmd --create-user={{ readUser }} --role=Observer && openvasmd --user={{ readUser }} --new-password={{ passwdReadUser }} executable=/bin/bash
+  notify: restart openvas-manager
+  ignore_errors: yes
+  when: readUser != "" and readUserCreated.stdout == "No"
+
+- name: Check read only user access
+  shell: (omp -u {{ readUser }} -w {{ passwdReadUser }} -g > /dev/null) || echo "No" executable=/bin/bash
+  register: readUserAccess
+  changed_when: False
+  ignore_errors: yes
+  when: readUser != ""
+
+- name: Disable pwpolicy to change password of read only user
+  lineinfile: name=/etc/openvas/pwpolicy.conf state=present regexp="^\!/\^\.{" line="#!/^.{999999999,}$/"
+  when: readUser != "" and readUserAccess.stdout == "No"
+
+- name: Config read only user (set password)
+  shell: openvasmd --user={{ readUser }} --new-password={{ passwdReadUser }} executable=/bin/bash
+  notify: restart openvas-manager
+  ignore_errors: yes
+  when: readUser != "" and readUserAccess.stdout == "No"
+
+- name: Configure pwpolicy (password > 999 chars)
+  lineinfile: name=/etc/openvas/pwpolicy.conf state=present regexp="#?^\!/\^\.{" line="!/^.{999999999,}$/"
+
+- name: Get Tasks List to add readUser as observer
+  shell: for i in $(omp -u admin -w {{ passwdAdmin }} -G|cut -d" " -f1); do omp -u admin -w {{ passwdAdmin }} --xml="<modify_task task_id=\"$i\"><observers>{{ readUser }}</observers></modify_task>"; done executable=/bin/bash
+  ignore_errors: yes
+  when: readUser != "" and readUserCreated.stdout == "No"
+

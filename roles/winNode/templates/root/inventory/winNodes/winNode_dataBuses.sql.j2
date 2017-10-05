@@ -1,0 +1,27 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Buses of {{ inventory_hostname }}
+
+
+{% if hostvars[inventory_hostname]["Bus"] is defined %}
+
+{% for bus in hostvars[inventory_hostname]["Bus"] -%}
+
+CHECK_BUS_{{ loop.index }}: SELECT * FROM WinBus WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ bus["deviceID"] }}' AND Caption='{{ bus["caption"] }}' AND BusType='{{ bus["busType"] }}' AND BusNum='{{ bus["busNum"] }}' AND Availability='{{ bus["availability"] }}' AND ConfigManagerErrorCode='{{ bus["configManagerErrorCode"] }}' AND Auto AND End IS NULL;
+
+UPDATE_BUS_{{ loop.index }}: UPDATE WinBus SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ bus["deviceID"] }}' AND Caption='{{ bus["caption"] }}' AND BusType='{{ bus["busType"] }}' AND BusNum='{{ bus["busNum"] }}' AND Availability='{{ bus["availability"] }}' AND ConfigManagerErrorCode='{{ bus["configManagerErrorCode"] }}' AND Auto AND End IS NULL; 
+
+INSERT_BUS_{{ loop.index }}: INSERT INTO WinBus (DeviceID,Server,Caption,BusType,BusNum,Availability,ConfigManagerErrorCode,Init,Checked,Auto) VALUES ('{{ bus["deviceID"] }}','{{ inventory_hostname }}', '{{ bus["caption"] }}', '{{ bus["busType"] }}', '{{ bus["busNum"] }}', '{{ bus["availability"] }}', '{{ bus["configManagerErrorCode"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_BUS: SELECT * from WinBus WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_BUS: UPDATE WinBus SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

@@ -1,0 +1,32 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Host {{ inventory_hostname }}: Modules loaded ====
+
+{% if hostvars[inventory_hostname]["module"] is defined -%}
+{% for module in hostvars[inventory_hostname]["module"] -%}
+^  {{ module["name"] }}  ^^ 
+^ Filename | {{ module["filename"] }} |
+^ Author | {{ module["author"] }} |
+^ Description | {{ module["description"] }} |
+^ License | {{ module["license"] }} |
+^ Version | {{ module["version"] }} |
+^ Version Magic | {{ module["vermagic"] }} |
+^ Src Version | {{ module["srcversion"] }} |
+^ Depends | {{ module["depends"] }} |
+
+{% endfor %}
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

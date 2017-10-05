@@ -1,0 +1,42 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Processors of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["processor"] is defined %}
+
+{% for proc in hostvars[inventory_hostname]["processor"] -%}
+{% set proc_loop = loop -%}
+CHECK_PROC_{{ loop.index }}: SELECT * FROM Processor WHERE Server='{{ inventory_hostname }}' AND Socket='{{ proc["Socket Designation"] }}' AND Type='{{ proc["Type"]|default("") }}' AND Family='{{ proc["Family"]|default("") }}' AND Vendor='{{ proc["Vendor"]|default("") }}' AND Signature='{{ proc["Signature"]|default("") }}' AND ID='{{ proc["ID"]|default("") }}' AND Version='{{ proc["Version"]|default("") }}' AND Voltage='{{ proc["Voltage"]|default("") }}' AND ExternalClock='{{ proc["External Clock"]|default("") }}' AND MaxSpeed='{{ proc["Max Speed"]|default("") }}' AND CurrentSpeed='{{ proc["Current Speed"]|default("") }}' AND Status='{{ proc["Status"]|default("") }}' AND Upgrade='{{ proc["Upgrade"]|default("") }}' AND L1Cache='{{ proc["L1 Cache Handle"]|default("") }}' AND L2Cache='{{ proc["L2 Cache Handle"]|default("") }}' AND L3Cache='{{ proc["L3 Cache Handle"]|default("") }}' AND SerialNumber='{{ proc["Serial Number"]|default("") }}' AND Auto AND End IS NULL;
+
+UPDATE_PROC_{{ loop.index }}: UPDATE Processor SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Socket='{{ proc["Socket Designation"] }}' AND Type='{{ proc["Type"]|default("") }}' AND Family='{{ proc["Family"]|default("") }}' AND Vendor='{{ proc["Vendor"]|default("") }}' AND Signature='{{ proc["Signature"]|default("") }}' AND ID='{{ proc["ID"]|default("") }}' AND Version='{{ proc["Version"]|default("") }}' AND Voltage='{{ proc["Voltage"]|default("") }}' AND ExternalClock='{{ proc["External Clock"]|default("") }}' AND MaxSpeed='{{ proc["Max Speed"]|default("") }}' AND CurrentSpeed='{{ proc["Current Speed"]|default("") }}' AND Status='{{ proc["Status"]|default("") }}' AND Upgrade='{{ proc["Upgrade"]|default("") }}' AND L1Cache='{{ proc["L1 Cache Handle"]|default("") }}' AND L2Cache='{{ proc["L2 Cache Handle"]|default("") }}' AND L3Cache='{{ proc["L3 Cache Handle"]|default("") }}' AND SerialNumber='{{ proc["Serial Number"]|default("") }}' AND Auto AND End IS NULL; 
+
+INSERT_PROC_{{ loop.index }}: INSERT INTO Processor (Socket,Server,Type,Family,Vendor,Signature,ID,Version,Voltage,ExternalClock,MaxSpeed,CurrentSpeed,Status,Upgrade,L1Cache,L2Cache,L3Cache,SerialNumber,Init,Checked,Auto) VALUES ('{{ proc["Socket Designation"] }}','{{ inventory_hostname }}', '{{ proc["Type"]|default("") }}', '{{ proc["Family"]|default("") }}', '{{ proc["Vendor"]|default("") }}', '{{ proc["Signature"]|default("") }}', '{{ proc["ID"]|default("") }}', '{{ proc["Version"]|default("") }}', '{{ proc["Voltage"]|default("") }}', '{{ proc["External Clock"]|default("") }}', '{{ proc["Max Speed"]|default("") }}', '{{ proc["Current Speed"]|default("") }}', '{{ proc["Status"]|default("") }}', '{{ proc["Upgrade"]|default("") }}', '{{ proc["L1 Cache Handle"]|default("") }}', '{{ proc["L2 Cache Handle"]|default("") }}', '{{ proc["L3 Cache Handle"]|default("") }}', '{{ proc["Serial Number"]|default("") }}', NOW(), NOW(), 1);
+
+{% if proc["Flags"] is defined -%}
+
+{% for kprocflag, vprocflag in proc["Flags"].iteritems() -%}
+
+CHECK_PROCFLAG_{{ proc_loop.index }}_{{ loop.index }}: SELECT * FROM ProcessorFlag WHERE Server='{{ inventory_hostname }}' AND Socket='{{ proc["Socket Designation"] }}' AND Flag='{{ kprocflag|e }}' AND Value='{{ vprocflag|e }}' AND Auto AND End IS NULL;
+
+UPDATE_PROCFLAG_{{ proc_loop.index }}_{{ loop.index }}: UPDATE ProcessorFlag SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Socket='{{ proc["Socket Designation"] }}' AND Flag='{{ kprocflag|e }}' AND Value='{{ vprocflag|e }}' AND Auto AND End IS NULL;
+
+INSERT_PROCFLAG_{{ proc_loop.index }}_{{ loop.index }}: INSERT INTO ProcessorFlag (Flag,Server,Socket,Value,Init,Checked,Auto) VALUES ('{{ kprocflag|e }}','{{ inventory_hostname }}', '{{ proc["Socket Designation"] }}', '{{ vprocflag|e }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+{% endfor %}
+
+{% endif %}
+
+END-CHECK_PROC: SELECT * from Processor WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_PROC: UPDATE Processor SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_PROCFLAG: SELECT * from ProcessorFlag WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_PROCFLAG: UPDATE ProcessorFlag SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

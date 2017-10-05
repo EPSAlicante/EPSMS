@@ -1,0 +1,62 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Munin to InfluxDB 
+
+- name: Install SCL repository in Munin server (required to install python 2.7)
+  yum: pkg={{ item }} enablerepo=extras state=installed update_cache=yes
+  with_items:
+    - centos-release-scl 
+  delegate_to: "{{ hostMunin }}"
+  when: ansible_pkg_mgr == "yum"
+
+- name: Install python 2.7 in Munin server (required to execute munin-influxdb)
+  yum: pkg={{ item }} state=installed update_cache=yes
+  with_items:
+    - python27
+    - python27-python-setuptools
+  delegate_to: "{{ hostMunin }}"
+  when: ansible_pkg_mgr == "yum"
+
+- name: Create directory /root/munin-influxdb in Munin server
+  file: path="/root/munin-influxdb" owner=root group=root mode=0750 state=directory
+  delegate_to: "{{ hostMunin }}"
+
+- name: Copy munin-influxdb files to Munin server
+  copy: src=root/munin-influxdb/{{ item }} dest=/root/munin-influxdb owner=root group=root
+  with_items:
+    - bin
+    - LICENSE
+    - muninflux
+    - munininfluxdb
+    - README.md
+    - setup.py
+    - vendor
+  delegate_to: "{{ hostMunin }}"
+  register: munininfluxdbCopy
+
+- name: Make 'bin files' executables in Munin server
+  file: path=/root/munin-influxdb/bin/{{ item }} mode=0750
+  with_items:
+    - fetch.py
+    - import.py
+  delegate_to: "{{ hostMunin }}"
+
+- name: Install munin-influxdb in Munin server
+  shell: scl enable python27 '(cd /root/munin-influxdb; python setup.py install) > /dev/null 2> /dev/null' executable="/bin/bash"
+  delegate_to: "{{ hostMunin }}"
+  when: munininfluxdbCopy|changed
+
+- name: Copy Admin password File
+  template: src=root/munin-influxdb/adminpw dest=/root/munin-influxdb/adminpw owner=root group=root mode=0600
+  delegate_to: "{{ hostMunin }}"
+
+- name: Add to crontab 'bin/fetch.py' execution to get data in Munin server
+  cron: name="fetch data from munin to influxdb" minute="*/{{ minutesCronMuninInfluxDB }}" job="scl enable python27 '/root/munin-influxdb/bin/fetch.py --no-interactive --rrd /var/lib/munin/{{ ansible_domain }} -c admin:$(cat /root/munin-influxdb/adminpw)@{{ hostnameGrafana }}:8086/db/munin'" 
+  delegate_to: "{{ hostMunin }}"
+

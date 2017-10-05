@@ -1,0 +1,49 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Server {{ inventory_hostname }}: Operating System ====
+
+{% if hostvars[inventory_hostname]["OperatingSystem"] is defined -%}
+^ Name | {{ hostvars[inventory_hostname]["OperatingSystem"]["name"] }} |
+^ Description | {{ hostvars[inventory_hostname]["OperatingSystem"]["description"] }} |
+^ Boot Device | {{ hostvars[inventory_hostname]["OperatingSystem"]["bootDevice"] }} |
+^ CSD Version | {{ hostvars[inventory_hostname]["OperatingSystem"]["CSDVersion"] }} |
+^ Service Pack Version | {{ hostvars[inventory_hostname]["OperatingSystem"]["servicePackMajorMinorVersion"] }} |
+^ OS Architecture | {{ hostvars[inventory_hostname]["OperatingSystem"]["OSArchitecture"] }} |
+^ OS Type | {{ hostvars[inventory_hostname]["OperatingSystem"]["OSType"] }} | 
+^ Product Type | {{ hostvars[inventory_hostname]["OperatingSystem"]["productType"] }} |
+^ Version | {{ hostvars[inventory_hostname]["OperatingSystem"]["version"] }} |
+^ Serial Number | {{ hostvars[inventory_hostname]["OperatingSystem"]["serialNumber"] }} |
+^ Country Code | {{ hostvars[inventory_hostname]["OperatingSystem"]["countryCode"] }} |
+^ OS Language | {{ hostvars[inventory_hostname]["OperatingSystem"]["OSLanguage"] }} |
+^ PAE Enabled | {{ hostvars[inventory_hostname]["OperatingSystem"]["PAEEnabled"] }} |
+^ Manufacturer | {{ hostvars[inventory_hostname]["OperatingSystem"]["manufacturer"] }} |
+^ Current Time Zone | {{ "GMT %s%s" % ("+" if hostvars[inventory_hostname]["OperatingSystem"]["currentTimeZone"]|int > 0 else "",(hostvars[inventory_hostname]["OperatingSystem"]["currentTimeZone"]|int//60)|string) if hostvars[inventory_hostname]["OperatingSystem"]["currentTimeZone"] != "" else "?" }} |
+^ Encryption Level | {{ "%s-bit" % hostvars[inventory_hostname]["OperatingSystem"]["encryptionLevel"] if hostvars[inventory_hostname]["OperatingSystem"]["encryptionLevel"] != "" else "?" }} |
+^ Number Of Licensed Users | {{ hostvars[inventory_hostname]["OperatingSystem"]["numberOfLicensedUsers"] }} |
+^ Operating System SKU | {{ hostvars[inventory_hostname]["OperatingSystem"]["operatingSystemSKU"] }} |
+^ Organization | {{ hostvars[inventory_hostname]["OperatingSystem"]["organization"] }} |
+^ Registered User | {{ hostvars[inventory_hostname]["OperatingSystem"]["registeredUser"] }} |
+^ Max Number Of Processes | {{ hostvars[inventory_hostname]["OperatingSystem"]["maxNumberOfProcesses"] }} |
+^ System Device | {{ hostvars[inventory_hostname]["OperatingSystem"]["systemDevice"] }} |
+^ System Drive | {{ hostvars[inventory_hostname]["OperatingSystem"]["systemDrive"] }} |
+^ Windows Directory | {{ hostvars[inventory_hostname]["OperatingSystem"]["windowsDirectory"] }} |
+^ System Directory | {{ hostvars[inventory_hostname]["OperatingSystem"]["systemDirectory"] }} |
+^ Total Visible Memory Size | {{ "%s MB" % (hostvars[inventory_hostname]["OperatingSystem"]["totalVisibleMemorySize"]|int//1024)|string if hostvars[inventory_hostname]["OperatingSystem"]["totalVisibleMemorySize"] != "" else "?" }} |
+^ Total Swap Space Size | {{ "%s MB" % (hostvars[inventory_hostname]["OperatingSystem"]["totalSwapSpaceSize"]|int//1024)|string if hostvars[inventory_hostname]["OperatingSystem"]["totalSwapSpaceSize"] != "" else "?" }} |
+^ Total Virtual Memory Size | {{ "%s MB" % (hostvars[inventory_hostname]["OperatingSystem"]["totalVirtualMemorySize"]|int//1024)|string if hostvars[inventory_hostname]["OperatingSystem"]["totalVirtualMemorySize"] != "" else "?" }} |
+^ Distributed | {{ hostvars[inventory_hostname]["OperatingSystem"]["distributed"] }} |
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

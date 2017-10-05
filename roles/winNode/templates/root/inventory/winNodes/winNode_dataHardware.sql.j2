@@ -1,0 +1,95 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Hardware of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["ComputerSystem"] is defined %}
+
+CHECK_HARD_DESCRIPTION: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Description' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["description"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_DESCRIPTION: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Description' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["description"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_DESCRIPTION: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_DESCRIPTION: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'System', 'Description', '{{ hostvars[inventory_hostname]["ComputerSystem"]["description"] }}', NOW(), NOW(), 1);
+
+CHECK_HARD_MANUFACTURER: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Manufacturer' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["manufacturer"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_MANUFACTURER: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Manufacturer' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["manufacturer"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_MANUFACTURER: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_MANUFACTURER: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'System', 'Manufacturer', '{{ hostvars[inventory_hostname]["ComputerSystem"]["manufacturer"] }}', NOW(), NOW(), 1);
+
+CHECK_HARD_MODEL: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Model' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["model"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_MODEL: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='Model' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["model"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_MODEL: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_MODEL: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'System', 'Model', '{{ hostvars[inventory_hostname]["ComputerSystem"]["model"] }}', NOW(), NOW(), 1);
+
+CHECK_HARD_PCSYSTEMTYPE: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='PCSystemType' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["PCSystemType"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_PCSYSTEMTYPE: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='PCSystemType' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["PCSystemType"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_PCSYSTEMTYPE: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_PCSYSTEMTYPE: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'System', 'PCSystemType', '{{ hostvars[inventory_hostname]["ComputerSystem"]["PCSystemType"] }}', NOW(), NOW(), 1);
+
+CHECK_HARD_SYSTEMTYPE: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='SystemType' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["systemType"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_SYSTEMTYPE: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='SystemType' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["systemType"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_SYSTEMTYPE: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_SYSTEMTYPE: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'System', 'SystemType', '{{ hostvars[inventory_hostname]["ComputerSystem"]["systemType"] }}', NOW(), NOW(), 1);
+
+CHECK_HARD_WAKEUPTYPE: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='WakeUpType' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["wakeUpType"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_WAKEUPTYPE: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='WakeUpType' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["wakeUpType"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_WAKEUPTYPE: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_WAKEUPTYPE: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'System', 'WakeUpType', '{{ hostvars[inventory_hostname]["ComputerSystem"]["wakeUpType"] }}', NOW(), NOW(), 1);
+
+CHECK_HARD_INFRAREDSUPPORTED: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='InfraredSupported' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["infraredSupported"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_INFRAREDSUPPORTED: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='System' AND Name='InfraredSupported' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["infraredSupported"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_INFRAREDSUPPORTED: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('System', 'System', 1);
+
+INSERT_HARD_INFRAREDSUPPORTED: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'System', 'InfraredSupported', '{{ hostvars[inventory_hostname]["ComputerSystem"]["infraredSupported"] }}', NOW(), NOW(), 1);
+
+CHECK_HARD_NUMBEROFPROCESSORS: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='NumberOfProcessors' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["numberOfProcessors"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_NUMBEROFPROCESSORS: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='NumberOfProcessors' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["numberOfProcessors"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_NUMBEROFPROCESSORS: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Processor', 'Processor', 1);
+
+INSERT_HARD_NUMBEROFPROCESSORS: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'Processor', 'NumberOfProcessors', '{{ hostvars[inventory_hostname]["ComputerSystem"]["numberOfProcessors"] }}', NOW(), NOW(), 1);
+
+CHECK_HARD_NUMBEROFLOGICALPROCESSORS: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='NumberOfLogicalProcessors' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["numberOfLogicalProcessors"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_NUMBEROFLOGICALPROCESSORS: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Processor' AND Name='NumberOfLogicalProcessors' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["numberOfLogicalProcessors"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_NUMBEROFLOGICALPROCESSORS: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Processor', 'Processor', 1);
+
+INSERT_HARD_NUMBEROFLOGICALPROCESSORS: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'Processor', 'NumberOfLogicalProcessors', '{{ hostvars[inventory_hostname]["ComputerSystem"]["numberOfLogicalProcessors"] }}', NOW(), NOW(), 1);
+
+CHECK_HARD_TOTALPHYSICALMEMORY: SELECT * FROM Hardware WHERE Server='{{ inventory_hostname }}' AND HardType='Memory' AND Name='TotalPhysicalMemory' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["totalPhysicalMemory"] }}' AND Auto AND End IS NULL;
+
+UPDATE_HARD_TOTALPHYSICALMEMORY: UPDATE Hardware SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND HardType='Memory' AND Name='TotalPhysicalMemory' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["totalPhysicalMemory"] }}' AND Auto AND End IS NULL;
+
+INSERT_HARD_TOTALPHYSICALMEMORY: INSERT IGNORE INTO HardwareType (Name, Descrip, Auto) VALUES ('Memory', 'RAM Memory (MB)', 1);
+
+INSERT_HARD_TOTALPHYSICALMEMORY: INSERT INTO Hardware (Server,HardType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'Memory', 'TotalPhysicalMemory', '{{ hostvars[inventory_hostname]["ComputerSystem"]["totalPhysicalMemory"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+END-CHECK_HARDWARE: SELECT * from Hardware WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_HARDWARE: UPDATE Hardware SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

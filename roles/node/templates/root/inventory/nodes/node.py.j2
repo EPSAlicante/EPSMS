@@ -1,0 +1,220 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+#!/usr/bin/python
+
+import datetime
+import glob
+import sys
+import os
+import MySQLdb
+
+
+
+def runQuery(query, connection):
+    numData = -1
+    try:
+      cursor = connection.cursor()      # Create a cursor
+      cursor.execute(query)             # Execute the query
+      if query.upper().startswith('SELECT'):
+        numData = cursor.rowcount       # If SELECT, get number of rows
+      else:
+        connection.commit()             # If writing query, commit
+        numData = cursor.rowcount       # Number of rows written
+      cursor.close()
+
+    except MySQLdb.Error, e:
+      print >> sys.stderr, ""
+      print >> sys.stderr, "ERROR %d: %s. Query: %s" % (e.args[0],e.args[1],query)
+      numData = -1
+
+    return int(numData)
+
+
+def getSQLLabel(file, label, separator):
+    sqlLabel = [] 
+    try:
+      f = open(file, 'r')
+      for line in f.readlines():
+       if line.startswith('%s%s' % (label, separator)): 
+         item = line.split(separator, 1)[1].strip()
+         sqlLabel.append(item)
+       
+    except Exception, e:
+      print >> sys.stderr, ""
+      print >> sys.stderr, "ERROR %d: %s. getSQLLabel function error. File %s, label %s, separator %s" % (e.args[0],e.args[1],file,label,separator)
+
+    return sqlLabel
+
+
+def main():
+
+    database = "inventory"
+    user = "admin"
+    passwd = "{{ passwdAdmin }}"
+    hostMysql = "{{ hostMysql }}"
+    pathInventoryNodes = "{{ pathInventoryDirectory }}/nodes"
+    checkedTime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') 
+
+    if len(sys.argv) > 2:
+      node = sys.argv[1]
+      pid = sys.argv[2] 
+    else:
+      print >> sys.stderr, ""
+      print >> sys.stderr, "Arguments needed: node.py 'node' 'pid'"
+      sys.exit(1)
+ 
+    #print "Node: %s" % (node)
+    #print "PID: %s" % (pid)
+
+    totalFiles = len(glob.glob("%s/%s_*.%s.sql" % (pathInventoryNodes, node, pid))) 
+
+    #print "Total files: %s" % (totalFiles)
+
+    if totalFiles > 0:
+      # Dict with SQL errors
+      errorSQL = {}
+
+      # Connecting to DB
+      try:
+        conn = MySQLdb.connect(host="%s" % hostMysql, user="%s" % user , passwd="%s" % passwd, db="%s" % database)
+
+      except MySQLdb.Error, e:
+        print >> sys.stderr, ""
+        print >> sys.stderr, "Error connecting to DB (%d)" % (e.args[0])
+        # Rename sql files as error
+        for file in sorted(glob.glob("%s/%s_*.%s.sql" % (pathInventoryNodes, node, pid))):
+          try:
+            newfile = "%s.error" % (file)
+            os.rename(file,newfile)
+          except:
+            print >> sys.stderr, ""
+            print >> sys.stderr, "ERROR: renaming %s to %s" % (file,newfile)
+
+        sys.exit(2)
+
+      # Check sql files
+      for file in sorted(glob.glob("%s/%s_*.%s.sql" % (pathInventoryNodes, node, pid))):
+        #print "File: %s" % (file)
+	errorSQL[file] = 0
+        try:
+          f = open(file, 'r')
+	  # Find check selects
+	  for line in f.readlines():
+    	    if line.startswith("CHECK_"):
+              label = line.split(':', 1)[0].strip()
+	      sql = line.split(':', 1)[1].strip()
+              #print "Label: %s" % (label)
+	      #print "SQL: %s" % (sql)
+	      result = runQuery(sql, conn) 
+	      if result == 0:
+                # Data not exists, inserting
+	        insertLabel = label.replace('CHECK_', 'INSERT_')
+	        insert = getSQLLabel(file, insertLabel, ':')
+ 	        #print "InsertLabel: %s" % (insertLabel)
+	        #print "Insert: %s" % (insert)
+	        if insert:
+		  for sqlInsert in insert:
+	            resultInsert = runQuery(sqlInsert, conn)
+                    if resultInsert < 0 or (resultInsert == 0 and not sqlInsert.startswith("INSERT IGNORE")):
+		      print >> sys.stderr, ""
+	              print >> sys.stderr, "ERROR: No insert with query %s" % (sqlInsert)
+		      errorSQL[file] = 1
+                else:
+		    print >> sys.stderr, ""
+		    print >> sys.stderr, "ERROR: %s not found" % (insertLabel)
+		    errorSQL[file] = 1
+
+	      elif result > 0:
+	        updateLabel = label.replace('CHECK_', 'UPDATE_')
+	        update = getSQLLabel(file, updateLabel, ':')
+	        #print "UpdateLabel: %s" % (updateLabel)
+	        #print "Update: %s" % (update)
+	        if update:
+		  for sqlUpdate in update:
+	            resultUpdate = runQuery(sqlUpdate, conn)
+	            if resultUpdate < 0:
+		      errorSQL[file] = 1
+                else:
+		  print >> sys.stderr, ""
+		  print >> sys.stderr, "ERROR: %s not found" % (updateLabel)
+		  errorSQL[file] = 1
+
+	      else:
+		errorSQL[file] = 1
+
+	    elif line.startswith("END-CHECK_"):
+	      # Ending data not updated or inserted
+	      labelEnd = line.split(':', 1)[0].strip()
+	      sqlEnd = line.split(':', 1)[1].strip()
+	      #print "LabelEnd: %s" % (labelEnd)
+	      # Replacing checkedTime label
+	      sqlEnd = sqlEnd.replace('##checkedTime##', checkedTime) 
+	      #print "SqlEnd: %s" % (sqlEnd)
+              resultEnd = runQuery(sqlEnd, conn)
+              if resultEnd > 0:
+	        # Ending Old data
+                updateLabelEnd = labelEnd.replace('END-CHECK_', 'END-UPDATE_')
+                updateEnd = getSQLLabel(file, updateLabelEnd, ':')
+		#print "UpdateLabelEnd: %s" % (updateLabelEnd)
+	        if updateEnd:
+		  for sqlUpdateEnd in updateEnd:
+	            # Replacing checkedTime labelEnd
+	            sqlUpdateEnd = sqlUpdateEnd.replace('##checkedTime##', checkedTime)
+		    #print "SqlUpdateEnd: %s" % (sqlUpdateEnd)
+                    resultUpdateEnd = runQuery(sqlUpdateEnd, conn)
+                    if resultUpdateEnd < 0:
+		      errorSQL[file] = 1
+	        else:
+		  print >> sys.stderr, ""
+		  print >> sys.stderr, "ERROR: %s not found" % (updateLabelEnd)
+		  errorSQL[file] = 1
+
+ 	  f.close()
+
+        except:
+	  print >> sys.stderr, ""
+          print >> sys.stderr, "ERROR: error with file %s" % (file)
+
+
+      # Delete files if not errors
+      for file in errorSQL: 
+        #print "File to delete: %s" % (file)
+        #print "errorSQL[%s]: %s" % (file, errorSQL[file])
+        if errorSQL[file] == 0:
+          #print "Deleting file: %s..." % (file)
+          try:
+            os.remove(file) 
+          except:
+	    print >> sys.stderr, ""
+       	    print >> sys.stderr, "ERROR: deleting %s" % (file)
+
+	else:
+          try:
+	    newfile = "%s.error" % (file)
+            os.rename(file,newfile)
+          except:
+            print >> sys.stderr, ""
+            print >> sys.stderr, "ERROR: renaming %s to %s" % (file,newfile)
+
+
+      # Closing connection to DB
+      try:
+        conn.close()
+
+      except MySQLdb.Error, e:
+        print >> sys.stderr, ""
+        print >> sys.stderr, "Error closing DB connection (%d)" % (e.args[0])
+        sys.exit(3)
+
+
+
+
+
+if __name__ == '__main__':
+    main()
+

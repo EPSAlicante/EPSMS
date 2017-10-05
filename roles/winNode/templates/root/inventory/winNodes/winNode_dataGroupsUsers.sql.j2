@@ -1,0 +1,78 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Groups & Users of {{ inventory_hostname }}
+
+
+{% if hostvars[inventory_hostname]["SystemAccount"] is defined %}
+
+{% for account in hostvars[inventory_hostname]["SystemAccount"] -%}
+
+CHECK_SYSTEMACCOUNT_{{ loop.index }}: SELECT * FROM WinAccount WHERE Server='{{ inventory_hostname }}' AND Domain='{{ account["domain"] }}' AND Name='{{ account["name"] }}' AND SystemAccount='True' AND Caption='{{ account["caption"] }}' AND LocalAccount='{{ account["localAccount"] }}' AND SID='{{ account["SID"] }}' AND SIDType='{{ account["SIDType"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SYSTEMACCOUNT_{{ loop.index }}: UPDATE WinAccount SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND  Domain='{{ account["domain"] }}' AND Name='{{ account["name"] }}' AND SystemAccount='True' AND Caption='{{ account["caption"] }}' AND LocalAccount='{{ account["localAccount"] }}' AND SID='{{ account["SID"] }}' AND SIDType='{{ account["SIDType"] }}' AND Auto AND End IS NULL; 
+
+INSERT_SYSTEMACCOUNT_{{ loop.index }}: INSERT INTO WinAccount (Domain,Name,Server,SystemAccount,Caption,LocalAccount,SID,SIDType,Init,Checked,Auto) VALUES ('{{ account["domain"] }}', '{{ account["name"] }}','{{ inventory_hostname }}', 'True', '{{ account["caption"] }}', '{{ account["localAccount"] }}', '{{ account["SID"] }}', '{{ account["SIDType"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["UserAccount"] is defined %}
+
+{% for account in hostvars[inventory_hostname]["UserAccount"] -%}
+
+CHECK_USERACCOUNT_{{ loop.index }}: SELECT * FROM WinAccount WHERE Server='{{ inventory_hostname }}' AND Domain='{{ account["domain"] }}' AND Name='{{ account["name"] }}' AND SystemAccount='False' AND Caption='{{ account["caption"] }}' AND AccountType='{{ account["accountType"] }}' AND Disabled='{{ account["disabled"] }}' AND FullName='{{ account["fullName"] }}' AND LocalAccount='{{ account["localAccount"] }}' AND Lockout='{{ account["lockout"] }}' AND PasswordChangeable='{{ account["passwordChangeable"] }}' AND PasswordExpires='{{ account["passwordExpires"] }}' AND PasswordRequired='{{ account["passwordRequired"] }}' AND SID='{{ account["SID"] }}' AND SIDType='{{ account["SIDType"] }}' AND Auto AND End IS NULL;
+
+UPDATE_USERACCOUNT_{{ loop.index }}: UPDATE WinAccount SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND  Domain='{{ account["domain"] }}' AND Name='{{ account["name"] }}' AND SystemAccount='False' AND Caption='{{ account["caption"] }}' AND AccountType='{{ account["accountType"] }}' AND Disabled='{{ account["disabled"] }}' AND FullName='{{ account["fullName"] }}' AND LocalAccount='{{ account["localAccount"] }}' AND Lockout='{{ account["lockout"] }}' AND PasswordChangeable='{{ account["passwordChangeable"] }}' AND PasswordExpires='{{ account["passwordExpires"] }}' AND PasswordRequired='{{ account["passwordRequired"] }}' AND SID='{{ account["SID"] }}' AND SIDType='{{ account["SIDType"] }}' AND Auto AND End IS NULL; 
+
+INSERT_USERACCOUNT_{{ loop.index }}: INSERT INTO WinAccount (Domain,Name,Server,SystemAccount,Caption,AccountType,Disabled,FullName,LocalAccount,Lockout,PasswordChangeable,PasswordExpires,PasswordRequired,SID,SIDType,Init,Checked,Auto) VALUES ('{{ account["domain"] }}', '{{ account["name"] }}','{{ inventory_hostname }}', 'False', '{{ account["caption"] }}', '{{ account["accountType"] }}', '{{ account["disabled"] }}', '{{ account["fullName"] }}', '{{ account["localAccount"] }}', '{{ account["lockout"] }}', '{{ account["passwordChangeable"] }}', '{{ account["passwordExpires"] }}', '{{ account["passwordRequired"] }}', '{{ account["SID"] }}', '{{ account["SIDType"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["Group"] is defined %}
+
+{% for group in hostvars[inventory_hostname]["Group"] -%}
+
+CHECK_GROUP_{{ loop.index }}: SELECT * FROM WinGroup WHERE Server='{{ inventory_hostname }}' AND Domain='{{ group["domain"] }}' AND Name='{{ group["name"] }}' AND Caption='{{ group["caption"] }}' AND LocalAccount='{{ group["localAccount"] }}' AND SID='{{ group["SID"] }}' AND SIDType='{{ group["SIDType"] }}' AND Auto AND End IS NULL;
+
+UPDATE_GROUP_{{ loop.index }}: UPDATE WinGroup SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND  Domain='{{ group["domain"] }}' AND Name='{{ group["name"] }}' AND Caption='{{ group["caption"] }}' AND LocalAccount='{{ group["localAccount"] }}' AND SID='{{ group["SID"] }}' AND SIDType='{{ group["SIDType"] }}' AND Auto AND End IS NULL; 
+
+INSERT_GROUP_{{ loop.index }}: INSERT INTO WinGroup (Domain,Name,Server,Caption,LocalAccount,SID,SIDType,Init,Checked,Auto) VALUES ('{{ group["domain"] }}', '{{ group["name"] }}','{{ inventory_hostname }}', '{{ group["caption"] }}', '{{ group["localAccount"] }}', '{{ group["SID"] }}', '{{ group["SIDType"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["GroupUser"] is defined %}
+
+{% for groupuser in hostvars[inventory_hostname]["GroupUser"] -%}
+
+CHECK_GROUPUSER_{{ loop.index }}: SELECT * FROM WinGroupUser WHERE Server='{{ inventory_hostname }}' AND GroupDomain='{{ groupuser["groupDomain"] }}' AND GroupName='{{ groupuser["groupName"] }}' AND UserDomain='{{ groupuser["userDomain"] }}' AND UserName='{{ groupuser["userName"] }}' AND Auto AND End IS NULL;
+
+UPDATE_GROUPUSER_{{ loop.index }}: UPDATE WinGroupUser SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND GroupDomain='{{ groupuser["groupDomain"] }}' AND GroupName='{{ groupuser["groupName"] }}' AND UserDomain='{{ groupuser["userDomain"] }}' AND UserName='{{ groupuser["userName"] }}' AND Auto AND End IS NULL; 
+
+INSERT_GROUPUSER_{{ loop.index }}: INSERT INTO WinGroupUser (GroupDomain,GroupName,UserDomain,UserName,Server,Init,Checked,Auto) VALUES ('{{ groupuser["groupDomain"] }}', '{{ groupuser["groupName"] }}','{{ groupuser["userDomain"] }}', '{{ groupuser["userName"] }}','{{ inventory_hostname }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_ACCOUNT: SELECT * from WinAccount WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_ACCOUNT: UPDATE WinAccount SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_GROUP: SELECT * from WinGroup WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_GROUP: UPDATE WinGroup SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_GROUPUSER: SELECT * from WinGroupUser WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_GROUPUSER: UPDATE WinGroupUser SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

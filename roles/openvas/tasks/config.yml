@@ -1,0 +1,177 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# OpenVas Server Configuration
+
+- name: Copy openvas.conf to /etc/httpd/conf.d (Centos)
+  template: src=etc/httpd/conf.d/openvas.conf.j2 dest=/etc/httpd/conf.d/openvas.conf owner=root group=root mode=0644
+  delegate_to: "{{ hostWeb }}"
+  notify: restart apache
+  when: ansible_os_family == "RedHat"
+
+- name: Check openvas
+  shell: (openvas-check-setup --v7 > /dev/null && echo "OK") || echo "No" executable=/bin/bash
+  register: setupOpenvas
+  ignore_errors: yes
+  changed_when: False
+
+- name: Check running tasks
+  shell: (omp -u admin -w {{ passwdAdmin }} -G >/dev/null|grep -i "Running" > /dev/null && echo "Running") || echo "No" executable=/bin/bash
+  register: checkTasks
+  ignore_errors: yes
+  changed_when: False
+
+#- name: Configure CA Certificate /usr/sbin/openvas-mkcert file
+#  lineinfile: name=/usr/sbin/openvas-mkcert state=present regexp='^CACERT_LIFETIME="' line='CACERT_LIFETIME="14600"'
+#  ignore_errors: yes
+#  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+#- name: Configure Server Certificate /usr/sbin/openvas-mkcert file
+#  lineinfile: name=/usr/sbin/openvas-mkcert state=present regexp='^SRVCERT_LIFETIME="' line='SRVCERT_LIFETIME="3650"'
+#  ignore_errors: yes
+#  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+#- name: Create OpenVAS Certificates
+#  shell: bash -x openvas-mkcert -q executable=/bin/bash
+#  ignore_errors: yes
+#  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+ 
+- name: Create CA directories 
+  shell: '[ -d {{ item.name }} ] || (mkdir -p {{ item.name }} && chmod {{ item.perm }} {{ item.name }} && echo "Created") executable=/bin/bash'
+  with_items:
+    - { name: "/var/lib/openvas/CA", perm: "0755" }
+    - { name: "/var/lib/openvas/private/CA", perm: "0700" }
+  ignore_errors: yes
+  register: CADir
+  changed_when: CADir.stdout == "Created"
+  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+- name: Create link to CA certificate
+  shell: '([ ! -f {{ item.link }} ] && ln -s {{ item.file }} {{ item.link }}) && echo "Created" || echo "No" executable=/bin/bash' 
+  with_items:
+    - { file: "/etc/ssl/ansible/ca.crt", link: "/var/lib/openvas/CA/cacert.pem" }
+    - { file: "/etc/ssl/ansible/ca.key", link: "/var/lib/openvas/private/CA/cakey.pem" }
+  ignore_errors: yes
+  register: CALink
+  changed_when: CALink.stdout != "No"
+  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+- name: Create link to server certificate
+  shell: '([ ! -f {{ item.link }} ] && ln -s {{ item.file }} {{ item.link }} && echo "Created") || echo "No" executable=/bin/bash'
+  with_items:
+    - { file: "/etc/ssl/ansible/ansible-server.crt", link: "/var/lib/openvas/CA/servercert.pem" }
+    - { file: "/etc/ssl/ansible/ansible-server.key", link: "/var/lib/openvas/private/CA/serverkey.pem" }
+  ignore_errors: yes
+  register: serverLink
+  changed_when: serverLink.stdout != "No"
+  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+- name: Configure Client Certificate /usr/sbin/openvas-mkcert-client file (lifetime to 3650 days)
+  lineinfile: name=/usr/sbin/openvas-mkcert-client state=present regexp='^DFL_CERT_LIFETIME=\$\{x:-365\}' line='DFL_CERT_LIFETIME=${x:-3650}'
+  ignore_errors: yes
+  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+- name: Create Manager Client Certificate
+  shell: /usr/bin/expect -c 'spawn openvas-mkcert-client -n -i; expect "Enter pass phrase*"; send "epsms\r"; expect "Enter pass phrase*"; send "epsms\r"; interact'
+  ignore_errors: yes
+  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+- name: Synchronize Network Vulnerability Tests (it can take a long time)
+  #shell: /usr/bin/expect -c 'spawn openvas-nvt-sync --wget; expect "Run migration now*"; send "y\r"; interact;' 
+  shell: openvas-nvt-sync
+  ignore_errors: yes
+  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+- name: Synchronize SCAP Feed (it can take a long time)
+  shell: openvas-scapdata-sync
+  ignore_errors: yes
+  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+- name: Synchronize CertData Feed (it can take a long time)
+  shell: openvas-certdata-sync
+  ignore_errors: yes
+  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+- name: restart openvas-scanner service
+  service: name=openvas-scanner state=restarted enabled=yes
+  ignore_errors: yes
+  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+- name: Initialize the manager database (it can take a long time)
+  shell: openvasmd --rebuild
+  ignore_errors: yes
+  notify: restart openvas-manager
+  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+- name: restart openvas-manager service
+  service: name=openvas-manager state=restarted enabled=yes
+  ignore_errors: yes
+  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+
+- name: Check Admin user
+  shell: (openvasmd --list-users|grep "admin") || echo "No" executable=/bin/bash
+  register: userCreated
+  changed_when: False
+  ignore_errors: yes
+  when: checkTasks.stdout == "No"
+
+- name: Disable pwpolicy to create Admin user
+  lineinfile: name=/etc/openvas/pwpolicy.conf state=present regexp="^\!/\^\.{" line="#!/^.{999999999,}$/"
+  when: checkTasks.stdout == "No" and userCreated.stdout == "No"
+
+- name: Create Admin user
+  shell: openvasmd --create-user=admin --role=Admin && openvasmd --user=admin --new-password={{ passwdAdmin }} executable=/bin/bash
+  notify: restart openvas-manager
+  ignore_errors: yes
+  when: checkTasks.stdout == "No" and userCreated.stdout == "No"
+
+- name: Check Admin user access
+  shell: (omp -u admin -w {{ passwdAdmin }} -g > /dev/null) || echo "No" executable=/bin/bash
+  register: userAccess 
+  changed_when: False 
+  ignore_errors: yes
+  when: checkTasks.stdout == "No"
+
+- name: Disable pwpolicy to change password of Admin user
+  lineinfile: name=/etc/openvas/pwpolicy.conf state=present regexp="^\!/\^\.{" line="#!/^.{999999999,}$/"
+  when: checkTasks.stdout == "No" and userAccess.stdout == "No"
+
+- name: Config Admin user (set password)
+  shell: openvasmd --user=admin --new-password={{ passwdAdmin }} executable=/bin/bash
+  notify: restart openvas-manager
+  ignore_errors: yes
+  when: checkTasks.stdout == "No" and userAccess.stdout == "No"
+
+- name: Configure pwpolicy (password > 999999999 chars)
+  lineinfile: name=/etc/openvas/pwpolicy.conf state=present regexp="#?^\!/\^\.{" line="!/^.{999999999,}$/"
+
+- name: Configure /etc/sysconfig/gasd file (GSA_ADDRESS, GSA_SSL_PRIVATE_KEY and GSA_SSL_CERTIFICATE)
+  lineinfile: name=/etc/sysconfig/gsad state=present regexp="{{ item.key }}" line="{{ item.value }}"
+  with_items:
+    - { key: "GSA_ADDRESS", value: "GSA_ADDRESS=0.0.0.0" }
+    - { key: "GSA_SSL_PRIVATE_KEY", value: "GSA_SSL_PRIVATE_KEY=/var/lib/openvas/private/CA/serverkey.pem" }
+    - { key: "GSA_SSL_CERTIFICATE", value: "GSA_SSL_CERTIFICATE=/var/lib/openvas/CA/servercert.pem" }
+  ignore_errors: yes
+  notify: restart gsad
+  when: checkTasks.stdout == "No"
+
+- name: Configure /etc/openvas/openvassd.conf file (cert_file, key_file and ca_file)
+  lineinfile: name=/etc/openvas/openvassd.conf state=present regexp="{{ item.key }}" line="{{ item.value }}"
+  with_items:
+    - { key: "cert_file", value: "cert_file=/var/lib/openvas/CA/servercert.pem" }
+    - { key: "key_file", value: "key_file=/var/lib/openvas/private/CA/serverkey.pem" }
+    - { key: "ca_file", value: "ca_file=/var/lib/openvas/CA/cacert.pem" }
+  ignore_errors: yes
+  notify: restart openvas-scanner 
+  when: checkTasks.stdout == "No"
+
+- name: start gsad service
+  service: name=gsad state=started enabled=yes
+  ignore_errors: yes
+  when: setupOpenvas.stdout != "OK" and checkTasks.stdout == "No"
+

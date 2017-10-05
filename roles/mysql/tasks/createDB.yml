@@ -1,0 +1,85 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+- name: Create the inventory database
+  mysql_db: name=inventory state=present
+
+- name: Access admin user from localhost, Mysql server and Web server 
+  mysql_user: name=admin password={{ passwdAdmin }} priv=inventory.*:ALL host={{ item }} state=present
+  with_items:
+    - localhost
+    - 127.0.0.1
+    - ::1
+    - "{{ hostMysql }}"
+    - "{{ hostnameMysql }}"
+    - "{{ hostWeb }}"
+    - "{{ hostnameWeb }}"
+
+- name: Access admin user from Administrators Hosts
+  mysql_user: name=admin password={{ passwdAdmin }} priv=inventory.*:ALL host={{ item }} state=present
+  with_items: "{{ hostsAdmins }}"
+  when: hostsAdmins|count > 0
+
+- name: Access admin user from Administrators Hosts (ALL)
+  mysql_user: name=admin password={{ passwdAdmin }} priv=inventory.*:ALL host='%' state=present
+  when: hostsAdmins|count == 0
+
+- name: Getting Host allowed for admin user
+  action: db_facts hostMysql="{{ hostMysql }}" user="root" passwd="{{ passwdMysqlRoot }}" db="mysql" label="hostsInventory" query="select Host from user where User='admin' and Host != 'localhost' and Host != '127.0.0.1' and Host != '::1' and Host != '{{ ansible_hostname }}' and Host != '{{ hostnameMysql }}' and Host != '{{ hostMysql }}' and Host != '{{ hostnameWeb }}' and Host != '{{ hostWeb }}'"
+  delegate_to: "{{ hostMysql }}"
+
+- name: Delete Hosts not allowed for admin user
+  mysql_user: name=admin host={{ item.Host }} state=absent
+  with_items: "{{ hostsInventory }}"
+  notify: restart mysql
+  when: item.Host not in hostsAdmins and not (hostsAdmins|count == 0 and item.Host == "%")
+
+- name: Delete read only user if it changed 
+  mysql_user: name={{ readUserOld|default('') }} host_all=yes state=absent
+  when: readUserOld|default('') != "" and readUser != readUserOld|default('') 
+
+- name: Access read only user from localhost, Mysql server and Web server
+  mysql_user: name={{ readUser }} password={{ passwdReadUser }} priv=inventory.*:SELECT host={{ item }} state=present
+  with_items:
+    - localhost
+    - 127.0.0.1
+    - ::1
+    - "{{ hostMysql }}"
+    - "{{ hostnameMysql }}"
+    - "{{ hostWeb }}"
+    - "{{ hostnameWeb }}"
+  when: readUser != ""
+
+- name: Access read only user from Read Only User Hosts
+  mysql_user: name={{ readUser }} password={{ passwdReadUser }} priv=inventory.*:SELECT host={{ item }} state=present
+  with_items: "{{ hostsReadUser|default('') }}"
+  when: readUser != "" and hostsReadUser is defined and hostsReadUser|default('')|count > 0
+
+- name: Access read only user from Read Only User Hosts (ALL)
+  mysql_user: name={{ readUser }} password={{ passwdReadUser }} priv=inventory.*:SELECT host='%' state=present
+  when: readUser != "" and hostsReadUser is defined and hostsReadUser|count == 0
+
+- name: Getting Host allowed for read only user
+  action: db_facts hostMysql="{{ hostMysql }}" user="root" passwd="{{ passwdMysqlRoot }}" db="mysql" label="hostsReadOnlyUser" query="select Host from user where User='{{ readUser }}' and Host != 'localhost' and Host != '127.0.0.1' and Host != '::1' and Host != '{{ ansible_hostname }}' and Host != '{{ hostnameMysql }}' and Host != '{{ hostMysql }}' and Host != '{{ hostnameWeb }}' and Host != '{{ hostWeb }}'"
+  delegate_to: "{{ hostMysql }}"
+  when: readUser != ""
+
+- name: Delete Hosts not allowed for read only user
+  mysql_user: name={{ readUser }} host={{ item.Host }} state=absent
+  with_items: "{{ hostsReadOnlyUser|default('') }}"
+  notify: restart mysql
+  when: readUser != "" and hostsReadUser is defined and item.Host not in hostsReadUser and not (hostsReadUser|count == 0 and item.Host == "%")
+
+- name: Create inventory directory
+  file: path={{ pathInventoryDirectory }} owner=root group=root state=directory
+
+- name: Copy SQL file (tables)
+  copy: src=root/inventory/createTables.sql dest={{ pathInventoryDirectory }}/createTables.sql owner=root group=root mode=0600
+
+- name: Create tables
+  mysql_db: state=import name=inventory target={{ pathInventoryDirectory }}/createTables.sql 

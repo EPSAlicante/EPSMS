@@ -1,0 +1,443 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>SECURITY</title><style></style></head><body id="preview">
+<h1><a id="security"></a>Security</h1>
+<h3><a id="servers"></a>Get Servers information</h3>
+<blockquote>
+<p>GET <a href="./security/servers">/security/servers</a></p>
+</blockquote>
+<h5><a id="output_servers"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">IP</span>":<span class="hljs-value"><span class="hljs-string">"192.168.0.2"</span></span>,
+	"<span class="hljs-attribute">Node</span>":<span class="hljs-value"><span class="hljs-string">"1"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="inports"></a>Get TCP/UDP Ports (Inside Scan) information</h3>
+<blockquote>
+<p>GET <a href="./security/inports">/security/inports</a></p>
+</blockquote>
+<h5><a id="output_inports"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Protocol</span>":<span class="hljs-value"><span class="hljs-string">"TCP"</span></span>,
+        "<span class="hljs-attribute">Port</span>":<span class="hljs-value"><span class="hljs-string">"22"</span></span>,
+        "<span class="hljs-attribute">IP4</span>":<span class="hljs-value"><span class="hljs-string">"1"</span></span>,
+        "<span class="hljs-attribute">Bind IP4</span>":<span class="hljs-value"><span class="hljs-string">"0.0.0.0"</span></span>,
+        "<span class="hljs-attribute">IP6</span>":<span class="hljs-value"><span class="hljs-string">"1"</span></span>,
+        "<span class="hljs-attribute">Bind IP6</span>":<span class="hljs-value"><span class="hljs-string">"::"</span></span>,
+        "<span class="hljs-attribute">Process</span>":<span class="hljs-value"><span class="hljs-string">"sshd"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="outports"></a>Get TCP Ports (Outside Scan) information</h3>
+<blockquote>
+<p>GET <a href="./security/outports">/security/outports</a></p>
+</blockquote>
+<h5><a id="output_outports"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Protocol</span>":<span class="hljs-value"><span class="hljs-string">"TCP"</span></span>,
+        "<span class="hljs-attribute">Port</span>":<span class="hljs-value"><span class="hljs-string">"22"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="packages"></a>Get Linux/Unix Packages information</h3>
+<blockquote>
+<p>GET <a href="./security/packages">/security/packages</a></p>
+</blockquote>
+<h5><a id="output_packages"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"acl"</span></span>,
+        "<span class="hljs-attribute">Version</span>":<span class="hljs-value"><span class="hljs-string">"2.2.49-6.el6.x86_64"</span></span>,
+	"<span class="hljs-attribute">Size</span>":<span class="hljs-value"><span class="hljs-string">"193226"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="exes"></a>Get Linux/Unix Executables information</h3>
+<blockquote>
+<p>GET <a href="./security/exes">/security/exes</a></p>
+</blockquote>
+<h5><a id="output_exes"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"/bin/arch"</span></span>,
+        "<span class="hljs-attribute">Package</span>":<span class="hljs-value"><span class="hljs-string">"coreutils-8.4-37.el6.x86_64"</span></span>,
+        "<span class="hljs-attribute">File Size</span>":<span class="hljs-value"><span class="hljs-string">"24232"</span></span>,
+	"<span class="hljs-attribute">File User</span>":<span class="hljs-value"><span class="hljs-string">"root"</span></span>,
+	"<span class="hljs-attribute">File Group</span>":<span class="hljs-value"><span class="hljs-string">"root"</span></span>,
+	"<span class="hljs-attribute">File Permissions</span>":<span class="hljs-value"><span class="hljs-string">"-rwxr-xr-x"</span></span>,
+	"<span class="hljs-attribute">Signature</span>":<span class="hljs-value"><span class="hljs-string">"49ee2807268ac450540a49dec78a1914"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="exesnopackage"></a>Get Linux/Unix Executables (With No Package) information</h3>
+<blockquote>
+<p>GET <a href="./security/exes/nopackage">/security/exes/nopackage</a></p>
+</blockquote>
+<h5><a id="output_exesnopackage"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"fedora.epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"/boot/vmlinuz-0-rescue-1b1e6817b6c9427db8fbbca8ea0fcd76"</span></span>,
+        "<span class="hljs-attribute">File Size</span>":<span class="hljs-value"><span class="hljs-string">"5520184"</span></span>,
+        "<span class="hljs-attribute">File User</span>":<span class="hljs-value"><span class="hljs-string">"root"</span></span>,
+        "<span class="hljs-attribute">File Group</span>":<span class="hljs-value"><span class="hljs-string">"root"</span></span>,
+        "<span class="hljs-attribute">File Permissions</span>":<span class="hljs-value"><span class="hljs-string">"-rwxr-xr-x"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="exessetuid"></a>Get Linux/Unix Executables (SetUID) information</h3>
+<blockquote>
+<p>GET <a href="./security/exes/setuid">/security/exes/setuid</a></p>
+</blockquote>
+<h5><a id="output_exessetuid"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"/bin/mount"</span></span>,
+	"<span class="hljs-attribute">Package</span>":<span class="hljs-value"><span class="hljs-string">"util-linux-ng-2.17.2-12.18.el6.x86_64"</span></span>,
+        "<span class="hljs-attribute">File Size</span>":<span class="hljs-value"><span class="hljs-string">"77336"</span></span>,
+        "<span class="hljs-attribute">File User</span>":<span class="hljs-value"><span class="hljs-string">"root"</span></span>,
+        "<span class="hljs-attribute">File Group</span>":<span class="hljs-value"><span class="hljs-string">"root"</span></span>,
+        "<span class="hljs-attribute">File Permissions</span>":<span class="hljs-value"><span class="hljs-string">"-rwsr-xr-x"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="exessetgid"></a>Get Linux/Unix Executables (SetGID) information</h3>
+<blockquote>
+<p>GET <a href="./security/exes/setgid">/security/exes/setgid</a></p>
+</blockquote>
+<h5><a id="output_exessetgid"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"/usr/bin/write"</span></span>,
+        "<span class="hljs-attribute">Package</span>":<span class="hljs-value"><span class="hljs-string">"util-linux-ng-2.17.2-12.18.el6.x86_64"</span></span>,
+        "<span class="hljs-attribute">File Size</span>":<span class="hljs-value"><span class="hljs-string">"12016"</span></span>,
+        "<span class="hljs-attribute">File User</span>":<span class="hljs-value"><span class="hljs-string">"root"</span></span>,
+        "<span class="hljs-attribute">File Group</span>":<span class="hljs-value"><span class="hljs-string">"tty"</span></span>,
+        "<span class="hljs-attribute">File Permissions</span>":<span class="hljs-value"><span class="hljs-string">"-rwxr-sr-x"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="users"></a>Get Linux/Unix Users information</h3>
+<blockquote>
+<p>GET <a href="./security/users">/security/users</a></p>
+</blockquote>
+<h5><a id="output_users"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"root"</span></span>,
+        "<span class="hljs-attribute">UID</span>":<span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+        "<span class="hljs-attribute">GID</span>":<span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+        "<span class="hljs-attribute">Password Type</span>":<span class="hljs-value"><span class="hljs-string">"Crypted"</span></span>,
+        "<span class="hljs-attribute">Last Change</span>":<span class="hljs-value"><span class="hljs-string">"2014-07-23"</span></span>,
+        "<span class="hljs-attribute">Description</span>":<span class="hljs-value"><span class="hljs-string">"root"</span></span>,
+	"<span class="hljs-attribute">Home</span>":<span class="hljs-value"><span class="hljs-string">"/root"</span></span>,
+	"<span class="hljs-attribute">Shell</span>":<span class="hljs-value"><span class="hljs-string">"/bin/bash"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="waccounts"></a>Get Windows Users information</h3>
+<blockquote>
+<p>GET <a href="./security/waccounts">/security/waccounts</a></p>
+</blockquote>
+<h5><a id="output_waccounts"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"win2003.epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Domain</span>":<span class="hljs-value"><span class="hljs-string">"W2003"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"Administrator"</span></span>,
+        "<span class="hljs-attribute">System Account</span>":<span class="hljs-value"><span class="hljs-string">"False"</span></span>,
+        "<span class="hljs-attribute">Caption</span>":<span class="hljs-value"><span class="hljs-string">"W2003\Administrador"</span></span>,
+        "<span class="hljs-attribute">Account Type</span>":<span class="hljs-value"><span class="hljs-string">"UF_NORMAL_ACCOUNT"</span></span>,
+        "<span class="hljs-attribute">Disabled</span>":<span class="hljs-value"><span class="hljs-string">"False"</span></span>,
+        "<span class="hljs-attribute">Full Name</span>":<span class="hljs-value"><span class="hljs-string">""</span></span>,
+        "<span class="hljs-attribute">Local Account</span>":<span class="hljs-value"><span class="hljs-string">"True"</span></span>,
+	"<span class="hljs-attribute">Lockout</span>":<span class="hljs-value"><span class="hljs-string">"False"</span></span>,
+	"<span class="hljs-attribute">Password Changeable</span>":<span class="hljs-value"><span class="hljs-string">"True"</span></span>,
+	"<span class="hljs-attribute">Password Expires</span>":<span class="hljs-value"><span class="hljs-string">"False"</span></span>,
+	"<span class="hljs-attribute">Password Required</span>":<span class="hljs-value"><span class="hljs-string">"True"</span></span>,
+	"<span class="hljs-attribute">SID</span>":<span class="hljs-value"><span class="hljs-string">"S-1-5-21-725638598-3043124689-1377551826-500"</span></span>,
+	"<span class="hljs-attribute">SID Type</span>":<span class="hljs-value"><span class="hljs-string">"SidTypeUser"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="groups"></a>Get Linux/Unix Groups information</h3>
+<blockquote>
+<p>GET <a href="./security/groups">/security/groups</a></p>
+</blockquote>
+<h5><a id="output_groups"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"bin"</span></span>,
+        "<span class="hljs-attribute">GID</span>":<span class="hljs-value"><span class="hljs-string">"1"</span></span>,
+        "<span class="hljs-attribute">Users</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">User</span>":<span class="hljs-value"><span class="hljs-string">"bin"</span></span>
+            }
+        ]</span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="groups"></a>Get Windows Groups information</h3>
+<blockquote>
+<p>GET <a href="./security/wgroups">/security/wgroups</a></p>
+</blockquote>
+<h5><a id="output_wgroups"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"win2003.epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Domain</span>":<span class="hljs-value"><span class="hljs-string">"W2003"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"Administrators"</span></span>,
+	"<span class="hljs-attribute">Caption</span>":<span class="hljs-value"><span class="hljs-string">"W2003\Administrators"</span></span>,
+	"<span class="hljs-attribute">Local Account</span>":<span class="hljs-value"><span class="hljs-string">"True"</span></span>,
+	"<span class="hljs-attribute">SID</span>":<span class="hljs-value"><span class="hljs-string">"S-1-5-32-544"</span></span>,
+	"<span class="hljs-attribute">SID Type</span>":<span class="hljs-value"><span class="hljs-string">"SidTypeAlias"</span></span>,
+        "<span class="hljs-attribute">Users</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">User Domain</span>":<span class="hljs-value"><span class="hljs-string">"W2003"</span></span>,
+		"<span class="hljs-attribute">User Name</span>":<span class="hljs-value"><span class="hljs-string">"Administrator"</span></span>
+            }
+        ]</span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="groups"></a>Get Linux/Unix Sudo information</h3>
+<blockquote>
+<p>GET <a href="./security/sudo">/security/sudo</a></p>
+</blockquote>
+<h5><a id="output_sudo"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Defaults</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">Rule</span>":<span class="hljs-value"><span class="hljs-string">"Defaults requiretty"</span></span>
+            }
+        ]</span>,
+        "<span class="hljs-attribute">User Alias</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">Rule</span>":<span class="hljs-value"><span class="hljs-string">"HOST_RSYNC = admin"</span></span>
+            }
+        ]</span>,
+        "<span class="hljs-attribute">Cmnd Alias</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">Rule</span>":<span class="hljs-value"><span class="hljs-string">"HOST_RSYNC = /bin/rsync, /usr/bin/ssh"</span></span>
+            }
+        ]</span>,
+        "<span class="hljs-attribute">Runas Alias</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">Rule</span>":<span class="hljs-value"><span class="hljs-string">"HOST_RSYNC = rsync"</span></span>
+            }
+        ]</span>,
+        "<span class="hljs-attribute">Rules Alias</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">Rule</span>":<span class="hljs-value"><span class="hljs-string">"HOST_RSYNC epsms=(HOST_RSYNC) NOPASSWD: HOST_RSYNC"</span></span>
+            }
+        ]</span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="crontab"></a>Get Linux/Unix Crontab information</h3>
+<blockquote>
+<p>GET <a href="./security/crontab">/security/crontab</a></p>
+</blockquote>
+<h5><a id="output_crontab"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"fedora.epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">User</span>":<span class="hljs-value"><span class="hljs-string">"root"</span></span>,
+        "<span class="hljs-attribute">Minute</span>":<span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+        "<span class="hljs-attribute">Hour</span>":<span class="hljs-value"><span class="hljs-string">"2"</span></span>,
+	"<span class="hljs-attribute">Day</span>":<span class="hljs-value"><span class="hljs-string">"*"</span></span>,	
+	"<span class="hljs-attribute">Month</span>":<span class="hljs-value"><span class="hljs-string">"*"</span></span>,
+	"<span class="hljs-attribute">DayWeek</span>":<span class="hljs-value"><span class="hljs-string">"*"</span></span>,
+	"<span class="hljs-attribute">Command</span>":<span class="hljs-value"><span class="hljs-string">"/root/scripts/rsyncRemote ubuntu /nfs/ /backup/data/nfs"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="iptables"></a>Get Linux/Unix IPTables information</h3>
+<blockquote>
+<p>GET <a href="./security/iptables">/security/iptables</a></p>
+</blockquote>
+<h5><a id="output_iptables"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"fedora.epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">IPTable</span>":<span class="hljs-value"><span class="hljs-string">"filter"</span></span>,
+        "<span class="hljs-attribute">Chain</span>":<span class="hljs-value"><span class="hljs-string">"INPUT"</span></span>,
+	"<span class="hljs-attribute">Policy</span>":<span class="hljs-value"><span class="hljs-string">"DROP"</span></span>,
+        "<span class="hljs-attribute">Rules</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">Rule</span>":<span class="hljs-value"><span class="hljs-string">"-A INPUT -s 192.168.0.0/27 -j ACCEPT"</span></span>
+            }
+        ]</span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="wrappers"></a>Get Linux/Unix TCP Wrappers information</h3>
+<blockquote>
+<p>GET <a href="./security/wrappers">/security/wrappers</a></p>
+</blockquote>
+<h5><a id="output_wrappers"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Type</span>":<span class="hljs-value"><span class="hljs-string">"allow"</span></span>,
+        "<span class="hljs-attribute">Service</span>":<span class="hljs-value"><span class="hljs-string">"nrpe"</span></span>,
+        "<span class="hljs-attribute">Hosts</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">Host</span>":<span class="hljs-value"><span class="hljs-string">"192.168.0.2"</span></span>
+            }
+        ]</span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="pamaccess"></a>Get Linux/Unix PAM Access information</h3>
+<blockquote>
+<p>GET <a href="./security/pamaccess">/security/pamaccess</a></p>
+</blockquote>
+<h5><a id="output_pamaccess"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"fedora.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Modules</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">Module</span>":<span class="hljs-value"><span class="hljs-string">"/etc/pam.d/crond"</span></span>
+            }
+        ]</span>,
+        "<span class="hljs-attribute">Rules</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">Rule</span>":<span class="hljs-value"><span class="hljs-string">"+:root:LOCAL"</span></span>
+            }
+        ]</span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="wdrivers"></a>Get Windows Drivers information</h3>
+<blockquote>
+<p>GET <a href="./security/wdrivers">/security/wdrivers</a></p>
+</blockquote>
+<h5><a id="output_wdrivers"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"win2003.epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"ACPI"</span></span>,
+        "<span class="hljs-attribute">Caption</span>":<span class="hljs-value"><span class="hljs-string">"Controlador Microsoft ACPI"</span></span>,
+        "<span class="hljs-attribute">Error Control</span>":<span class="hljs-value"><span class="hljs-string">"Normal"</span></span>,
+        "<span class="hljs-attribute">Path Name</span>":<span class="hljs-value"><span class="hljs-string">"C:\WINDOWS\system32\DRIVERS\ACPI.sys"</span></span>,
+        "<span class="hljs-attribute">Service Type</span>":<span class="hljs-value"><span class="hljs-string">"Kernel Driver"</span></span>,
+        "<span class="hljs-attribute">Start Mode</span>":<span class="hljs-value"><span class="hljs-string">"Boot"</span></span>,
+        "<span class="hljs-attribute">State</span>":<span class="hljs-value"><span class="hljs-string">"Running"</span></span>,
+        "<span class="hljs-attribute">Tag ID</span>":<span class="hljs-value"><span class="hljs-string">"1"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="wservices"></a>Get Windows Services information</h3>
+<blockquote>
+<p>GET <a href="./security/wservices">/security/wservices</a></p>
+</blockquote>
+<h5><a id="output_wservices"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"win2003.epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"CiSvc"</span></span>,
+        "<span class="hljs-attribute">Caption</span>":<span class="hljs-value"><span class="hljs-string">"Servicio de Index Server"</span></span>,
+        "<span class="hljs-attribute">Error Control</span>":<span class="hljs-value"><span class="hljs-string">"Normal"</span></span>,
+        "<span class="hljs-attribute">Path Name</span>":<span class="hljs-value"><span class="hljs-string">"C:\WINDOWS\system32\cisvc.exe"</span></span>,
+        "<span class="hljs-attribute">Process ID</span>":<span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+        "<span class="hljs-attribute">Start Mode</span>":<span class="hljs-value"><span class="hljs-string">"Disabled"</span></span>,
+        "<span class="hljs-attribute">State</span>":<span class="hljs-value"><span class="hljs-string">"Stopped"</span></span>,
+        "<span class="hljs-attribute">Tag ID</span>":<span class="hljs-value"><span class="hljs-string">"0"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="wshares"></a>Get Windows Shares information</h3>
+<blockquote>
+<p>GET <a href="./security/wshares">/security/wshares</a></p>
+</blockquote>
+<h5><a id="output_wshares"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"win2003.epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"ADMIN$"</span></span>,
+        "<span class="hljs-attribute">Caption</span>":<span class="hljs-value"><span class="hljs-string">"Admin remota"</span></span>,
+        "<span class="hljs-attribute">Path Share</span>":<span class="hljs-value"><span class="hljs-string">"(null)"</span></span>,
+        "<span class="hljs-attribute">Type Share</span>":<span class="hljs-value"><span class="hljs-string">"Disk Drive"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="openvas"></a>Get Openvas information</h3>
+<blockquote>
+<p>GET <a href="./security/openvas">/security/openvas</a></p>
+</blockquote>
+<h5><a id="output_openvas"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"win2003.epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">IP</span>":<span class="hljs-value"><span class="hljs-string">"192.168.0.15"</span></span>,
+        "<span class="hljs-attribute">Start Scan</span>":<span class="hljs-value"><span class="hljs-string">"2016-07-01 03:31:08"</span></span>,
+        "<span class="hljs-attribute">CVSS</span>":<span class="hljs-value"><span class="hljs-string">"10.0"</span></span>,
+        "<span class="hljs-attribute">Total High</span>":<span class="hljs-value"><span class="hljs-string">"3"</span></span>,
+        "<span class="hljs-attribute">Total Medium</span>":<span class="hljs-value"><span class="hljs-string">"4"</span></span>,
+        "<span class="hljs-attribute">Total Low</span>":<span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+        "<span class="hljs-attribute">Total Log</span>":<span class="hljs-value"><span class="hljs-string">"12"</span></span>,
+        "<span class="hljs-attribute">Total False Positive</span>":<span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+	"<span class="hljs-attribute">Report HTML</span>":<span class="hljs-value"><span class="hljs-string">"https://epsms.eps.ua.es/openvas/win2003.epsms.eps.ua.es/win2003.epsms.eps.ua.es-160701033108.html"</span></span>,
+	"<span class="hljs-attribute">Report PDF</span>":<span class="hljs-value"><span class="hljs-string">"https://epsms.eps.ua.es/openvas/win2003.epsms.eps.ua.es/win2003.epsms.eps.ua.es-160701033108.pdf"</span></span>,
+	"<span class="hljs-attribute">Report TXT</span>":<span class="hljs-value"><span class="hljs-string">"https://epsms.eps.ua.es/openvas/win2003.epsms.eps.ua.es/win2003.epsms.eps.ua.es-160701033108.txt"</span></span>,
+	"<span class="hljs-attribute">Report XML</span>":<span class="hljs-value"><span class="hljs-string">"https://epsms.eps.ua.es/openvas/win2003.epsms.eps.ua.es/win2003.epsms.eps.ua.es-160701033108.xml"</span></span>
+    }
+]
+</code></pre>
+</body></html>

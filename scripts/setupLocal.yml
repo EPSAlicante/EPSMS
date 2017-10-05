@@ -1,0 +1,24 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+- hosts: newNode 
+  gather_facts: True
+  user: root
+  vars: 
+    pathAnsible: "{{ pathAnsibleValue }}"
+    pathAnsibleLibrary: "{{ pathAnsibleLibraryValue }}"
+
+  tasks:
+
+  - name: Enlazar /[pathAnsibleLibrary]/path_facts -> /[pathAnsible]/scripts/path_facts.py
+    file: path={{ pathAnsibleLibrary }}/path_facts state=link src={{ pathAnsible }}/scripts/path_facts.py force=yes
+    ignore_errors: yes
+
+  - name: Enlazar /[pathAnsibleLibrary]/base_facts -> /[pathAnsible]/scripts/base_facts.py
+    file: path={{ pathAnsibleLibrary }}/base_facts state=link src={{ pathAnsible }}/scripts/base_facts.py force=yes
+    ignore_errors: yes

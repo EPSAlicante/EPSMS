@@ -1,0 +1,24 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Host {{ inventory_hostname }}: Network Interfaces ====
+
+{% if hostvars[inventory_hostname]["interfaces"] is defined -%}
+^  Network Interfaces  ^^^^^^^^
+^  Name  ^  Address (DNS)  ^  Network  ^  Netmask  ^  MAC  ^  Type  ^  Module  ^  Active  ^
+{% for interface in hostvars[inventory_hostname]["interfaces"] -%}
+| {{ interface.device }} | {{ "%s (%s)" % (interface.address,interface.namedns) if interface.address != "" else "" }} | {{ interface.network }} | {{ interface.netmask }} | {{ interface.macaddress }} | {{ interface.type }} | {{ "%s" % hostvars[inventory_hostname]["ansible_" + interface.device].module if hostvars[inventory_hostname]["ansible_" + interface.device] is defined and hostvars[inventory_hostname]["ansible_" + interface.device].module is defined else " " }} |  {{ "X" if interface.active else " " }}  |
+{% endfor %}
+{% endif %}
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

@@ -1,0 +1,24 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[ Servers | Back to Main page]]
+
+
+==== Host {{ item.name }}: Last changes  ====
+
+{% if hostvars[inventory_hostname]["%s-last" % (item.name) ] is defined -%}
+^  Last Changes (Last 100)  ^^^
+^  Live Since  ^  Until  ^  Type  ^
+{% for change in hostvars[inventory_hostname]["%s-last" % (item.name)] -%}
+|  {{ change.Date }}  |  {{ "%s" % change.End if change.End != "None" else "Now" }}  |  {{ ("node" if change.Node == "1" else "outsider") if change.Node != "2" else "winNode" }}  |
+{% endfor %}
+{% endif %}
+
+
+
+[[ Servers | Back to Main page]]
+

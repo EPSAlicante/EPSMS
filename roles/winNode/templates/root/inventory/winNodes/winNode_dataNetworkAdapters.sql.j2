@@ -1,0 +1,63 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Network Adapters of {{ inventory_hostname }}
+
+
+{% if hostvars[inventory_hostname]["NetworkAdapter"] is defined %}
+
+{% for net in hostvars[inventory_hostname]["NetworkAdapter"] -%}
+
+CHECK_NETWORKADAPTER_{{ loop.index }}: SELECT * FROM WinNetworkAdapter WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ net["deviceID"] }}' AND Name='{{ net["name"] }}' AND AdapterType='{{ net["adapterType"] }}' AND manufacturer='{{ net["manufacturer"] }}' AND MACAddress='{{ net["MACAddress"] }}' AND Availability='{{ net["availability"] }}' AND ConfigManagerErrorCode='{{ net["configManagerErrorCode"] }}' AND AdapterIndex='{{ net["index"] }}' AND NetConnectionID='{{ net["netConnectionID"] }}' AND NetConnectionStatus='{{ net["netConnectionStatus"] }}' AND ServiceName='{{ net["serviceName"] }}' AND Auto AND End IS NULL;
+
+UPDATE_NETWORKADAPTER_{{ loop.index }}: UPDATE WinNetworkAdapter SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ net["deviceID"] }}' AND Name='{{ net["name"] }}' AND AdapterType='{{ net["adapterType"] }}' AND manufacturer='{{ net["manufacturer"] }}' AND MACAddress='{{ net["MACAddress"] }}' AND Availability='{{ net["availability"] }}' AND ConfigManagerErrorCode='{{ net["configManagerErrorCode"] }}' AND AdapterIndex='{{ net["index"] }}' AND NetConnectionID='{{ net["netConnectionID"] }}' AND NetConnectionStatus='{{ net["netConnectionStatus"] }}' AND ServiceName='{{ net["serviceName"] }}' AND Auto AND End IS NULL; 
+
+INSERT_NETWORKADAPTER_{{ loop.index }}: INSERT INTO WinNetworkAdapter (DeviceID,Server,Name,AdapterType,Manufacturer,MACAddress,Availability,ConfigManagerErrorCode,AdapterIndex,NetConnectionID,NetConnectionStatus,ServiceName,Init,Checked,Auto) VALUES ('{{ net["deviceID"] }}','{{ inventory_hostname }}', '{{ net["name"] }}', '{{ net["adapterType"] }}', '{{ net["manufacturer"] }}', '{{ net["MACAddress"] }}', '{{ net["availability"] }}', '{{ net["configManagerErrorCode"] }}', '{{ net["index"] }}', '{{ net["netConnectionID"] }}', '{{ net["netConnectionStatus"] }}', '{{ net["serviceName"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["NetworkAdapterConfiguration"] is defined %}
+
+{% for net in hostvars[inventory_hostname]["NetworkAdapterConfiguration"] -%}
+
+CHECK_NETWORKADAPTERCONFIG_{{ loop.index }}: SELECT * FROM WinNetworkAdapterConfig WHERE Server='{{ inventory_hostname }}' AND NetIndex='{{ net["index"] }}' AND Description='{{ net["description"] }}' AND IPAddress='{{ net["IPAddress"] }}' AND IPSubnet='{{ net["IPSubnet"] }}' AND DefaultIPGateway='{{ net["defaultIPGateway"] }}' AND DefaultTOS='{{ net["defaultTOS"] }}' AND DefaultTTL='{{ net["defaultTTL"] }}' AND DHCPEnabled='{{ net["DHCPEnabled"] }}' AND DHCPServer='{{ net["DHCPServer"] }}' AND DNSDomain='{{ net["DNSDomain"] }}' AND DNSDomainSuffixSearchOrder='{{ net["DNSDomainSuffixSearchOrder"] }}' AND DNSEnabledForWINSResolution='{{ net["DNSEnabledForWINSResolution"] }}' AND DNSDomainSearchOrder='{{ net["DNSDomainSearchOrder"] }}' AND IGMPLevel='{{ net["IGMPLevel"] }}' AND MACAddress='{{ net["MACAddress"] }}' AND WINSEnableLMHostsLookup='{{ net["WINSEnableLMHostsLookup"] }}' AND WINSPrimaryServer='{{ net["WINSPrimaryServer"] }}' AND WINSSecondaryServer='{{ net["WINSSecondaryServer"] }}' AND Auto AND End IS NULL;
+
+UPDATE_NETWORKADAPTERCONFIG_{{ loop.index }}: UPDATE WinNetworkAdapterConfig SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND NetIndex='{{ net["index"] }}' AND Description='{{ net["description"] }}' AND IPAddress='{{ net["IPAddress"] }}' AND IPSubnet='{{ net["IPSubnet"] }}' AND DefaultIPGateway='{{ net["defaultIPGateway"] }}' AND DefaultTOS='{{ net["defaultTOS"] }}' AND DefaultTTL='{{ net["defaultTTL"] }}' AND DHCPEnabled='{{ net["DHCPEnabled"] }}' AND DHCPServer='{{ net["DHCPServer"] }}' AND DNSDomain='{{ net["DNSDomain"] }}' AND DNSDomainSuffixSearchOrder='{{ net["DNSDomainSuffixSearchOrder"] }}' AND DNSEnabledForWINSResolution='{{ net["DNSEnabledForWINSResolution"] }}' AND DNSDomainSearchOrder='{{ net["DNSDomainSearchOrder"] }}' AND IGMPLevel='{{ net["IGMPLevel"] }}' AND MACAddress='{{ net["MACAddress"] }}' AND WINSEnableLMHostsLookup='{{ net["WINSEnableLMHostsLookup"] }}' AND WINSPrimaryServer='{{ net["WINSPrimaryServer"] }}' AND WINSSecondaryServer='{{ net["WINSSecondaryServer"] }}' AND Auto AND End IS NULL; 
+
+INSERT_NETWORKADAPTERCONFIG_{{ loop.index }}: INSERT INTO WinNetworkAdapterConfig (NetIndex,Server,Description,IPAddress,IPSubnet,DefaultIPGateway,DefaultTOS,DefaultTTL,DHCPEnabled,DHCPServer,DNSDomain,DNSDomainSuffixSearchOrder,DNSEnabledForWINSResolution,DNSDomainSearchOrder,IGMPLevel,MACAddress,WINSEnableLMHostsLookup,WINSPrimaryServer,WINSSecondaryServer,Init,Checked,Auto) VALUES ('{{ net["index"] }}','{{ inventory_hostname }}', '{{ net["description"] }}', '{{ net["IPAddress"] }}', '{{ net["IPSubnet"] }}', '{{ net["defaultIPGateway"] }}', '{{ net["defaultTOS"] }}', '{{ net["defaultTTL"] }}', '{{ net["DHCPEnabled"] }}', '{{ net["DHCPServer"] }}', '{{ net["DNSDomain"] }}', '{{ net["DNSDomainSuffixSearchOrder"] }}', '{{ net["DNSEnabledForWINSResolution"] }}', '{{ net["DNSDomainSearchOrder"] }}', '{{ net["IGMPLevel"] }}', '{{ net["MACAddress"] }}', '{{ net["WINSEnableLMHostsLookup"] }}', '{{ net["WINSPrimaryServer"] }}', '{{ net["WINSSecondaryServer"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["NetworkAdapterSetting"] is defined %}
+
+{% for setting in hostvars[inventory_hostname]["NetworkAdapterSetting"] -%}
+
+CHECK_NETWORKADAPTERSETTING_{{ loop.index }}: SELECT * FROM WinNetworkAdapterSetting WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ setting["deviceID"] }}' AND NetIndex='{{ setting["index"] }}' AND Auto AND End IS NULL;
+
+UPDATE_NETWORKADAPTERSETTING_{{ loop.index }}: UPDATE WinNetworkAdapterSetting SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ setting["deviceID"] }}' AND NetIndex='{{ setting["index"] }}' AND Auto AND End IS NULL; 
+
+INSERT_NETWORKADAPTERSETTING_{{ loop.index }}: INSERT INTO WinNetworkAdapterSetting (DeviceID,NetIndex,Server,Init,Checked,Auto) VALUES ('{{ setting["deviceID"] }}', '{{ setting["index"] }}','{{ inventory_hostname }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_NETWORKADAPTER: SELECT * from WinNetworkAdapter WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_NETWORKADAPTER: UPDATE WinNetworkAdapter SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_NETWORKADAPTERCONFIG: SELECT * from WinNetworkAdapter WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_NETWORKADAPTERCONFIG: UPDATE WinNetworkAdapter SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_NETWORKADAPTERSETTING: SELECT * from WinNetworkAdapterSetting WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_NETWORKADAPTERSETTING: UPDATE WinNetworkAdapterSetting SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

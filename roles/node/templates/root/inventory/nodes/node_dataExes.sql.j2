@@ -1,0 +1,21 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Executables of {{ inventory_hostname }}
+
+{% for exe in hostvars[inventory_hostname]["exes"] -%}
+
+CHECK_EXE_{{ loop.index }}: SELECT * FROM Exe WHERE Server='{{ inventory_hostname }}' AND BINARY Name='{{ exe["name"] }}' AND Package='{{ exe["package"] }}' AND FileSize='{{ exe["size"] }}' AND FileUser='{{ exe["user"] }}' AND FileGroup='{{ exe["group"] }}' AND FilePerms='{{ exe["perms"] }}' AND Signature='{{ exe["signature"] }}' AND Auto AND End IS NULL;
+
+UPDATE_EXE_{{ loop.index }}: UPDATE Exe SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND BINARY Name='{{ exe["name"] }}' AND Package='{{ exe["package"] }}' AND FileSize='{{ exe["size"] }}' AND FileUser='{{ exe["user"] }}' AND FileGroup='{{ exe["group"] }}' AND FilePerms='{{ exe["perms"] }}' AND Signature='{{ exe["signature"] }}' AND Auto AND End IS NULL;
+
+INSERT_EXE_{{ loop.index }}: INSERT Exe (Name,Package,Server,FileSize,FileUser,FileGroup,FilePerms,Signature,Init,Checked,Auto) VALUES ('{{ exe["name"] }}', '{{ exe["package"] }}', '{{ inventory_hostname }}', '{{ exe["size"] }}', '{{ exe["user"] }}', '{{ exe["group"] }}', '{{ exe["perms"] }}', '{{ exe["signature"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+END-CHECK_EXES: SELECT * from Exe WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_EXES: UPDATE Exe SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

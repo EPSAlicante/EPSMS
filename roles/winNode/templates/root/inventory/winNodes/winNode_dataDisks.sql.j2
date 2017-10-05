@@ -1,0 +1,99 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Disk Drives of {{ inventory_hostname }}
+
+
+{% if hostvars[inventory_hostname]["DiskDrive"] is defined %}
+
+{% for disk in hostvars[inventory_hostname]["DiskDrive"] -%}
+
+CHECK_DISKDRIVE_{{ loop.index }}: SELECT * FROM WinDiskDrive WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ disk["deviceID"] }}' AND Caption='{{ disk["caption"] }}' AND DiskIndex='{{ disk["index"] }}' AND InterfaceType='{{ disk["interfaceType"] }}' AND Model='{{ disk["model"] }}' AND Size='{{ disk["size"] }}' AND Availability='{{ disk["availability"] }}' AND TotalHeads='{{ disk["totalHeads"] }}' AND TotalCylinders='{{ disk["totalCylinders"] }}' AND TracksPerCylinder='{{ disk["tracksPerCylinder"] }}' AND TotalTracks='{{ disk["totalTracks"] }}' AND SectorsPerTrack='{{ disk["sectorsPerTrack"] }}' AND TotalSectors='{{ disk["totalSectors"] }}' AND BytesPerSector='{{ disk["bytesPerSector"] }}' AND DefaultBlockSize='{{ disk["defaultBlockSize"] }}' AND MediaType='{{ disk["mediaType"] }}' AND Partitions='{{ disk["partitions"] }}' AND ConfigManagerErrorCode='{{ disk["configManagerErrorCode"] }}' AND SerialNumber='{{ disk["serialNumber"] }}' AND SCSIBus='{{ disk["SCSIBus"] }}' AND SCSIPort='{{ disk["SCSIPort"] }}' AND SCSITargetID='{{ disk["SCSITargetID"] }}' AND SCSILogicalUnit='{{ disk["SCSILogicalUnit"] }}' AND Auto AND End IS NULL;
+
+UPDATE_DISKDRIVE_{{ loop.index }}: UPDATE WinDiskDrive SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ disk["deviceID"] }}' AND Caption='{{ disk["caption"] }}' AND DiskIndex='{{ disk["index"] }}' AND InterfaceType='{{ disk["interfaceType"] }}' AND Model='{{ disk["model"] }}' AND Size='{{ disk["size"] }}' AND Availability='{{ disk["availability"] }}' AND TotalHeads='{{ disk["totalHeads"] }}' AND TotalCylinders='{{ disk["totalCylinders"] }}' AND TracksPerCylinder='{{ disk["tracksPerCylinder"] }}' AND TotalTracks='{{ disk["totalTracks"] }}' AND SectorsPerTrack='{{ disk["sectorsPerTrack"] }}' AND TotalSectors='{{ disk["totalSectors"] }}' AND BytesPerSector='{{ disk["bytesPerSector"] }}' AND DefaultBlockSize='{{ disk["defaultBlockSize"] }}' AND MediaType='{{ disk["mediaType"] }}' AND Partitions='{{ disk["partitions"] }}' AND ConfigManagerErrorCode='{{ disk["configManagerErrorCode"] }}' AND SerialNumber='{{ disk["serialNumber"] }}' AND SCSIBus='{{ disk["SCSIBus"] }}' AND SCSIPort='{{ disk["SCSIPort"] }}' AND SCSITargetID='{{ disk["SCSITargetID"] }}' AND SCSILogicalUnit='{{ disk["SCSILogicalUnit"] }}' AND Auto AND End IS NULL; 
+
+INSERT_DISKDRIVE_{{ loop.index }}: INSERT INTO WinDiskDrive (DeviceID,Server,Caption,DiskIndex,InterfaceType,Model,Size,Availability,TotalHeads,TotalCylinders,TracksPerCylinder,TotalTracks,SectorsPerTrack,TotalSectors,BytesPerSector,DefaultBlockSize,MediaType,Partitions,ConfigManagerErrorCode,SerialNumber,SCSIBus,SCSIPort,SCSITargetID,SCSILogicalUnit,Init,Checked,Auto) VALUES ('{{ disk["deviceID"] }}','{{ inventory_hostname }}', '{{ disk["caption"] }}', '{{ disk["index"] }}', '{{ disk["interfaceType"] }}', '{{ disk["model"] }}', '{{ disk["size"] }}', '{{ disk["availability"] }}', '{{ disk["totalHeads"] }}', '{{ disk["totalCylinders"] }}', '{{ disk["tracksPerCylinder"] }}', '{{ disk["totalTracks"] }}', '{{ disk["sectorsPerTrack"] }}', '{{ disk["totalSectors"] }}', '{{ disk["bytesPerSector"] }}', '{{ disk["defaultBlockSize"] }}', '{{ disk["mediaType"] }}', '{{ disk["partitions"] }}', '{{ disk["configManagerErrorCode"] }}', '{{ disk["serialNumber"] }}', '{{ disk["SCSIBus"] }}', '{{ disk["SCSIPort"] }}', '{{ disk["SCSITargetID"] }}', '{{ disk["SCSILogicalUnit"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["DiskPartition"] is defined %}
+
+{% for part in hostvars[inventory_hostname]["DiskPartition"] -%}
+
+CHECK_DISKPARTITION_{{ loop.index }}: SELECT * FROM WinDiskPartition WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ part["deviceID"] }}' AND Caption='{{ part["caption"] }}' AND DiskIndex='{{ part["diskIndex"] }}' AND PartitionIndex='{{ part["index"] }}' AND PartitionType='{{ part["type"] }}' AND Size='{{ part["size"] }}' AND BlockSize='{{ part["blockSize"] }}' AND NumberOfBlocks='{{ part["numberOfBlocks"] }}' AND Access='{{ part["access"] }}' AND Availability='{{ part["availability"] }}' AND Bootable='{{ part["bootable"] }}' AND bootPartition='{{ part["bootPartition"] }}' AND PrimaryPartition='{{ part["primaryPartition"] }}' AND Auto AND End IS NULL;
+
+UPDATE_DISKPARTITION_{{ loop.index }}: UPDATE WinDiskPartition SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ part["deviceID"] }}' AND Caption='{{ part["caption"] }}' AND DiskIndex='{{ part["diskIndex"] }}' AND PartitionIndex='{{ part["index"] }}' AND PartitionType='{{ part["type"] }}' AND Size='{{ part["size"] }}' AND BlockSize='{{ part["blockSize"] }}' AND NumberOfBlocks='{{ part["numberOfBlocks"] }}' AND Access='{{ part["access"] }}' AND Availability='{{ part["availability"] }}' AND Bootable='{{ part["bootable"] }}' AND bootPartition='{{ part["bootPartition"] }}' AND PrimaryPartition='{{ part["primaryPartition"] }}' AND Auto AND End IS NULL; 
+
+INSERT_DISKPARTITION_{{ loop.index }}: INSERT INTO WinDiskPartition (DeviceID,Server,Caption,DiskIndex,PartitionIndex,PartitionType,Size,BlockSize,NumberOfBlocks,Access,Availability,Bootable,BootPartition,PrimaryPartition,Init,Checked,Auto) VALUES ('{{ part["deviceID"] }}','{{ inventory_hostname }}', '{{ part["caption"] }}', '{{ part["diskIndex"] }}', '{{ part["index"] }}', '{{ part["type"] }}', '{{ part["size"] }}', '{{ part["blockSize"] }}', '{{ part["numberOfBlocks"] }}', '{{ part["access"] }}', '{{ part["availability"] }}', '{{ part["bootable"] }}', '{{ part["bootPartition"] }}', '{{ part["primaryPartition"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["DiskDriveToDiskPartition"] is defined %}
+
+{% for drivePart in hostvars[inventory_hostname]["DiskDriveToDiskPartition"] -%}
+
+CHECK_DISKDRIVETODISKPARTITION_{{ loop.index }}: SELECT * FROM WinDiskDrivePartition WHERE Server='{{ inventory_hostname }}' AND DiskDeviceID='{{ drivePart["diskDeviceID"] }}' AND PartitionDeviceID='{{ drivePart["partitionDeviceID"] }}' AND Auto AND End IS NULL;
+
+UPDATE_DISKDRIVETODISKPARTITION_{{ loop.index }}: UPDATE WinDiskDrivePartition SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND DiskDeviceID='{{ drivePart["diskDeviceID"] }}' AND PartitionDeviceID='{{ drivePart["partitionDeviceID"] }}' AND Auto AND End IS NULL; 
+
+INSERT_DISKDRIVETODISKPARTITION_{{ loop.index }}: INSERT INTO WinDiskDrivePartition (DiskDeviceID,PartitionDeviceID,Server,Init,Checked,Auto) VALUES ('{{ drivePart["diskDeviceID"] }}', '{{ drivePart["partitionDeviceID"] }}','{{ inventory_hostname }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["LogicalDisk"] is defined %}
+
+{% for disk in hostvars[inventory_hostname]["LogicalDisk"] -%}
+
+CHECK_LOGICALDISK_{{ loop.index }}: SELECT * FROM WinLogicalDisk WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ disk["deviceID"] }}' AND Caption='{{ disk["caption"] }}' AND DriveType='{{ disk["driveType"] }}' AND FileSystem='{{ disk["fileSystem"] }}' AND Size='{{ disk["size"] }}' AND Access='{{ disk["access"] }}' AND Availability='{{ disk["availability"] }}' AND Compressed='{{ disk["compressed"] }}' AND ConfigmanagerErrorCode='{{ disk["configManagerErrorCode"] }}' AND SupportsDiskQuotas='{{ disk["supportsDiskQuotas"] }}' AND QuotasDisabled='{{ disk["quotasDisabled"] }}' AND SupportsFileBasedCompression='{{ disk["supportsFileBasedCompression"] }}' AND VolumeName='{{ disk["volumeName"] }}' AND VolumeSerialNumber='{{ disk["volumeSerialNumber"] }}' AND Auto AND End IS NULL;
+
+UPDATE_LOGICALDISK_{{ loop.index }}: UPDATE WinLogicalDisk SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ disk["deviceID"] }}' AND Caption='{{ disk["caption"] }}' AND DriveType='{{ disk["driveType"] }}' AND FileSystem='{{ disk["fileSystem"] }}' AND Size='{{ disk["size"] }}' AND Access='{{ disk["access"] }}' AND Availability='{{ disk["availability"] }}' AND Compressed='{{ disk["compressed"] }}' AND ConfigmanagerErrorCode='{{ disk["configManagerErrorCode"] }}' AND SupportsDiskQuotas='{{ disk["supportsDiskQuotas"] }}' AND QuotasDisabled='{{ disk["quotasDisabled"] }}' AND SupportsFileBasedCompression='{{ disk["supportsFileBasedCompression"] }}' AND VolumeName='{{ disk["volumeName"] }}' AND VolumeSerialNumber='{{ disk["volumeSerialNumber"] }}' AND Auto AND End IS NULL;
+
+INSERT_LOGICALDISK_{{ loop.index }}: INSERT INTO WinLogicalDisk (DeviceID,Server,Caption,DriveType,FileSystem,Size,Access,Availability,Compressed,ConfigManagerErrorCode,SupportsDiskQuotas,QuotasDisabled,SupportsFileBasedCompression,VolumeName,VolumeSerialNumber,Init,Checked,Auto) VALUES ('{{ disk["deviceID"] }}','{{ inventory_hostname }}', '{{ disk["caption"] }}', '{{ disk["driveType"] }}', '{{ disk["fileSystem"] }}', '{{ disk["size"] }}', '{{ disk["access"] }}', '{{ disk["availability"] }}', '{{ disk["compressed"] }}', '{{ disk["configManagerErrorCode"] }}', '{{ disk["supportsDiskQuotas"] }}', '{{ disk["quotasDisabled"] }}', '{{ disk["supportsFileBasedCompression"] }}', '{{ disk["volumeName"] }}', '{{ disk["volumeSerialNumber"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["LogicalDiskToPartition"] is defined %}
+
+{% for diskPart in hostvars[inventory_hostname]["LogicalDiskToPartition"] -%}
+
+CHECK_LOGICALDISKTOPARTITION_{{ loop.index }}: SELECT * FROM WinLogicalDiskPartition WHERE Server='{{ inventory_hostname }}' AND PartitionDeviceID='{{ diskPart["partitionDeviceID"] }}' AND LogicalDiskDeviceID='{{ diskPart["logicalDiskDeviceID"] }}' AND Auto AND End IS NULL;
+
+UPDATE_LOGICALDISKTOPARTITION_{{ loop.index }}: UPDATE WinLogicalDiskPartition SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND PartitionDeviceID='{{ diskPart["partitionDeviceID"] }}' AND LogicalDiskDeviceID='{{ diskPart["logicalDiskDeviceID"] }}' AND Auto AND End IS NULL;
+
+INSERT_LOGICALDISKTOPARTITION_{{ loop.index }}: INSERT INTO WinLogicalDiskPartition (PartitionDeviceID,LogicalDiskDeviceID,Server,Init,Checked,Auto) VALUES ('{{ diskPart["partitionDeviceID"] }}', '{{ diskPart["logicalDiskDeviceID"] }}','{{ inventory_hostname }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_DISKDRIVE: SELECT * from WinDiskDrive WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_DISKDRIVE: UPDATE WinDiskDrive SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_DISKPARTITION: SELECT * from WinDiskPartition WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_DISKPARTITION: UPDATE WinDiskPartition SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_DISKDRIVETODISKPARTITION: SELECT * from WinDiskDrivePartition WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_DISKDRIVETODISKPARTITION: UPDATE WinDiskDrivePartition SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_LOGICALDISK: SELECT * from WinLogicalDisk WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_LOGICALDISK: UPDATE WinLogicalDisk SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_LOGICALDISKTOPARTITION: SELECT * from WinLogicalDiskPartition WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_LOGICALDISKTOPARTITION: UPDATE WinLogicalDiskPartition SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

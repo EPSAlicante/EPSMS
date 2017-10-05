@@ -1,0 +1,21 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Packages of {{ inventory_hostname }}
+
+{% for package in hostvars[inventory_hostname]["packages"] -%}
+
+CHECK_PACKAGE_{{ loop.index }}: SELECT * FROM Package WHERE Server='{{ inventory_hostname }}' AND Name='{{ package["name"] }}' AND Version='{{ package["version"] }}' AND Size='{{ package["size"] }}' AND Auto AND End IS NULL;
+
+UPDATE_PACKAGE_{{ loop.index }}: UPDATE Package SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Name='{{ package["name"] }}' AND Version='{{ package["version"] }}' AND Size='{{ package["size"] }}' AND Auto AND End IS NULL;
+
+INSERT_PACKAGE_{{ loop.index }}: INSERT INTO Package (Name,Version,Server,Size,Init,Checked,Auto) VALUES ('{{ package["name"] }}', '{{ package["version"] }}', '{{ inventory_hostname }}', '{{ package["size"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+END-CHECK_PACKAGES: SELECT * from Package WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_PACKAGES: UPDATE Package SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

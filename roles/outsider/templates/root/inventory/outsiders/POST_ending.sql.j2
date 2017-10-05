@@ -1,0 +1,418 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+END-CHECK_SERVERS: SELECT * from Server WHERE Server.Auto AND Server.End IS NULL AND Server.Checked<'##checkedTime##';
+END-UPDATE_SERVERS: UPDATE Server SET Server.End=NOW() WHERE Server.Auto AND Server.End IS NULL AND Server.Checked<'##checkedTime##';
+
+END-CHECK_PORTS: SELECT * from ServerPort, Server WHERE ServerPort.Server=Server.Name AND ServerPort.Auto AND ServerPort.End IS NULL AND Server.Auto AND Server.End IS NULL AND Server.Checked<'##checkedTime##';
+END-UPDATE_PORTS: UPDATE ServerPort INNER JOIN Server ON ServerPort.Server=Server.Name SET ServerPort.End=NOW() WHERE ServerPort.Auto AND ServerPort.End IS NULL AND Server.Auto AND Server.End IS NULL AND Server.Checked<'##checkedTime##';
+
+END-CHECK_PORTS_NODES: SELECT * from ServerPort, Server WHERE ServerPort.Server=Server.Name AND ServerPort.Access='IN' AND ServerPort.Auto AND ServerPort.End IS NULL AND Server.Auto AND Server.End IS NULL AND NOT Server.Node;
+END-UPDATE_PORTS_NODES: UPDATE ServerPort INNER JOIN Server ON ServerPort.Server=Server.Name SET ServerPort.End=NOW() WHERE ServerPort.Access='IN' AND ServerPort.Auto AND ServerPort.End IS NULL AND Server.Auto AND Server.End IS NULL AND NOT Server.Node;
+
+END-CHECK_PORTS_HIST: SELECT * from ServerPort, Server WHERE ServerPort.Server=Server.Name AND ServerPort.Auto AND ServerPort.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_PORTS_HIST: UPDATE ServerPort INNER JOIN Server ON ServerPort.Server=Server.Name SET ServerPort.End=NOW() WHERE ServerPort.Auto AND ServerPort.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_BASEBOARD: SELECT * from Baseboard, Server WHERE Baseboard.Server=Server.Name AND Baseboard.Auto AND Baseboard.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_BASEBOARD: UPDATE Baseboard INNER JOIN Server ON Baseboard.Server=Server.Name SET Baseboard.End=NOW() WHERE Baseboard.Auto AND Baseboard.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_BASEBOARD_HIST: SELECT * from Baseboard, Server WHERE Baseboard.Server=Server.Name AND Baseboard.Auto AND Baseboard.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_BASEBOARD_HIST: UPDATE Baseboard INNER JOIN Server ON Baseboard.Server=Server.Name SET Baseboard.End=NOW() WHERE Baseboard.Auto AND Baseboard.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_BASEBOARD_DEVICES: SELECT * from BaseboardDevice, Server WHERE BaseboardDevice.Server=Server.Name AND BaseboardDevice.Auto AND BaseboardDevice.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_BASEBOARD_DEVICES: UPDATE BaseboardDevice INNER JOIN Server ON BaseboardDevice.Server=Server.Name SET BaseboardDevice.End=NOW() WHERE BaseboardDevice.Auto AND BaseboardDevice.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_BASEBOARD_DEVICES_HIST: SELECT * from BaseboardDevice, Server WHERE BaseboardDevice.Server=Server.Name AND BaseboardDevice.Auto AND BaseboardDevice.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_BASEBOARD_DEVICES_HIST: UPDATE BaseboardDevice INNER JOIN Server ON BaseboardDevice.Server=Server.Name SET BaseboardDevice.End=NOW() WHERE BaseboardDevice.Auto AND BaseboardDevice.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_BIOS: SELECT * from Bios, Server WHERE Bios.Server=Server.Name AND Bios.Auto AND Bios.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_BIOS: UPDATE Bios INNER JOIN Server ON Bios.Server=Server.Name SET Bios.End=NOW() WHERE Bios.Auto AND Bios.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_BIOS_HIST: SELECT * from Bios, Server WHERE Bios.Server=Server.Name AND Bios.Auto AND Bios.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_BIOS_HIST: UPDATE Bios INNER JOIN Server ON Bios.Server=Server.Name SET Bios.End=NOW() WHERE Bios.Auto AND Bios.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_CACHES: SELECT * from Cache, Server WHERE Cache.Server=Server.Name AND Cache.Auto AND Cache.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_CACHES: UPDATE Cache INNER JOIN Server ON Cache.Server=Server.Name SET Cache.End=NOW() WHERE Cache.Auto AND Cache.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_CACHES_HIST: SELECT * from Cache, Server WHERE Cache.Server=Server.Name AND Cache.Auto AND Cache.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_CACHES_HIST: UPDATE Cache INNER JOIN Server ON Cache.Server=Server.Name SET Cache.End=NOW() WHERE Cache.Auto AND Cache.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_CONNECTORS: SELECT * from Connector, Server WHERE Connector.Server=Server.Name AND Connector.Auto AND Connector.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_CONNECTORS: UPDATE Connector INNER JOIN Server ON Connector.Server=Server.Name SET Connector.End=NOW() WHERE Connector.Auto AND Connector.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_CONNECTORS_HIST: SELECT * from Connector, Server WHERE Connector.Server=Server.Name AND Connector.Auto AND Connector.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_CONNECTORS_HIST: UPDATE Connector INNER JOIN Server ON Connector.Server=Server.Name SET Connector.End=NOW() WHERE Connector.Auto AND Connector.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_CRONTABS: SELECT * from Crontab, Server WHERE Crontab.Server=Server.Name AND Crontab.Auto AND Crontab.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_CRONTABS: UPDATE Crontab INNER JOIN Server ON Crontab.Server=Server.Name SET Crontab.End=NOW() WHERE Crontab.Auto AND Crontab.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_CRONTABS_HIST: SELECT * from Crontab, Server WHERE Crontab.Server=Server.Name AND Crontab.Auto AND Crontab.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_CRONTABS_HIST: UPDATE Crontab INNER JOIN Server ON Crontab.Server=Server.Name SET Crontab.End=NOW() WHERE Crontab.Auto AND Crontab.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_DEVICES: SELECT * from Device, Server WHERE Device.Server=Server.Name AND Device.Auto AND Device.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_DEVICES: UPDATE Device INNER JOIN Server ON Device.Server=Server.Name SET Device.End=NOW() WHERE Device.Auto AND Device.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_DEVICES_HIST: SELECT * from Device, Server WHERE Device.Server=Server.Name AND Device.Auto AND Device.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_DEVICES_HIST: UPDATE Device INNER JOIN Server ON Device.Server=Server.Name SET Device.End=NOW() WHERE Device.Auto AND Device.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_EXES: SELECT * from Exe, Server WHERE Exe.Server=Server.Name AND Exe.Auto AND Exe.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_EXES: UPDATE Exe INNER JOIN Server ON Exe.Server=Server.Name SET Exe.End=NOW() WHERE Exe.Auto AND Exe.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_EXES_HIST: SELECT * from Exe, Server WHERE Exe.Server=Server.Name AND Exe.Auto AND Exe.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_EXES_HIST: UPDATE Exe INNER JOIN Server ON Exe.Server=Server.Name SET Exe.End=NOW() WHERE Exe.Auto AND Exe.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_FILEHOSTS: SELECT * from FileHost, Server WHERE FileHost.Server=Server.Name AND FileHost.Auto AND FileHost.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_FILEHOSTS: UPDATE FileHost INNER JOIN Server ON FileHost.Server=Server.Name SET FileHost.End=NOW() WHERE FileHost.Auto AND FileHost.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_FILEHOSTS_HIST: SELECT * from FileHost, Server WHERE FileHost.Server=Server.Name AND FileHost.Auto AND FileHost.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_FILEHOSTS_HIST: UPDATE FileHost INNER JOIN Server ON FileHost.Server=Server.Name SET FileHost.End=NOW() WHERE FileHost.Auto AND FileHost.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_FILEHOSTALIAS: SELECT * from FileHostAlias, Server WHERE FileHostAlias.Server=Server.Name AND FileHostAlias.Auto AND FileHostAlias.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_FILEHOSTALIAS: UPDATE FileHostAlias INNER JOIN Server ON FileHostAlias.Server=Server.Name SET FileHostAlias.End=NOW() WHERE FileHostAlias.Auto AND FileHostAlias.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_FILEHOSTALIAS_HIST: SELECT * from FileHostAlias, Server WHERE FileHostAlias.Server=Server.Name AND FileHostAlias.Auto AND FileHostAlias.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_FILEHOSTALIAS_HIST: UPDATE FileHostAlias INNER JOIN Server ON FileHostAlias.Server=Server.Name SET FileHostAlias.End=NOW() WHERE FileHostAlias.Auto AND FileHostAlias.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_FILESYSTEMS: SELECT * from FileSystem, Server WHERE FileSystem.Server=Server.Name AND FileSystem.Auto AND FileSystem.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_FILESYSTEMS: UPDATE FileSystem INNER JOIN Server ON FileSystem.Server=Server.Name SET FileSystem.End=NOW() WHERE FileSystem.Auto AND FileSystem.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_FILESYSTEMS_HIST: SELECT * from FileSystem, Server WHERE FileSystem.Server=Server.Name AND FileSystem.Auto AND FileSystem.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_FILESYSTEMS_HIST: UPDATE FileSystem INNER JOIN Server ON FileSystem.Server=Server.Name SET FileSystem.End=NOW() WHERE FileSystem.Auto AND FileSystem.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_GROUPS: SELECT * from LocalGroup, Server WHERE LocalGroup.Server=Server.Name AND LocalGroup.Auto AND LocalGroup.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_GROUPS: UPDATE LocalGroup INNER JOIN Server ON LocalGroup.Server=Server.Name SET LocalGroup.End=NOW() WHERE LocalGroup.Auto AND LocalGroup.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_GROUPS_HIST: SELECT * from LocalGroup, Server WHERE LocalGroup.Server=Server.Name AND LocalGroup.Auto AND LocalGroup.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_GROUPS_HIST: UPDATE LocalGroup INNER JOIN Server ON LocalGroup.Server=Server.Name SET LocalGroup.End=NOW() WHERE LocalGroup.Auto AND LocalGroup.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_HARDWARE: SELECT * from Hardware, Server WHERE Hardware.Server=Server.Name AND Hardware.Auto AND Hardware.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_HARDWARE: UPDATE Hardware INNER JOIN Server ON Hardware.Server=Server.Name SET Hardware.End=NOW() WHERE Hardware.Auto AND Hardware.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_HARDWARE_HIST: SELECT * from Hardware, Server WHERE Hardware.Server=Server.Name AND Hardware.Auto AND Hardware.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_HARDWARE_HIST: UPDATE Hardware INNER JOIN Server ON Hardware.Server=Server.Name SET Hardware.End=NOW() WHERE Hardware.Auto AND Hardware.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_INTERFACES: SELECT * from Interface, Server WHERE Interface.Server=Server.Name AND Interface.Auto AND Interface.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_INTERFACES: UPDATE Interface INNER JOIN Server ON Interface.Server=Server.Name SET Interface.End=NOW() WHERE Interface.Auto AND Interface.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_INTERFACES_HIST: SELECT * from Interface, Server WHERE Interface.Server=Server.Name AND Interface.Auto AND Interface.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_INTERFACES_HIST: UPDATE Interface INNER JOIN Server ON Interface.Server=Server.Name SET Interface.End=NOW() WHERE Interface.Auto AND Interface.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_IPTABLES: SELECT * from IPTables, Server WHERE IPTables.Server=Server.Name AND IPTables.Auto AND IPTables.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_IPTABLES: UPDATE IPTables INNER JOIN Server ON IPTables.Server=Server.Name SET IPTables.End=NOW() WHERE IPTables.Auto AND IPTables.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_IPTABLES_HIST: SELECT * from IPTables, Server WHERE IPTables.Server=Server.Name AND IPTables.Auto AND IPTables.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_IPTABLES_HIST: UPDATE IPTables INNER JOIN Server ON IPTables.Server=Server.Name SET IPTables.End=NOW() WHERE IPTables.Auto AND IPTables.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_IPTABLESPOLICY: SELECT * from IPTablesPolicy, Server WHERE IPTablesPolicy.Server=Server.Name AND IPTablesPolicy.Auto AND IPTablesPolicy.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_IPTABLESPOLICY: UPDATE IPTablesPolicy INNER JOIN Server ON IPTablesPolicy.Server=Server.Name SET IPTablesPolicy.End=NOW() WHERE IPTablesPolicy.Auto AND IPTablesPolicy.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_IPTABLESPOLICY_HIST: SELECT * from IPTablesPolicy, Server WHERE IPTablesPolicy.Server=Server.Name AND IPTablesPolicy.Auto AND IPTablesPolicy.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_IPTABLESPOLICY_HIST: UPDATE IPTablesPolicy INNER JOIN Server ON IPTablesPolicy.Server=Server.Name SET IPTablesPolicy.End=NOW() WHERE IPTablesPolicy.Auto AND IPTablesPolicy.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_MEMORIES: SELECT * from Memory, Server WHERE Memory.Server=Server.Name AND Memory.Auto AND Memory.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_MEMORIES: UPDATE Memory INNER JOIN Server ON Memory.Server=Server.Name SET Memory.End=NOW() WHERE Memory.Auto AND Memory.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_MEMORIES_HIST: SELECT * from Memory, Server WHERE Memory.Server=Server.Name AND Memory.Auto AND Memory.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_MEMORIES_HIST: UPDATE Memory INNER JOIN Server ON Memory.Server=Server.Name SET Memory.End=NOW() WHERE Memory.Auto AND Memory.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_MEMORYARRAYS: SELECT * from MemoryArray, Server WHERE MemoryArray.Server=Server.Name AND MemoryArray.Auto AND MemoryArray.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_MEMORYARRAYS: UPDATE MemoryArray INNER JOIN Server ON MemoryArray.Server=Server.Name SET MemoryArray.End=NOW() WHERE MemoryArray.Auto AND MemoryArray.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_MEMORYARRAYS_HIST: SELECT * from MemoryArray, Server WHERE MemoryArray.Server=Server.Name AND MemoryArray.Auto AND MemoryArray.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_MEMORYARRAYS_HIST: UPDATE MemoryArray INNER JOIN Server ON MemoryArray.Server=Server.Name SET MemoryArray.End=NOW() WHERE MemoryArray.Auto AND MemoryArray.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_MODULES: SELECT * from Module, Server WHERE Module.Server=Server.Name AND Module.Auto AND Module.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_MODULES: UPDATE Module INNER JOIN Server ON Module.Server=Server.Name SET Module.End=NOW() WHERE Module.Auto AND Module.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_MODULES_HIST: SELECT * from Module, Server WHERE Module.Server=Server.Name AND Module.Auto AND Module.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_MODULES_HIST: UPDATE Module INNER JOIN Server ON Module.Server=Server.Name SET Module.End=NOW() WHERE Module.Auto AND Module.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL)
+
+END-CHECK_OPENVASHOSTS: SELECT * from OpenvasHost, Server WHERE OpenvasHost.Server=Server.Name AND OpenvasHost.Auto AND OpenvasHost.End IS NULL AND Server.Auto AND Server.End IS NULL AND Server.Checked<'##checkedTime##';
+END-UPDATE_OPENVASHOSTS: UPDATE OpenvasHost INNER JOIN Server ON OpenvasHost.Server=Server.Name SET OpenvasHost.End=NOW() WHERE OpenvasHost.Auto AND OpenvasHost.End IS NULL AND Server.Auto AND Server.End IS NULL AND Server.Checked<'##checkedTime##';
+
+END-CHECK_OPENVASHOSTS_HIST: SELECT * from OpenvasHost, Server WHERE OpenvasHost.Server=Server.Name AND OpenvasHost.Auto AND OpenvasHost.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_OPENVASHOSTS_HIST: UPDATE OpenvasHost INNER JOIN Server ON OpenvasHost.Server=Server.Name SET OpenvasHost.End=NOW() WHERE OpenvasHost.Auto AND OpenvasHost.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_OPENVASRESULTS: SELECT * from OpenvasResult, Server WHERE OpenvasResult.Server=Server.Name AND OpenvasResult.Auto AND OpenvasResult.End IS NULL AND Server.Auto AND Server.End IS NULL AND Server.Checked<'##checkedTime##';
+END-UPDATE_OPENVASRESULTS: UPDATE OpenvasResult INNER JOIN Server ON OpenvasResult.Server=Server.Name SET OpenvasResult.End=NOW() WHERE OpenvasResult.Auto AND OpenvasResult.End IS NULL AND Server.Auto AND Server.End IS NULL AND Server.Checked<'##checkedTime##';
+
+END-CHECK_OPENVASRESULTS_HIST: SELECT * from OpenvasResult, Server WHERE OpenvasResult.Server=Server.Name AND OpenvasResult.Auto AND OpenvasResult.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_OPENVASRESULTS_HIST: UPDATE OpenvasResult INNER JOIN Server ON OpenvasResult.Server=Server.Name SET OpenvasResult.End=NOW() WHERE OpenvasResult.Auto AND OpenvasResult.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_PACKAGES: SELECT * from Package, Server WHERE Package.Server=Server.Name AND Package.Auto AND Package.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_PACKAGES: UPDATE Package INNER JOIN Server ON Package.Server=Server.Name SET Package.End=NOW() WHERE Package.Auto AND Package.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_PACKAGES_HIST: SELECT * from Package, Server WHERE Package.Server=Server.Name AND Package.Auto AND Package.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_PACKAGES_HIST: UPDATE Package INNER JOIN Server ON Package.Server=Server.Name SET Package.End=NOW() WHERE Package.Auto AND Package.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_PAMACCESSMODULE: SELECT * from PAMAccessModule, Server WHERE PAMAccessModule.Server=Server.Name AND PAMAccessModule.Auto AND PAMAccessModule.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_PAMACCESSMODULE: UPDATE PAMAccessModule INNER JOIN Server ON PAMAccessModule.Server=Server.Name SET PAMAccessModule.End=NOW() WHERE PAMAccessModule.Auto AND PAMAccessModule.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_PAMACCESSMODULE_HIST: SELECT * from PAMAccessModule, Server WHERE PAMAccessModule.Server=Server.Name AND PAMAccessModule.Auto AND PAMAccessModule.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_PAMACCESSMODULE_HIST: UPDATE PAMAccessModule INNER JOIN Server ON PAMAccessModule.Server=Server.Name SET PAMAccessModule.End=NOW() WHERE PAMAccessModule.Auto AND PAMAccessModule.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_PAMACCESSRULE: SELECT * from PAMAccessRule, Server WHERE PAMAccessRule.Server=Server.Name AND PAMAccessRule.Auto AND PAMAccessRule.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_PAMACCESSRULE: UPDATE PAMAccessRule INNER JOIN Server ON PAMAccessRule.Server=Server.Name SET PAMAccessRule.End=NOW() WHERE PAMAccessRule.Auto AND PAMAccessRule.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_PAMACCESSRULE_HIST: SELECT * from PAMAccessRule, Server WHERE PAMAccessRule.Server=Server.Name AND PAMAccessRule.Auto AND PAMAccessRule.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_PAMACCESSRULE_HIST: UPDATE PAMAccessRule INNER JOIN Server ON PAMAccessRule.Server=Server.Name SET PAMAccessRule.End=NOW() WHERE PAMAccessRule.Auto AND PAMAccessRule.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_PAMACCESSRULEUSER: SELECT * from PAMAccessRuleUser, Server WHERE PAMAccessRuleUser.Server=Server.Name AND PAMAccessRuleUser.Auto AND PAMAccessRuleUser.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_PAMACCESSRULEUSER: UPDATE PAMAccessRuleUser INNER JOIN Server ON PAMAccessRuleUser.Server=Server.Name SET PAMAccessRuleUser.End=NOW() WHERE PAMAccessRuleUser.Auto AND PAMAccessRuleUser.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_PAMACCESSRULEUSER_HIST: SELECT * from PAMAccessRuleUser, Server WHERE PAMAccessRuleUser.Server=Server.Name AND PAMAccessRuleUser.Auto AND PAMAccessRuleUser.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_PAMACCESSRULEUSER_HIST: UPDATE PAMAccessRuleUser INNER JOIN Server ON PAMAccessRuleUser.Server=Server.Name SET PAMAccessRuleUser.End=NOW() WHERE PAMAccessRuleUser.Auto AND PAMAccessRuleUser.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_PAMACCESSRULEORIGIN: SELECT * from PAMAccessRuleOrigin, Server WHERE PAMAccessRuleOrigin.Server=Server.Name AND PAMAccessRuleOrigin.Auto AND PAMAccessRuleOrigin.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_PAMACCESSRULEORIGIN: UPDATE PAMAccessRuleOrigin INNER JOIN Server ON PAMAccessRuleOrigin.Server=Server.Name SET PAMAccessRuleOrigin.End=NOW() WHERE PAMAccessRuleOrigin.Auto AND PAMAccessRuleOrigin.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_PAMACCESSRULEORIGIN_HIST: SELECT * from PAMAccessRuleOrigin, Server WHERE PAMAccessRuleOrigin.Server=Server.Name AND PAMAccessRuleOrigin.Auto AND PAMAccessRuleOrigin.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_PAMACCESSRULEORIGIN_HIST: UPDATE PAMAccessRuleOrigin INNER JOIN Server ON PAMAccessRuleOrigin.Server=Server.Name SET PAMAccessRuleOrigin.End=NOW() WHERE PAMAccessRuleOrigin.Auto AND PAMAccessRuleOrigin.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_PARTITIONS: SELECT * from Partition, Server WHERE Partition.Server=Server.Name AND Partition.Auto AND Partition.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_PARTITIONS: UPDATE Partition INNER JOIN Server ON Partition.Server=Server.Name SET Partition.End=NOW() WHERE Partition.Auto AND Partition.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_PARTITIONS_HIST: SELECT * from Partition, Server WHERE Partition.Server=Server.Name AND Partition.Auto AND Partition.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_PARTITIONS_HIST: UPDATE Partition INNER JOIN Server ON Partition.Server=Server.Name SET Partition.End=NOW() WHERE Partition.Auto AND Partition.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_PROCESSOR: SELECT * from Processor, Server WHERE Processor.Server=Server.Name AND Processor.Auto AND Processor.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_PROCESSOR: UPDATE Processor INNER JOIN Server ON Processor.Server=Server.Name SET Processor.End=NOW() WHERE Processor.Auto AND Processor.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_PROCESSOR_HIST: SELECT * from Processor, Server WHERE Processor.Server=Server.Name AND Processor.Auto AND Processor.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL); 
+END-UPDATE_PROCESSOR_HIST: UPDATE Processor INNER JOIN Server ON Processor.Server=Server.Name SET Processor.End=NOW() WHERE Processor.Auto AND Processor.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_PROCESSOR_FLAG: SELECT * from ProcessorFlag, Server WHERE ProcessorFlag.Server=Server.Name AND ProcessorFlag.Auto AND ProcessorFlag.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_PROCESSOR_FLAG: UPDATE ProcessorFlag INNER JOIN Server ON ProcessorFlag.Server=Server.Name SET ProcessorFlag.End=NOW() WHERE ProcessorFlag.Auto AND ProcessorFlag.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_PROCESSOR_FLAG_HIST: SELECT * from ProcessorFlag, Server WHERE ProcessorFlag.Server=Server.Name AND ProcessorFlag.Auto AND ProcessorFlag.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_PROCESSOR_FLAG_HIST: UPDATE ProcessorFlag INNER JOIN Server ON ProcessorFlag.Server=Server.Name SET ProcessorFlag.End=NOW() WHERE ProcessorFlag.Auto AND ProcessorFlag.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_RESOLVERS: SELECT * from Resolver, Server WHERE Resolver.Server=Server.Name AND Resolver.Auto AND Resolver.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_RESOLVERS: UPDATE Resolver INNER JOIN Server ON Resolver.Server=Server.Name SET Resolver.End=NOW() WHERE Resolver.Auto AND Resolver.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_RESOLVERS_HIST: SELECT * from Resolver, Server WHERE Resolver.Server=Server.Name AND Resolver.Auto AND Resolver.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_RESOLVERS_HIST: UPDATE Resolver INNER JOIN Server ON Resolver.Server=Server.Name SET Resolver.End=NOW() WHERE Resolver.Auto AND Resolver.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_RESOLVEROPTIONS: SELECT * from ResolverOption, Server WHERE ResolverOption.Server=Server.Name AND ResolverOption.Auto AND ResolverOption.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_RESOLVEROPTIONS: UPDATE ResolverOption INNER JOIN Server ON ResolverOption.Server=Server.Name SET ResolverOption.End=NOW() WHERE ResolverOption.Auto AND ResolverOption.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_RESOLVEROPTIONS_HIST: SELECT * from ResolverOption, Server WHERE ResolverOption.Server=Server.Name AND ResolverOption.Auto AND ResolverOption.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_RESOLVEROPTIONS_HIST: UPDATE ResolverOption INNER JOIN Server ON ResolverOption.Server=Server.Name SET ResolverOption.End=NOW() WHERE ResolverOption.Auto AND ResolverOption.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_ROUTES: SELECT * from Route, Server WHERE Route.Server=Server.Name AND Route.Auto AND Route.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_ROUTES: UPDATE Route INNER JOIN Server ON Route.Server=Server.Name SET Route.End=NOW() WHERE Route.Auto AND Route.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_ROUTES_HIST: SELECT * from Route, Server WHERE Route.Server=Server.Name AND Route.Auto AND Route.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_ROUTES_HIST: UPDATE Route INNER JOIN Server ON Route.Server=Server.Name SET Route.End=NOW() WHERE Route.Auto AND Route.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_SLOTS: SELECT * from Slot, Server WHERE Slot.Server=Server.Name AND Slot.Auto AND Slot.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_SLOTS: UPDATE Slot INNER JOIN Server ON Slot.Server=Server.Name SET Slot.End=NOW() WHERE Slot.Auto AND Slot.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_SLOTS_HIST: SELECT * from Slot, Server WHERE Slot.Server=Server.Name AND Slot.Auto AND Slot.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_SLOTS_HIST: UPDATE Slot INNER JOIN Server ON Slot.Server=Server.Name SET Slot.End=NOW() WHERE Slot.Auto AND Slot.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_SOFTWARE: SELECT * from Software, Server WHERE Software.Server=Server.Name AND Software.Auto AND Software.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_SOFTWARE: UPDATE Software INNER JOIN Server ON Software.Server=Server.Name SET Software.End=NOW() WHERE Software.Auto AND Software.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_SOFTWARE_HIST: SELECT * from Software, Server WHERE Software.Server=Server.Name AND Software.Auto AND Software.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_SOFTWARE_HIST: UPDATE Software INNER JOIN Server ON Software.Server=Server.Name SET Software.End=NOW() WHERE Software.Auto AND Software.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_SUDOALIAS: SELECT * from SudoAlias, Server WHERE SudoAlias.Server=Server.Name AND SudoAlias.Auto AND SudoAlias.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_SUDOALIAS: UPDATE SudoAlias INNER JOIN Server ON SudoAlias.Server=Server.Name SET SudoAlias.End=NOW() WHERE SudoAlias.Auto AND SudoAlias.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_SUDOALIAS_HIST: SELECT * from SudoAlias, Server WHERE SudoAlias.Server=Server.Name AND SudoAlias.Auto AND SudoAlias.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_SUDOALIAS_HIST: UPDATE SudoAlias INNER JOIN Server ON SudoAlias.Server=Server.Name SET SudoAlias.End=NOW() WHERE SudoAlias.Auto AND SudoAlias.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_SUDOALIASITEMS: SELECT * from SudoAliasItem, Server WHERE SudoAliasItem.Server=Server.Name AND SudoAliasItem.Auto AND SudoAliasItem.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_SUDOALIASITEMS: UPDATE SudoAliasItem INNER JOIN Server ON SudoAliasItem.Server=Server.Name SET SudoAliasItem.End=NOW() WHERE SudoAliasItem.Auto AND SudoAliasItem.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_SUDOALIASITEMS_HIST: SELECT * from SudoAliasItem, Server WHERE SudoAliasItem.Server=Server.Name AND SudoAliasItem.Auto AND SudoAliasItem.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_SUDOALIASITEMS_HIST: UPDATE SudoAliasItem INNER JOIN Server ON SudoAliasItem.Server=Server.Name SET SudoAliasItem.End=NOW() WHERE SudoAliasItem.Auto AND SudoAliasItem.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_SUDODEFAULTS: SELECT * from SudoDefault, Server WHERE SudoDefault.Server=Server.Name AND SudoDefault.Auto AND SudoDefault.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_SUDODEFAULTS: UPDATE SudoDefault INNER JOIN Server ON SudoDefault.Server=Server.Name SET SudoDefault.End=NOW() WHERE SudoDefault.Auto AND SudoDefault.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_SUDODEFAULTS_HIST: SELECT * from SudoDefault, Server WHERE SudoDefault.Server=Server.Name AND SudoDefault.Auto AND SudoDefault.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_SUDODEFAULTS_HIST: UPDATE SudoDefault INNER JOIN Server ON SudoDefault.Server=Server.Name SET SudoDefault.End=NOW() WHERE SudoDefault.Auto AND SudoDefault.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_SUDOUSERSPECS: SELECT * from SudoUserSpec, Server WHERE SudoUserSpec.Server=Server.Name AND SudoUserSpec.Auto AND SudoUserSpec.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_SUDOUSERSPECS: UPDATE SudoUserSpec INNER JOIN Server ON SudoUserSpec.Server=Server.Name SET SudoUserSpec.End=NOW() WHERE SudoUserSpec.Auto AND SudoUserSpec.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_SUDOUSERSPECS_HIST: SELECT * from SudoUserSpec, Server WHERE SudoUserSpec.Server=Server.Name AND SudoUserSpec.Auto AND SudoUserSpec.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_SUDOUSERSPECS_HIST: UPDATE SudoUserSpec INNER JOIN Server ON SudoUserSpec.Server=Server.Name SET SudoUserSpec.End=NOW() WHERE SudoUserSpec.Auto AND SudoUserSpec.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_TCPWRAPPERS: SELECT * from TCPWrappers, Server WHERE TCPWrappers.Server=Server.Name AND TCPWrappers.Auto AND TCPWrappers.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_TCPWRAPPERS: UPDATE TCPWrappers INNER JOIN Server ON TCPWrappers.Server=Server.Name SET TCPWrappers.End=NOW() WHERE TCPWrappers.Auto AND TCPWrappers.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_TCPWRAPPERS_HIST: SELECT * from TCPWrappers, Server WHERE TCPWrappers.Server=Server.Name AND TCPWrappers.Auto AND TCPWrappers.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_TCPWRAPPERS_HIST: UPDATE TCPWrappers INNER JOIN Server ON TCPWrappers.Server=Server.Name SET TCPWrappers.End=NOW() WHERE TCPWrappers.Auto AND TCPWrappers.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_TCPWRAPPERSHOST: SELECT * from TCPWrappersHost, Server WHERE TCPWrappersHost.Server=Server.Name AND TCPWrappersHost.Auto AND TCPWrappersHost.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_TCPWRAPPERSHOST: UPDATE TCPWrappersHost INNER JOIN Server ON TCPWrappersHost.Server=Server.Name SET TCPWrappersHost.End=NOW() WHERE TCPWrappersHost.Auto AND TCPWrappersHost.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_TCPWRAPPERSHOST_HIST: SELECT * from TCPWrappersHost, Server WHERE TCPWrappersHost.Server=Server.Name AND TCPWrappersHost.Auto AND TCPWrappersHost.End IS NULL AND Server.Auto AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_TCPWRAPPERSHOST_HIST: UPDATE TCPWrappersHost INNER JOIN Server ON TCPWrappersHost.Server=Server.Name SET TCPWrappersHost.End=NOW() WHERE TCPWrappersHost.Auto AND TCPWrappersHost.End IS NULL AND Server.Auto AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_USERS: SELECT * from LocalUser, Server WHERE LocalUser.Server=Server.Name AND LocalUser.Auto AND LocalUser.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_USERS: UPDATE LocalUser INNER JOIN Server ON LocalUser.Server=Server.Name SET LocalUser.End=NOW() WHERE LocalUser.Auto AND LocalUser.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_USERS_HIST: SELECT * from LocalUser, Server WHERE LocalUser.Server=Server.Name AND LocalUser.Auto AND LocalUser.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_USERS_HIST: UPDATE LocalUser INNER JOIN Server ON LocalUser.Server=Server.Name SET LocalUser.End=NOW() WHERE LocalUser.Auto AND LocalUser.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_USERSGROUPS: SELECT * from LocalGroupUser, Server WHERE LocalGroupUser.Server=Server.Name AND LocalGroupUser.Auto AND LocalGroupUser.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_USERSGROUPS: UPDATE LocalGroupUser INNER JOIN Server ON LocalGroupUser.Server=Server.Name SET LocalGroupUser.End=NOW() WHERE LocalGroupUser.Auto AND LocalGroupUser.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_USERSGROUPS_HIST: SELECT * from LocalGroupUser, Server WHERE LocalGroupUser.Server=Server.Name AND LocalGroupUser.Auto AND LocalGroupUser.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_USERSGROUPS_HIST: UPDATE LocalGroupUser INNER JOIN Server ON LocalGroupUser.Server=Server.Name SET LocalGroupUser.End=NOW() WHERE LocalGroupUser.Auto AND LocalGroupUser.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+{% if winNodes == "y" -%}
+
+END-CHECK_WINACCOUNTS: SELECT * from WinAccount, Server WHERE WinAccount.Server=Server.Name AND WinAccount.Auto AND WinAccount.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINACCOUNTS: UPDATE WinAccount INNER JOIN Server ON WinAccount.Server=Server.Name SET WinAccount.End=NOW() WHERE WinAccount.Auto AND WinAccount.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINACCOUNTS_HIST: SELECT * from WinAccount, Server WHERE WinAccount.Server=Server.Name AND WinAccount.Auto AND WinAccount.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINACCOUNTS_HIST: UPDATE WinAccount INNER JOIN Server ON WinAccount.Server=Server.Name SET WinAccount.End=NOW() WHERE WinAccount.Auto AND WinAccount.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINBASEBOARDS: SELECT * from WinBaseBoard, Server WHERE WinBaseBoard.Server=Server.Name AND WinBaseBoard.Auto AND WinBaseBoard.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINBASEBOARDS: UPDATE WinBaseBoard INNER JOIN Server ON WinBaseBoard.Server=Server.Name SET WinBaseBoard.End=NOW() WHERE WinBaseBoard.Auto AND WinBaseBoard.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINBASEBOARDS_HIST: SELECT * from WinBaseBoard, Server WHERE WinBaseBoard.Server=Server.Name AND WinBaseBoard.Auto AND WinBaseBoard.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINBASEBOARDS_HIST: UPDATE WinBaseBoard INNER JOIN Server ON WinBaseBoard.Server=Server.Name SET WinBaseBoard.End=NOW() WHERE WinBaseBoard.Auto AND WinBaseBoard.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINBIOS: SELECT * from WinBios, Server WHERE WinBios.Server=Server.Name AND WinBios.Auto AND WinBios.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINBIOS: UPDATE WinBios INNER JOIN Server ON WinBios.Server=Server.Name SET WinBios.End=NOW() WHERE WinBios.Auto AND WinBios.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINBIOS_HIST: SELECT * from WinBios, Server WHERE WinBios.Server=Server.Name AND WinBios.Auto AND WinBios.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINBIOS_HIST: UPDATE WinBios INNER JOIN Server ON WinBios.Server=Server.Name SET WinBios.End=NOW() WHERE WinBios.Auto AND WinBios.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINBIOSCHARS: SELECT * from WinBiosChar, Server WHERE WinBiosChar.Server=Server.Name AND WinBiosChar.Auto AND WinBiosChar.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINBIOSCHARS: UPDATE WinBiosChar INNER JOIN Server ON WinBiosChar.Server=Server.Name SET WinBiosChar.End=NOW() WHERE WinBiosChar.Auto AND WinBiosChar.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINBIOSCHARS_HIST: SELECT * from WinBiosChar, Server WHERE WinBiosChar.Server=Server.Name AND WinBiosChar.Auto AND WinBiosChar.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINBIOSCHARS_HIST: UPDATE WinBiosChar INNER JOIN Server ON WinBiosChar.Server=Server.Name SET WinBiosChar.End=NOW() WHERE WinBiosChar.Auto AND WinBiosChar.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINBUSES: SELECT * from WinBus, Server WHERE WinBus.Server=Server.Name AND WinBus.Auto AND WinBus.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINBUSES: UPDATE WinBus INNER JOIN Server ON WinBus.Server=Server.Name SET WinBus.End=NOW() WHERE WinBus.Auto AND WinBus.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINBUSES_HIST: SELECT * from WinBus, Server WHERE WinBus.Server=Server.Name AND WinBus.Auto AND WinBus.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINBUSES_HIST: UPDATE WinBus INNER JOIN Server ON WinBus.Server=Server.Name SET WinBus.End=NOW() WHERE WinBus.Auto AND WinBus.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINDISKDRIVES: SELECT * from WinDiskDrive, Server WHERE WinDiskDrive.Server=Server.Name AND WinDiskDrive.Auto AND WinDiskDrive.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINDISKDRIVES: UPDATE WinDiskDrive INNER JOIN Server ON WinDiskDrive.Server=Server.Name SET WinDiskDrive.End=NOW() WHERE WinDiskDrive.Auto AND WinDiskDrive.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINDISKDRIVES_HIST: SELECT * from WinDiskDrive, Server WHERE WinDiskDrive.Server=Server.Name AND WinDiskDrive.Auto AND WinDiskDrive.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINDISKDRIVES_HIST: UPDATE WinDiskDrive INNER JOIN Server ON WinDiskDrive.Server=Server.Name SET WinDiskDrive.End=NOW() WHERE WinDiskDrive.Auto AND WinDiskDrive.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINDISKDRIVEPARTITIONS: SELECT * from WinDiskDrivePartition, Server WHERE WinDiskDrivePartition.Server=Server.Name AND WinDiskDrivePartition.Auto AND WinDiskDrivePartition.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINDISKDRIVEPARTITIONS: UPDATE WinDiskDrivePartition INNER JOIN Server ON WinDiskDrivePartition.Server=Server.Name SET WinDiskDrivePartition.End=NOW() WHERE WinDiskDrivePartition.Auto AND WinDiskDrivePartition.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINDISKDRIVEPARTITIONS_HIST: SELECT * from WinDiskDrivePartition, Server WHERE WinDiskDrivePartition.Server=Server.Name AND WinDiskDrivePartition.Auto AND WinDiskDrivePartition.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINDISKDRIVEPARTITIONS_HIST: UPDATE WinDiskDrivePartition INNER JOIN Server ON WinDiskDrivePartition.Server=Server.Name SET WinDiskDrivePartition.End=NOW() WHERE WinDiskDrivePartition.Auto AND WinDiskDrivePartition.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINDISKPARTITIONS: SELECT * from WinDiskPartition, Server WHERE WinDiskPartition.Server=Server.Name AND WinDiskPartition.Auto AND WinDiskPartition.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINDISKPARTITIONS: UPDATE WinDiskPartition INNER JOIN Server ON WinDiskPartition.Server=Server.Name SET WinDiskPartition.End=NOW() WHERE WinDiskPartition.Auto AND WinDiskPartition.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINDISKPARTITIONS_HIST: SELECT * from WinDiskPartition, Server WHERE WinDiskPartition.Server=Server.Name AND WinDiskPartition.Auto AND WinDiskPartition.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINDISKPARTITIONS_HIST: UPDATE WinDiskPartition INNER JOIN Server ON WinDiskPartition.Server=Server.Name SET WinDiskPartition.End=NOW() WHERE WinDiskPartition.Auto AND WinDiskPartition.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINDRIVERS: SELECT * from WinDriver, Server WHERE WinDriver.Server=Server.Name AND WinDriver.Auto AND WinDriver.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINDRIVERS: UPDATE WinDriver INNER JOIN Server ON WinDriver.Server=Server.Name SET WinDriver.End=NOW() WHERE WinDriver.Auto AND WinDriver.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINDRIVERS_HIST: SELECT * from WinDriver, Server WHERE WinDriver.Server=Server.Name AND WinDriver.Auto AND WinDriver.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINDRIVERS_HIST: UPDATE WinDriver INNER JOIN Server ON WinDriver.Server=Server.Name SET WinDriver.End=NOW() WHERE WinDriver.Auto AND WinDriver.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINGROUPS: SELECT * from WinGroup, Server WHERE WinGroup.Server=Server.Name AND WinGroup.Auto AND WinGroup.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINGROUPS: UPDATE WinGroup INNER JOIN Server ON WinGroup.Server=Server.Name SET WinGroup.End=NOW() WHERE WinGroup.Auto AND WinGroup.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINGROUPS_HIST: SELECT * from WinGroup, Server WHERE WinGroup.Server=Server.Name AND WinGroup.Auto AND WinGroup.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINGROUPS_HIST: UPDATE WinGroup INNER JOIN Server ON WinGroup.Server=Server.Name SET WinGroup.End=NOW() WHERE WinGroup.Auto AND WinGroup.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINGROUPUSERS: SELECT * from WinGroupUser, Server WHERE WinGroupUser.Server=Server.Name AND WinGroupUser.Auto AND WinGroupUser.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINGROUPUSERS: UPDATE WinGroupUser INNER JOIN Server ON WinGroupUser.Server=Server.Name SET WinGroupUser.End=NOW() WHERE WinGroupUser.Auto AND WinGroupUser.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINGROUPUSERS_HIST: SELECT * from WinGroupUser, Server WHERE WinGroupUser.Server=Server.Name AND WinGroupUser.Auto AND WinGroupUser.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINGROUPUSERS_HIST: UPDATE WinGroupUser INNER JOIN Server ON WinGroupUser.Server=Server.Name SET WinGroupUser.End=NOW() WHERE WinGroupUser.Auto AND WinGroupUser.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINLOGICALDISKS: SELECT * from WinLogicalDisk, Server WHERE WinLogicalDisk.Server=Server.Name AND WinLogicalDisk.Auto AND WinLogicalDisk.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINLOGICALDISKS: UPDATE WinLogicalDisk INNER JOIN Server ON WinLogicalDisk.Server=Server.Name SET WinLogicalDisk.End=NOW() WHERE WinLogicalDisk.Auto AND WinLogicalDisk.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINLOGICALDISKS_HIST: SELECT * from WinLogicalDisk, Server WHERE WinLogicalDisk.Server=Server.Name AND WinLogicalDisk.Auto AND WinLogicalDisk.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINLOGICALDISKS_HIST: UPDATE WinLogicalDisk INNER JOIN Server ON WinLogicalDisk.Server=Server.Name SET WinLogicalDisk.End=NOW() WHERE WinLogicalDisk.Auto AND WinLogicalDisk.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINLOGICALDISKPARTITIONS: SELECT * from WinLogicalDiskPartition, Server WHERE WinLogicalDiskPartition.Server=Server.Name AND WinLogicalDiskPartition.Auto AND WinLogicalDiskPartition.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINLOGICALDISKPARTITIONS: UPDATE WinLogicalDiskPartition INNER JOIN Server ON WinLogicalDiskPartition.Server=Server.Name SET WinLogicalDiskPartition.End=NOW() WHERE WinLogicalDiskPartition.Auto AND WinLogicalDiskPartition.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINLOGICALDISKPARTITIONS_HIST: SELECT * from WinLogicalDiskPartition, Server WHERE WinLogicalDiskPartition.Server=Server.Name AND WinLogicalDiskPartition.Auto AND WinLogicalDiskPartition.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINLOGICALDISKPARTITIONS_HIST: UPDATE WinLogicalDiskPartition INNER JOIN Server ON WinLogicalDiskPartition.Server=Server.Name SET WinLogicalDiskPartition.End=NOW() WHERE WinLogicalDiskPartition.Auto AND WinLogicalDiskPartition.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINMEMORIES: SELECT * from WinMemory, Server WHERE WinMemory.Server=Server.Name AND WinMemory.Auto AND WinMemory.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINMEMORIES: UPDATE WinMemory INNER JOIN Server ON WinMemory.Server=Server.Name SET WinMemory.End=NOW() WHERE WinMemory.Auto AND WinMemory.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINMEMORIES_HIST: SELECT * from WinMemory, Server WHERE WinMemory.Server=Server.Name AND WinMemory.Auto AND WinMemory.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINMEMORIES_HIST: UPDATE WinMemory INNER JOIN Server ON WinMemory.Server=Server.Name SET WinMemory.End=NOW() WHERE WinMemory.Auto AND WinMemory.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINMEMORYARRAYS: SELECT * from WinMemoryArray, Server WHERE WinMemoryArray.Server=Server.Name AND WinMemoryArray.Auto AND WinMemoryArray.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINMEMORYARRAYS: UPDATE WinMemoryArray INNER JOIN Server ON WinMemoryArray.Server=Server.Name SET WinMemoryArray.End=NOW() WHERE WinMemoryArray.Auto AND WinMemoryArray.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINMEMORYARRAYS_HIST: SELECT * from WinMemoryArray, Server WHERE WinMemoryArray.Server=Server.Name AND WinMemoryArray.Auto AND WinMemoryArray.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINMEMORYARRAYS_HIST: UPDATE WinMemoryArray INNER JOIN Server ON WinMemoryArray.Server=Server.Name SET WinMemoryArray.End=NOW() WHERE WinMemoryArray.Auto AND WinMemoryArray.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINMEMORYLOCATIONS: SELECT * from WinMemoryLocation, Server WHERE WinMemoryLocation.Server=Server.Name AND WinMemoryLocation.Auto AND WinMemoryLocation.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINMEMORYLOCATIONS: UPDATE WinMemoryLocation INNER JOIN Server ON WinMemoryLocation.Server=Server.Name SET WinMemoryLocation.End=NOW() WHERE WinMemoryLocation.Auto AND WinMemoryLocation.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINMEMORYLOCATIONS_HIST: SELECT * from WinMemoryLocation, Server WHERE WinMemoryLocation.Server=Server.Name AND WinMemoryLocation.Auto AND WinMemoryLocation.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINMEMORYLOCATIONS_HIST: UPDATE WinMemoryLocation INNER JOIN Server ON WinMemoryLocation.Server=Server.Name SET WinMemoryLocation.End=NOW() WHERE WinMemoryLocation.Auto AND WinMemoryLocation.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINNETWORKADAPTERS: SELECT * from WinNetworkAdapter, Server WHERE WinNetworkAdapter.Server=Server.Name AND WinNetworkAdapter.Auto AND WinNetworkAdapter.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINNETWORKADAPTERS: UPDATE WinNetworkAdapter INNER JOIN Server ON WinNetworkAdapter.Server=Server.Name SET WinNetworkAdapter.End=NOW() WHERE WinNetworkAdapter.Auto AND WinNetworkAdapter.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINNETWORKADAPTERS_HIST: SELECT * from WinNetworkAdapter, Server WHERE WinNetworkAdapter.Server=Server.Name AND WinNetworkAdapter.Auto AND WinNetworkAdapter.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINNETWORKADAPTERS_HIST: UPDATE WinNetworkAdapter INNER JOIN Server ON WinNetworkAdapter.Server=Server.Name SET WinNetworkAdapter.End=NOW() WHERE WinNetworkAdapter.Auto AND WinNetworkAdapter.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINNETWORKADAPTERCONFIGS: SELECT * from WinNetworkAdapterConfig, Server WHERE WinNetworkAdapterConfig.Server=Server.Name AND WinNetworkAdapterConfig.Auto AND WinNetworkAdapterConfig.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINNETWORKADAPTERCONFIGS: UPDATE WinNetworkAdapterConfig INNER JOIN Server ON WinNetworkAdapterConfig.Server=Server.Name SET WinNetworkAdapterConfig.End=NOW() WHERE WinNetworkAdapterConfig.Auto AND WinNetworkAdapterConfig.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINNETWORKADAPTERCONFIGS_HIST: SELECT * from WinNetworkAdapterConfig, Server WHERE WinNetworkAdapterConfig.Server=Server.Name AND WinNetworkAdapterConfig.Auto AND WinNetworkAdapterConfig.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINNETWORKADAPTERCONFIGS_HIST: UPDATE WinNetworkAdapterConfig INNER JOIN Server ON WinNetworkAdapterConfig.Server=Server.Name SET WinNetworkAdapterConfig.End=NOW() WHERE WinNetworkAdapterConfig.Auto AND WinNetworkAdapterConfig.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINNETWORKADAPTERSETTINGS: SELECT * from WinNetworkAdapterSetting, Server WHERE WinNetworkAdapterSetting.Server=Server.Name AND WinNetworkAdapterSetting.Auto AND WinNetworkAdapterSetting.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINNETWORKADAPTERSETTINGS: UPDATE WinNetworkAdapterSetting INNER JOIN Server ON WinNetworkAdapterSetting.Server=Server.Name SET WinNetworkAdapterSetting.End=NOW() WHERE WinNetworkAdapterSetting.Auto AND WinNetworkAdapterSetting.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINNETWORKADAPTERSETTINGS_HIST: SELECT * from WinNetworkAdapterSetting, Server WHERE WinNetworkAdapterSetting.Server=Server.Name AND WinNetworkAdapterSetting.Auto AND WinNetworkAdapterSetting.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINNETWORKADAPTERSETTINGS_HIST: UPDATE WinNetworkAdapterSetting INNER JOIN Server ON WinNetworkAdapterSetting.Server=Server.Name SET WinNetworkAdapterSetting.End=NOW() WHERE WinNetworkAdapterSetting.Auto AND WinNetworkAdapterSetting.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINONBOARDDEVICES: SELECT * from WinOnBoardDevice, Server WHERE WinOnBoardDevice.Server=Server.Name AND WinOnBoardDevice.Auto AND WinOnBoardDevice.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINONBOARDDEVICES: UPDATE WinOnBoardDevice INNER JOIN Server ON WinOnBoardDevice.Server=Server.Name SET WinOnBoardDevice.End=NOW() WHERE WinOnBoardDevice.Auto AND WinOnBoardDevice.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINONBOARDDEVICES_HIST: SELECT * from WinOnBoardDevice, Server WHERE WinOnBoardDevice.Server=Server.Name AND WinOnBoardDevice.Auto AND WinOnBoardDevice.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINONBOARDDEVICES_HIST: UPDATE WinOnBoardDevice INNER JOIN Server ON WinOnBoardDevice.Server=Server.Name SET WinOnBoardDevice.End=NOW() WHERE WinOnBoardDevice.Auto AND WinOnBoardDevice.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINPORTCONNECTORS: SELECT * from WinPortConnector, Server WHERE WinPortConnector.Server=Server.Name AND WinPortConnector.Auto AND WinPortConnector.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINPORTCONNECTORS: UPDATE WinPortConnector INNER JOIN Server ON WinPortConnector.Server=Server.Name SET WinPortConnector.End=NOW() WHERE WinPortConnector.Auto AND WinPortConnector.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINPORTCONNECTORS_HIST: SELECT * from WinPortConnector, Server WHERE WinPortConnector.Server=Server.Name AND WinPortConnector.Auto AND WinPortConnector.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINPORTCONNECTORS_HIST: UPDATE WinPortConnector INNER JOIN Server ON WinPortConnector.Server=Server.Name SET WinPortConnector.End=NOW() WHERE WinPortConnector.Auto AND WinPortConnector.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINPROCESSORS: SELECT * from WinProcessor, Server WHERE WinProcessor.Server=Server.Name AND WinProcessor.Auto AND WinProcessor.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINPROCESSORS: UPDATE WinProcessor INNER JOIN Server ON WinProcessor.Server=Server.Name SET WinProcessor.End=NOW() WHERE WinProcessor.Auto AND WinProcessor.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINPROCESSORS_HIST: SELECT * from WinProcessor, Server WHERE WinProcessor.Server=Server.Name AND WinProcessor.Auto AND WinProcessor.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINPROCESSORS_HIST: UPDATE WinProcessor INNER JOIN Server ON WinProcessor.Server=Server.Name SET WinProcessor.End=NOW() WHERE WinProcessor.Auto AND WinProcessor.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINSERVICES: SELECT * from WinService, Server WHERE WinService.Server=Server.Name AND WinService.Auto AND WinService.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINSERVICES: UPDATE WinService INNER JOIN Server ON WinService.Server=Server.Name SET WinService.End=NOW() WHERE WinService.Auto AND WinService.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINSERVICES_HIST: SELECT * from WinService, Server WHERE WinService.Server=Server.Name AND WinService.Auto AND WinService.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINSERVICES_HIST: UPDATE WinService INNER JOIN Server ON WinService.Server=Server.Name SET WinService.End=NOW() WHERE WinService.Auto AND WinService.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+END-CHECK_WINSHARES: SELECT * from WinShare, Server WHERE WinShare.Server=Server.Name AND WinShare.Auto AND WinShare.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINSHARES: UPDATE WinShare INNER JOIN Server ON WinShare.Server=Server.Name SET WinShare.End=NOW() WHERE WinShare.Auto AND WinShare.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINSHARES_HIST: SELECT * from WinShare, Server WHERE WinShare.Server=Server.Name AND WinShare.Auto AND WinShare.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINSHARES_HIST: UPDATE WinShare INNER JOIN Server ON WinShare.Server=Server.Name SET WinShare.End=NOW() WHERE WinShare.Auto AND WinShare.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+
+{% endif %}

@@ -1,0 +1,363 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Create Dahsboards in Grafana
+
+- name: Getting Nagios host List (in Nagios Server)
+  shell: ((grep -h --include \*.cfg 'host_name' /etc/nagios3/conf.d/*|tr -d ' '|sed 's/^host_name//g'|sort|uniq|grep -v '^localhost') || echo "") 2>/dev/null executable=/bin/bash
+  register: nagiosList
+  delegate_to: "{{ hostNagios }}"
+  changed_when: false
+
+- debug: msg="{{ nagiosList.stdout_lines }}"
+
+- name: Getting NRPE host List (in Nagios Server)
+  shell: ((grep -h --include node_\*_ansible.cfg 'host_name' /etc/nagios3/conf.d/*|tr -d ' '|sed 's/^host_name//g'|sort|uniq|grep -v '^localhost') || echo "") 2>/dev/null executable=/bin/bash
+  register: nrpeList
+  delegate_to: "{{ hostNagios }}"
+  changed_when: false
+
+- debug: msg="{{ nrpeList.stdout_lines }}"
+
+- name: Getting Munin host List (in Munin Server)
+  shell: (for i in $(grep -h '^\[' /etc/munin/conf.d/*|tr -d '['|tr -d ']'); do grep -q ";$i:" /var/lib/munin/datafile && echo "$i"; done) 2>/dev/null executable=/bin/bash
+  register: muninList
+  delegate_to: "{{ hostMunin }}"
+  changed_when: false
+
+- debug: msg="{{ muninList.stdout_lines }}"
+
+- name: Check 'munin hosts' to delete 'old outsiders dahsboards'
+  shell: '((curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/dashboards/db/eps-ms-{{ item|replace(".","-") }}|grep "\"slug\":\"eps-ms-{{ item|replace(".","-") }}\""|grep "No data from munin") >/dev/null 2>/dev/null && ([ $(curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/dashboards/db/eps-ms-{{ item|replace(".","-") }}|grep "\"created\":\""|sed "s/^.*\"created\":\"//"|cut -d"\"" -f1) == $(curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/dashboards/db/eps-ms-{{ item|replace(".","-") }}|grep "\"updated\":\""|sed "s/^.*\"updated\":\"//"|cut -d"\"" -f1) ]) >/dev/null 2>/dev/null && echo "delete") || echo "no" executable="/bin/bash"'
+  with_items: "{{ muninList.stdout_lines|sort }}"
+  register: oldDashboard
+  changed_when: false
+
+- name: Delete 'outsider' Grafana dashboards for 'new munin hosts'
+  uri:
+    url: https://localhost:3000/api/dashboards/db/eps-ms-{{ item.item|replace(".","-") }}
+    validate_certs: no
+    method: DELETE
+    headers:
+      Content-type: "application/json"
+    user: admin
+    password: "{{ passwdAdmin }}"
+    force_basic_auth: yes
+  with_items: "{{ oldDashboard.results }}"
+  changed_when: true
+  when: item.stdout == "delete"
+
+- name: Check Grafana dashsboards (Nagios)
+  shell: '((curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/dashboards/db/eps-ms-{{ item|replace(".","-") }}|grep "\"slug\":\"eps-ms-{{ item|replace(".","-") }}\"") >/dev/null 2>/dev/null && echo "no") || echo "create" executable="/bin/bash"'
+  with_items: "{{ nagiosList.stdout_lines|sort }}"
+  register: nagiosDashboard
+  changed_when: nagiosDashboard.stdout == "create"
+
+- name: Check Grafana dashsboards (NRPE)
+  shell: '((curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/dashboards/db/eps-ms-{{ item|replace(".","-") }}|grep "\"slug\":\"eps-ms-{{ item|replace(".","-") }}\"") >/dev/null 2>/dev/null && echo "no") || echo "create" executable="/bin/bash"'
+  with_items: "{{ nrpeList.stdout_lines|sort }}"
+  register: nrpeDashboard
+  changed_when: nrpeDashboard.stdout == "create"
+
+- name: Check Grafana dashsboards (Munin)
+  shell: '((curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/dashboards/db/eps-ms-{{ item|replace(".","-") }}|grep "\"slug\":\"eps-ms-{{ item|replace(".","-") }}\"") >/dev/null 2>/dev/null && echo "no") || echo "create" executable="/bin/bash"'
+  with_items: "{{ muninList.stdout_lines|sort }}"
+  register: muninDashboard
+  changed_when: muninDashboard.stdout == "create"
+
+- name: Check load plugin
+  shell: ((influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" -database "munin" -execute "select count(*) as total from load where host='{{ item.item }}'"|grep "^name:" >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  with_items: "{{ muninDashboard.results }}"
+  register: loadList
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with loadList
+  set_fact:
+    loadFact: "{{ loadFact|default({}) | combine( {item.item.item: item.stdout} ) }}"
+  with_items: "{{ loadList.results }}"
+  changed_when: false
+  when: item.stdout|default("no") == "yes"
+
+- name: Check cpu plugin
+  shell: for i in cpu_user guest idle interrupt iowait irq nice softirq steal system user waitio; do ((influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" -database "munin" -execute "select count(\"$i\") as total from cpu where host='{{ item.item }}'"|grep "^name:" >/dev/null && echo "$i") || true) 2>/dev/null; done
+  with_items: "{{ muninDashboard.results }}"
+  register: cpuList
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with cpuList
+  set_fact:
+    cpuFact: "{{ cpuFact|default({}) | combine( {item.item.item: item.stdout_lines} ) }}"
+  with_items: "{{ cpuList.results }}"
+  changed_when: false
+  when: item.stdout_lines is defined and item.stdout_lines|count > 0
+
+- name: Check memory plugin
+  shell: for i in active apps buffers cached committed free inactive kernel mapped page_tables real slab swap swap_cache swapt swapu used vmalloc_used wired; do ((influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" -database "munin" -execute "select count(\"$i\") as total from memory where host='{{ item.item }}'"|grep "^name:" >/dev/null && echo "$i") || true) 2>/dev/null; done
+  with_items: "{{ muninDashboard.results }}"
+  register: memoryList
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with memoryList
+  set_fact:
+    memoryFact: "{{ memoryFact|default({}) | combine( {item.item.item: item.stdout_lines} ) }}"
+  with_items: "{{ memoryList.results }}"
+  changed_when: false
+  when: item.stdout_lines is defined and item.stdout_lines|count > 0
+
+- name: Check memory real field plugin
+  shell: ((influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" -database "munin" -execute "select count(real) as total from memory where host='{{ item.item }}'"|grep "^name:" >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  with_items: "{{ muninDashboard.results }}"
+  register: memRealList
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with memRealList
+  set_fact:
+    memRealFact: "{{ memRealFact|default({}) | combine( {item.item.item: item.stdout} ) }}"
+  with_items: "{{ memRealList.results }}"
+  changed_when: false
+  when: item.stdout|default("no") == "yes"
+
+- name: Check netstat plugin
+  shell: ((influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" -database "munin" -execute "select count(*) as total from netstat where host='{{ item.item }}'"|grep "^name:" >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  with_items: "{{ muninDashboard.results }}"
+  register: netstatList
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with netstatList
+  set_fact:
+    netstatFact: "{{ netstatFact|default({}) | combine( {item.item.item: item.stdout} ) }}"
+  with_items: "{{ netstatList.results }}"
+  changed_when: false
+  when: item.stdout|default("no") == "yes"
+
+- name: Check processes plugin
+  shell: for i in dead idle paging processes runnable running sleeping stopped threads total uninterrumpible zombie; do ((influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" -database "munin" -execute "select count(\"$i\") as total from processes where host='{{ item.item }}'"|grep "^name:" >/dev/null && echo "$i") || true) 2>/dev/null; done
+  #shell: ((influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" -database "munin" -execute "select count(*) as total from processes where host='{{ item.item }}'"|grep "^name:" >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  with_items: "{{ muninDashboard.results }}"
+  register: processesList
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with processesList
+  set_fact:
+    processesFact: "{{ processesFact|default({}) | combine( {item.item.item: item.stdout_lines} ) }}"
+  with_items: "{{ processesList.results }}"
+  changed_when: false
+  when: item.stdout_lines is defined and item.stdout_lines|count > 0
+
+- name: Check processes total field plugin
+  shell: ((influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" -database "munin" -execute "select count(total) as total from processes where host='{{ item.item }}'"|grep "^name:" >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  with_items: "{{ muninDashboard.results }}"
+  register: procTotalList
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with procTotalList
+  set_fact:
+    procTotalFact: "{{ procTotalFact|default({}) | combine( {item.item.item: item.stdout} ) }}"
+  with_items: "{{ procTotalList.results }}"
+  changed_when: false
+  when: item.stdout|default("no") == "yes"
+
+- name: Check net interfaces and plugins
+  shell: for i in $(grep "{{ item.item }}" /var/lib/munin/datafile|grep "if_"|grep -v "if_.*_"|sed 's/^.*if_//g'|cut -d'.' -f1|sort|uniq); do ((curl -k -G https://{{ hostGrafana }}:8086/query --data-urlencode "db=munin" --data-urlencode "u=admin" --data-urlencode "p={{ passwdAdmin }}" --data-urlencode "q=select count(*) as total from if_$i where host='{{ item.item }}'"|grep 'series' >/dev/null && echo "$i") || true) 2>/dev/null; done 
+  with_items: "{{ muninDashboard.results }}"
+  register: netList
+  delegate_to: "{{ hostMunin }}"
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with netList
+  set_fact:
+    netFact: "{{ netFact|default({}) | combine( {item.item.item: item.stdout_lines} ) }}"
+  with_items: "{{ netList.results }}"
+  changed_when: false
+  when: item.stdout_lines is defined and item.stdout_lines|count > 0
+
+- name: Check network (windows) plugin
+  shell: ((influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" -database "munin" -execute "select count(*) as total from network where host='{{ item.item }}'"|grep "^name:" >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  with_items: "{{ muninDashboard.results }}"
+  register: netwinList
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with netwinList
+  set_fact:
+    netwinFact: "{{ netwinFact|default({}) | combine( {item.item.item: item.stdout} ) }}"
+  with_items: "{{ netwinList.results }}"
+  changed_when: false
+  when: item.stdout|default("no") == "yes"
+
+- name: Check disks and iops plugin
+  shell: for i in $(grep ";{{ item.item }}:diskstats_iops\..*\." /var/lib/munin/datafile|grep "\.graph_title"|sed 's/\.graph_title .* /:/'|cut -d':' -f2,3|cut -d'.' -f2|sort|uniq); do ((curl -k -G https://{{ hostGrafana }}:8086/query --data-urlencode "db=munin" --data-urlencode "u=admin" --data-urlencode "p={{ passwdAdmin }}" --data-urlencode "q=select count(${i%%:*}_rdio) as total_rdio, count(${i%%:*}_wrio) as total_wrio from diskstats_iops where host='{{ item.item }}'"|grep 'series' >/dev/null && echo "$i") || true) 2>/dev/null; done
+  with_items: "{{ muninDashboard.results }}"
+  register: iopsList
+  delegate_to: "{{ hostMunin }}"
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with iopsList
+  set_fact:
+    iopsFact: "{{ iopsFact|default({}) | combine( {item.item.item: item.stdout_lines} ) }}"
+  with_items: "{{ iopsList.results }}"
+  changed_when: false
+  when: item.stdout_lines is defined and item.stdout_lines|count > 0
+
+- name: Check disks and bytes plugin
+  shell: for i in $(grep ";{{ item.item }}:diskstats_throughput\..*\." /var/lib/munin/datafile|grep "\.graph_title"|sed 's/\.graph_title .* /:/'|cut -d':' -f2,3|cut -d'.' -f2|sort|uniq); do ((curl -k -G https://{{ hostGrafana }}:8086/query --data-urlencode "db=munin" --data-urlencode "u=admin" --data-urlencode "p={{ passwdAdmin }}" --data-urlencode "q=select count(${i%%:*}_rdbytes) as total_rdbytes, count(${i%%:*}_wrbytes) as total_wrbytes from diskstats_throughput where host='{{ item.item }}'"|grep 'series' >/dev/null && echo "$i") || true) 2>/dev/null; done
+  with_items: "{{ muninDashboard.results }}"
+  register: bytesList
+  delegate_to: "{{ hostMunin }}"
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with bytesList
+  set_fact:
+    bytesFact: "{{ bytesFact|default({}) | combine( {item.item.item: item.stdout_lines} ) }}"
+  with_items: "{{ bytesList.results }}"
+  changed_when: false
+  when: item.stdout_lines is defined and item.stdout_lines|count > 0
+
+- name: Check disks and iostat plugin (BSD & Solaris)
+  shell: for i in $(grep ";{{ item.item }}:iostat\." /var/lib/munin/datafile|grep "\.label"|sed 's/\.label//'|cut -d':' -f2|cut -d'.' -f2|sed 's/\(_read\|_write\)//'|sed 's/ /:/'|sort|uniq); do ((curl -k -G https://{{ hostGrafana }}:8086/query --data-urlencode "db=munin" --data-urlencode "u=admin" --data-urlencode "p={{ passwdAdmin }}" --data-urlencode "q=select count(${i%%:*}_read) as total_read, count(${i%%:*}_write) as total_write from iostat where host='{{ item.item }}'"|grep 'series' >/dev/null && echo "$i") || true) 2>/dev/null; done
+  with_items: "{{ muninDashboard.results }}"
+  register: iostatList
+  delegate_to: "{{ hostMunin }}"
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with iostatList
+  set_fact:
+    iostatFact: "{{ iostatFact|default({}) | combine( {item.item.item: item.stdout_lines} ) }}"
+  with_items: "{{ iostatList.results }}"
+  changed_when: false
+  when: item.stdout_lines is defined and item.stdout_lines|count > 0
+
+- name: Check disks and latency plugin
+  shell: for i in $(grep ";{{ item.item }}:diskstats_latency\..*\." /var/lib/munin/datafile|grep "\.graph_title"|sed 's/\.graph_title .* /:/'|cut -d':' -f2,3|cut -d'.' -f2|sort|uniq); do ((curl -k -G https://{{ hostGrafana }}:8086/query --data-urlencode "db=munin" --data-urlencode "u=admin" --data-urlencode "p={{ passwdAdmin }}" --data-urlencode "q=select count(${i%%:*}_avgwait) as total_avgwait from diskstats_latency where host='{{ item.item }}'"|grep 'series' >/dev/null && echo "$i") || true) 2>/dev/null; done
+  with_items: "{{ muninDashboard.results }}"
+  register: waitList
+  delegate_to: "{{ hostMunin }}"
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with waitList
+  set_fact:
+    waitFact: "{{ waitFact|default({}) | combine( {item.item.item: item.stdout_lines} ) }}"
+  with_items: "{{ waitList.results }}"
+  changed_when: false
+  when: item.stdout_lines is defined and item.stdout_lines|count > 0
+
+- name: Check disks and utilization plugin
+  shell: for i in $(grep ";{{ item.item }}:diskstats_utilization\..*\." /var/lib/munin/datafile|grep "\.graph_title"|sed 's/\.graph_title .* /:/'|cut -d':' -f2,3|cut -d'.' -f2|sort|uniq); do ((curl -k -G https://{{ hostGrafana }}:8086/query --data-urlencode "db=munin" --data-urlencode "u=admin" --data-urlencode "p={{ passwdAdmin }}" --data-urlencode "q=select count(${i%%:*}_util) as total_util from diskstats_utilization where host='{{ item.item }}'"|grep 'series' >/dev/null && echo "$i") || true) 2>/dev/null; done
+  with_items: "{{ muninDashboard.results }}"
+  register: utilList
+  delegate_to: "{{ hostMunin }}"
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with utilList
+  set_fact:
+    utilFact: "{{ utilFact|default({}) | combine( {item.item.item: item.stdout_lines} ) }}"
+  with_items: "{{ utilList.results }}"
+  changed_when: false
+  when: item.stdout_lines is defined and item.stdout_lines|count > 0
+
+- name: Check disks and usage plugin
+  shell: for i in $(grep ";{{ item.item }}:df\." /var/lib/munin/datafile|grep "\.label"|sed 's/\.label//'|cut -d':' -f2|cut -d'.' -f2|sed 's/ /:/'|sort|uniq); do ((curl -k -G https://{{ hostGrafana }}:8086/query --data-urlencode "db=munin" --data-urlencode "u=admin" --data-urlencode "p={{ passwdAdmin }}" --data-urlencode "q=select count(${i%%:*}) as total from df where host='{{ item.item }}'"|grep 'series' >/dev/null && echo "$i") || true) 2>/dev/null; done
+  with_items: "{{ muninDashboard.results }}"
+  register: usageList
+  delegate_to: "{{ hostMunin }}"
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with usageList
+  set_fact:
+    usageFact: "{{ usageFact|default({}) | combine( {item.item.item: item.stdout_lines} ) }}"
+  with_items: "{{ usageList.results }}"
+  changed_when: false
+  when: item.stdout_lines is defined and item.stdout_lines|count > 0
+
+- name: Check disks and inode plugin
+  shell: for i in $(grep ";{{ item.item }}:df_inode\." /var/lib/munin/datafile|grep "\.label"|sed 's/\.label//'|cut -d':' -f2|cut -d'.' -f2|sed 's/ /:/'|sort|uniq); do ((curl -k -G https://{{ hostGrafana }}:8086/query --data-urlencode "db=munin" --data-urlencode "u=admin" --data-urlencode "p={{ passwdAdmin }}" --data-urlencode "q=select count(${i%%:*}) as total from df_inode where host='{{ item.item }}'"|grep 'series' >/dev/null && echo "$i") || true) 2>/dev/null; done
+  with_items: "{{ muninDashboard.results }}"
+  register: inodeList
+  delegate_to: "{{ hostMunin }}"
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with inodeList
+  set_fact:
+    inodeFact: "{{ inodeFact|default({}) | combine( {item.item.item: item.stdout_lines} ) }}"
+  with_items: "{{ inodeList.results }}"
+  changed_when: false
+  when: item.stdout_lines is defined and item.stdout_lines|count > 0
+
+- name: Check openfiles plugin
+  shell: ((influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" -database "munin" -execute "select count(*) as total from \"open_files\" where host='{{ item.item }}'"|grep "^name:" >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  with_items: "{{ muninDashboard.results }}"
+  register: openfilesList
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with openfilesList
+  set_fact:
+    openfilesFact: "{{ openfilesFact|default({}) | combine( {item.item.item: item.stdout} ) }}"
+  with_items: "{{ openfilesList.results }}"
+  changed_when: false
+  when: item.stdout|default("no") == "yes"
+
+- name: Check users plugin
+  shell: ((influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" -database "munin" -execute "select count(*) as total from \"users\" where host='{{ item.item }}'"|grep "^name:" >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  with_items: "{{ muninDashboard.results }}"
+  register: usersList
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with usersList
+  set_fact:
+    usersFact: "{{ usersFact|default({}) | combine( {item.item.item: item.stdout} ) }}"
+  with_items: "{{ usersList.results }}"
+  changed_when: false
+  when: item.stdout|default("no") == "yes"
+
+- name: Check uptime plugin
+  shell: ((influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" -database "munin" -execute "select count(*) as total from uptime where host='{{ item.item }}'"|grep "^name:" >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  with_items: "{{ muninDashboard.results }}"
+  register: uptimeList
+  changed_when: false
+  when: item.stdout == "create"
+
+- name: Create facts with uptimeList
+  set_fact:
+    uptimeFact: "{{ uptimeFact|default({}) | combine( {item.item.item: item.stdout} ) }}"
+  with_items: "{{ uptimeList.results }}"
+  changed_when: false
+  when: item.stdout|default("no") == "yes"
+
+- name: Register Grafana dashboards
+  uri:
+    url: https://localhost:3000/api/dashboards/db
+    validate_certs: no
+    method: POST
+    headers:
+      Content-type: "application/json"
+    user: admin
+    password: "{{ passwdAdmin }}"
+    body: "{{ lookup('template','var/lib/grafana/host.json.j2') }}"
+    body_format: json
+    force_basic_auth: yes
+  with_items: "{{ nagiosDashboard.results }}"
+  changed_when: true
+  when: item.stdout == "create"
+

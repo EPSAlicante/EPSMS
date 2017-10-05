@@ -1,0 +1,24 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Host {{ inventory_hostname }}: Executables ====
+
+^  Executables ({{ "%s" % hostvars[inventory_hostname]["exes"]|count if hostvars[inventory_hostname]["exes"] is defined else "?" }} files)  ^^
+^ Exes with no Package | [[{{ inventory_hostname }}-exesnopackage | {{ "%s" % hostvars[inventory_hostname]["exesnopackage"]|count if hostvars[inventory_hostname]["exesnopackage"] is defined else "?" }} files ]] | 
+^ Exes with Setuid | [[{{ inventory_hostname }}-exessetuid | {{ "%s" % hostvars[inventory_hostname]["exessetuid"]|count if hostvars[inventory_hostname]["exessetuid"] is defined else "?" }} files ]] |
+^ Exes with Setgid | [[{{ inventory_hostname }}-exessetgid | {{ "%s" % hostvars[inventory_hostname]["exessetgid"]|count if hostvars[inventory_hostname]["exessetgid"] is defined else "?" }} files ]] |
+^ Exes Modified (signature changed) | [[{{ inventory_hostname }}-exeschanged | {{ "%s" % hostvars[inventory_hostname]["exeschanged"]|count if hostvars[inventory_hostname]["exeschanged"] is defined else "?" }} files ]] |
+^ Exes with Attributes Modified | [[{{ inventory_hostname }}-exesattrchanged | {{ "%s" % hostvars[inventory_hostname]["exesattrchanged"]|count if hostvars[inventory_hostname]["exesattrchanged"] is defined else "?" }} files ]] |
+^ Last Found (100) | [[ {{ inventory_hostname }}-exeslast | Last: {% for i in hostvars[inventory_hostname]["exeslast"] -%}{% if loop.first -%}{{ "%s (%s package) %s" % (i.Name,i.Package if i.Package != "" else "-",i.Date) }}{% endif -%}{% endfor -%} ]] |
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

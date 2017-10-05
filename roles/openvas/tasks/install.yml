@@ -1,0 +1,60 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# OpenVas Server Installation 
+
+- name: Copy atomic repository to /etc/yum.repos.d 
+  copy: src=etc/yum.repos.d/atomic.repo dest=/etc/yum.repos.d owner=root group=root mode=0644
+  when: ansible_pkg_mgr == "yum"
+
+- name: Copy GPG keys to /etc/pki/rpm-gpg
+  copy: src=etc/pki/rpm-gpg/{{ item }} dest=/etc/pki/rpm-gpg owner=root group=root mode=0644
+  with_items:
+    - RPM-GPG-KEY.art.txt
+    - RPM-GPG-KEY.atomicorp.txt
+  when: ansible_pkg_mgr == "yum"
+
+- name: Check openvas installation
+  shell: (rpm -q openvas > /dev/null 2> /dev/null && echo "OK") || echo "No" executable=/bin/bash
+  register: OpenvasInstalled
+  changed_when: False
+  when: ansible_pkg_mgr == "yum"
+
+- name: Create Openvas directory
+  file: path=/root/openvas state=directory owner=root group=root mode=0750
+  when: ansible_pkg_mgr == "yum" and OpenvasInstalled.stdout != "OK" 
+
+- name: Copy Openvas packages to Openvas Server
+  copy: src=root/openvas/{{ item }} dest=/root/openvas owner=root group=root mode=0644
+  with_items: "{{ packageOpenvas }}"
+  when: ansible_pkg_mgr == "yum" and OpenvasInstalled.stdout != "OK"
+
+- name: Install Openvas
+  shell: yum -y --enablerepo=atomic --nogpgcheck localinstall /root/openvas/*.rpm  executable=/bin/bash
+  register: openvasInst
+  when: ansible_pkg_mgr == "yum" and OpenvasInstalled.stdout == "No"
+
+- name: Be sure needed tools are installed
+  yum: pkg={{ item }} state=installed
+  with_items: "{{ toolsOpenvas }}"
+  when: ansible_pkg_mgr == "yum"
+
+- name: Exclude nettle package from updates
+  shell: (grep '^exclude=.*nettle.*' /etc/yum.conf >/dev/null 2>/dev/null && echo "No") || (grep '^exclude=' /etc/yum.conf && sed -i 's/^exclude=/exclude=nettle* /g' /etc/yum.conf) || echo 'exclude=nettle*' executable=/bin/bash
+  register: excludeNettle
+  changed_when: excludeNettle.stdout != "No"
+  when: ansible_pkg_mgr == "yum"
+
+- name: Delete certs created by Openvas after installation
+  file: path={{ item }} state=absent 
+  with_items:
+    - /var/lib/openvas/CA/cacert.pem
+    - /var/lib/openvas/CA/servercert.pem
+    - /var/lib/openvas/private/CA/cakey.pem
+    - /var/lib/openvas/private/CA/serverkey.pem
+  when: openvasInst|changed

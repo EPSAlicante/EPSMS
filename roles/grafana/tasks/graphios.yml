@@ -1,0 +1,80 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Nagios to InfluxDB 
+
+- name: Install python-setuptools in Nagios server
+  yum: pkg={{ item }} state=installed update_cache=yes
+  with_items:
+    - python-setuptools
+  delegate_to: "{{ hostNagios }}"
+  when: ansible_pkg_mgr == "yum"
+
+- name: Create directory /root/graphios in Nagios server
+  file: path="/root/graphios" owner=root group=root mode=0750 state=directory
+  delegate_to: "{{ hostNagios }}"
+
+- name: Copy graphios files to Nagios server
+  copy: src=root/graphios/{{ item }} dest=/root/graphios owner=root group=root
+  with_items:
+    - graphios_backends.py 
+    - graphios.cfg 
+    - graphios.py 
+    - init
+    - MANIFEST.in
+    - nagios
+    - README.md
+    - setup.cfg
+    - setup.py
+  delegate_to: "{{ hostNagios }}"
+  register: graphiosCopy
+
+- name: Make 'bin files' executables in Nagios server
+  file: path=/root/graphios/{{ item }} mode=0750
+  with_items:
+    - graphios.py
+    - init/debian/graphios
+    - init/rhel/graphios
+  delegate_to: "{{ hostNagios }}"
+  when: graphiosCopy|changed
+
+- name: Create directory /var/log/nagios/graphios in Nagios server
+  file: path="/var/log/nagios/graphios" owner=nagios group=nagios mode=0750 state=directory
+  delegate_to: "{{ hostNagios }}"
+  when: graphiosCopy|changed
+
+- name: Install graphios in Nagios server
+  shell: (cd /root/graphios; python setup.py install) > /dev/null 2> /dev/null executable="/bin/bash"
+  delegate_to: "{{ hostNagios }}"
+  when: graphiosCopy|changed
+
+- name: Modify graphios.cfg in Nagios server
+  lineinfile: name=/etc/graphios/graphios.cfg state=present regexp="{{ item.key }}" line="{{ item.value }}" insertafter="^enable_influxdb09 ="
+  with_items:
+    - { key: "^influxdb_servers =", value: "influxdb_servers = {{ hostGrafana }}:8086" }
+    - { key: "^influxdb_db =", value: "influxdb_db = nagios" }
+    - { key: "^influxdb_user =", value: "influxdb_user = admin" }
+    - { key: "^influxdb_password =", value: "influxdb_password = {{ passwdAdmin }}" }
+  delegate_to: "{{ hostNagios }}"
+  register: graphiosConf
+
+- name: Restart Nagios
+  service: name=nagios state=restarted
+  delegate_to: "{{ hostNagios }}"
+  when: graphiosCopy|changed
+
+- name: Active Graphios in chkconfig
+  shell: (chkconfig graphios on) > /dev/null 2> /dev/null executable="/bin/bash"
+  delegate_to: "{{ hostNagios }}"
+  when: graphiosCopy|changed
+
+- name: Restart Graphios
+  service: name=graphios state=restarted enabled=yes 
+  delegate_to: "{{ hostNagios }}"
+  when: graphiosCopy|changed or graphiosConf|changed 
+

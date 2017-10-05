@@ -1,0 +1,27 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Shares of {{ inventory_hostname }}
+
+
+{% if hostvars[inventory_hostname]["Share"] is defined %}
+
+{% for share in hostvars[inventory_hostname]["Share"] -%}
+
+CHECK_SHARE_{{ loop.index }}: SELECT * FROM WinShare WHERE Server='{{ inventory_hostname }}' AND Name='{{ share["name"] }}' AND Caption='{{ share["caption"] }}' AND PathShare='{{ share["pathShare"] }}' AND TypeShare='{{ share["typeShare"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SHARE_{{ loop.index }}: UPDATE WinShare SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Name='{{ share["name"] }}' AND Caption='{{ share["caption"] }}' AND PathShare='{{ share["pathShare"] }}' AND TypeShare='{{ share["typeShare"] }}' AND Auto AND End IS NULL; 
+
+INSERT_SHARE_{{ loop.index }}: INSERT INTO WinShare (Name,Server,Caption,PathShare,TypeShare,Init,Checked,Auto) VALUES ('{{ share["name"] }}','{{ inventory_hostname }}', '{{ share["caption"] }}', '{{ share["pathShare"] }}', '{{ share["typeShare"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_SHARE: SELECT * from WinShare WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_SHARE: UPDATE WinShare SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

@@ -1,0 +1,39 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Server {{ inventory_hostname }}: BIOS ====
+
+{% if hostvars[inventory_hostname]["BIOS"] is defined -%}
+^ Name | {{ "%s" % hostvars[inventory_hostname]["BIOS"]["name"] }} | 
+^ Caption | {{ "%s" % hostvars[inventory_hostname]["BIOS"]["caption"] }} |
+^ Version | {{ "%s" % hostvars[inventory_hostname]["BIOS"]["version"] }} |
+^ Manufacturer | {{ "%s" % hostvars[inventory_hostname]["BIOS"]["manufacturer"] }} |
+^ Release Date | {{ "%s" % hostvars[inventory_hostname]["BIOS"]["releaseDate"] }} |
+^ Serial Number | {{ "%s" % hostvars[inventory_hostname]["BIOS"]["serialNumber"] }} |
+^ Build Number | {{ "%s" % hostvars[inventory_hostname]["BIOS"]["buildNumber"] }} |
+^ Identification Code | {{ "%s" % hostvars[inventory_hostname]["BIOS"]["identificationCode"] }} |
+^ Current Language | {{ "%s" % hostvars[inventory_hostname]["BIOS"]["currentLanguage"] }} |
+^ Language Edition | {{ "%s" % hostvars[inventory_hostname]["BIOS"]["languageEdition"] }} |
+^ Primary BIOS | {{ "%s" % hostvars[inventory_hostname]["BIOS"]["primaryBIOS"] }} |
+
+{% if hostvars[inventory_hostname]["BIOS"]["biosCharacteristics"] is defined -%}
+^  Characteristics  ^^
+^  Code  ^  Description  ^
+{% for char in hostvars[inventory_hostname]["BIOS"]["biosCharacteristics"] -%}
+^  {{ char["charCode"] }} | {{ char["description"] }} |
+{% endfor %}
+{% endif %}
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

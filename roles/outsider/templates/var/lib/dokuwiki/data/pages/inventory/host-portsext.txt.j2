@@ -1,0 +1,23 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ "%s" % item.name if item.type=="node" or item.type=="winNode" else "Servers" }} | Back to {{ "%s" % item.name if item.type=="node" or item.type=="winNode" else "Main" }} page]]
+
+
+==== Host {{ item.name }}: TCP Listenning Ports (External Scan) ====
+
+{% if item.tcp is defined -%}
+^  TCP Listenning Ports  ^
+{% for portTCP in item.tcp -%}
+|  {{ portTCP }}  |
+{% endfor %}
+{% endif %}
+
+
+
+[[{{ "%s" % item.name if item.type=="node" or item.type=="winNode" else "Servers" }} | Back to {{ "%s" % item.name if item.type=="node" or item.type=="winNode" else "Main" }} page]]
+

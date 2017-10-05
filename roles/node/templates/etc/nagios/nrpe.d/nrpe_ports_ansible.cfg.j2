@@ -1,0 +1,24 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Made by EPS Monitoring System
+
+# TCP ports
+{% for portTCP in tcp -%}
+# Checking TCP port {{ portTCP.port }} ( process: {{ portTCP.process }} )  
+command[check_portTCP_{{ portTCP.port }}]={{ pluginsPathNagiosNrpe|default('/usr/lib/nagios/plugins') }}/check_listen_tcp_udp.sh -P tcp -p {{ portTCP.port }}
+
+{% endfor %}
+
+{% if udp is defined -%}
+# UDP ports
+{% for portUDP in udp -%}
+# Checking UDP port {{ portUDP.port }} ( process: {{ portUDP.process }} )
+command[check_portUDP_{{ portUDP.port }}]={{ pluginsPathNagiosNrpe|default('/usr/lib/nagios/plugins') }}/check_listen_tcp_udp.sh -P udp -p {{ portUDP.port }}
+
+{% endfor %}
+{% endif %}

@@ -1,0 +1,25 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for FileSystems of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["ansible_mounts"] is defined %}
+
+{% for fs in hostvars[inventory_hostname]["ansible_mounts"] -%}
+
+CHECK_FILESYSTEM_{{ loop.index }}: SELECT * FROM FileSystem WHERE Server='{{ inventory_hostname }}' AND Name='{{ fs["device"] }}' AND Type='{{ fs["fstype"] }}' AND Mount='{{ fs["mount"] }}' AND Options='{{ fs["options"] }}' AND Size='{{ fs["size_total"] if fs["size_total"] is defined else "0" }}' AND Auto AND End IS NULL;
+
+UPDATE_FILESYSTEM_{{ loop.index }}: UPDATE FileSystem SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Name='{{ fs["device"] }}' AND Type='{{ fs["fstype"] }}' AND Mount='{{ fs["mount"] }}' AND Options='{{ fs["options"] }}' AND Size='{{ fs["size_total"] if fs["size_total"] is defined else "0" }}' AND Auto AND End IS NULL;
+
+INSERT_FILESYSTEM_{{ loop.index }}: INSERT INTO FileSystem (Name,Server,Type,Mount,Options,Size,Init,Checked,Auto) VALUES ('{{ fs["device"] }}','{{ inventory_hostname }}', '{{ fs["fstype"] }}', '{{ fs["mount"] }}', '{{ fs["options"] }}', '{{ fs["size_total"] if fs["size_total"] is defined else "0" }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+END-CHECK_FILESYSTEM: SELECT * from FileSystem WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_FILESYSTEM: UPDATE FileSystem SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

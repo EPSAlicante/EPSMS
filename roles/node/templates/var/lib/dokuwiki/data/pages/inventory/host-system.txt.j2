@@ -1,0 +1,29 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Host {{ inventory_hostname }}: System ====
+
+{% if hostvars[inventory_hostname]["ansible_architecture"] is defined -%}
+^ Arquitecture | {{ hostvars[inventory_hostname]["ansible_architecture"] }} |
+{% endif -%}
+{% if hostvars[inventory_hostname]["system"] is defined -%}
+^ Manufacturer | {{ hostvars[inventory_hostname]["system"]["Manufacturer"] }} | 
+^ Product Name | {{ hostvars[inventory_hostname]["system"]["Product Name"] }} |
+^ Version | {{ hostvars[inventory_hostname]["system"]["Version"]|default("") }} |
+^ Serial Number | {{ hostvars[inventory_hostname]["system"]["Serial Number"]|default("") }} |
+^ UUID | {{ hostvars[inventory_hostname]["system"]["UUID"] }} |
+^ Wake-Up Type | {{ hostvars[inventory_hostname]["system"]["Wake-Up Type"] }} |
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

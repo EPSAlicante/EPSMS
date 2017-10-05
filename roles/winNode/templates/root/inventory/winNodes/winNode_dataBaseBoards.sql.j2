@@ -1,0 +1,27 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for BaseBoards of {{ inventory_hostname }}
+
+
+{% if hostvars[inventory_hostname]["BaseBoard"] is defined %}
+
+{% for base in hostvars[inventory_hostname]["BaseBoard"] -%}
+
+CHECK_BASEBOARD_{{ loop.index }}: SELECT * FROM WinBaseBoard WHERE Server='{{ inventory_hostname }}' AND Tag='{{ base["tag"] }}' AND Caption='{{ base["caption"] }}' AND Manufacturer='{{ base["manufacturer"] }}' AND Product='{{ base["product"] }}' AND Model='{{ base["model"] }}' AND Version='{{ base["version"] }}' AND SerialNumber='{{ base["serialNumber"] }}' AND HostingBoard='{{ base["hostingBoard"] }}' AND HotSwappable='{{ base["hotSwappable"] }}' AND PoweredOn='{{ base["poweredOn"] }}' AND Auto AND End IS NULL;
+
+UPDATE_BASEBOARD_{{ loop.index }}: UPDATE WinBaseBoard SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Tag='{{ base["tag"] }}' AND Caption='{{ base["caption"] }}' AND Manufacturer='{{ base["manufacturer"] }}' AND Product='{{ base["product"] }}' AND Model='{{ base["model"] }}' AND Version='{{ base["version"] }}' AND SerialNumber='{{ base["serialNumber"] }}' AND HostingBoard='{{ base["hostingBoard"] }}' AND HotSwappable='{{ base["hotSwappable"] }}' AND PoweredOn='{{ base["poweredOn"] }}' AND Auto AND End IS NULL; 
+
+INSERT_BASEBOARD_{{ loop.index }}: INSERT INTO WinBaseBoard (Tag,Server,Caption,Manufacturer,Product,Model,Version,SerialNumber,HostingBoard,HotSwappable,PoweredOn,Init,Checked,Auto) VALUES ('{{ base["tag"] }}','{{ inventory_hostname }}', '{{ base["caption"] }}', '{{ base["manufacturer"] }}', '{{ base["product"] }}', '{{ base["model"] }}', '{{ base["version"] }}', '{{ base["serialNumber"] }}', '{{ base["hostingBoard"] }}', '{{ base["hotSwappable"] }}', '{{ base["poweredOn"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_BASEBOARD: SELECT * from WinBaseBoard WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_BASEBOARD: UPDATE WinBaseBoard SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

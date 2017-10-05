@@ -1,0 +1,223 @@
+<html>
+<head>
+<title>Configuration</title>
+</head>
+<body style="background:#A4BBC7">
+<div align="center">
+<table width="80%">
+<tr><td>
+<center><h1>Example</h1></center>
+<p>&nbsp;</p>
+This example explains how to configure EPSMS to deploy a infrastructure as <strong><a href="faq.html#O1">EPSMS Demo Live (read access with user:'epsms' and password:'epsms')</a></strong>
+<p>&nbsp;</p>
+<p><strong>NetWorking Environment:</strong></p>
+<ul>
+<li><strong>Subnets</strong>: 192.168.0.0/27</li>
+<li><strong>Linux/Unix hosts</strong> in subnets (to become nodes):</li>
+<ul>
+<li>192.168.0.2 (epsms.eps.ua.es)</li>
+<li>192.168.0.3 (debian.epsms.eps.ua.es)</li>
+<li>192.168.0.4 (fedora.epsms.eps.ua.es)</li>
+<li>192.168.0.5 (ubuntu.epsms.eps.ua.es)</li>
+<li>192.168.0.6 (freebsd.epsms.eps.ua.es)</li>
+<li>192.168.0.7 (solaris.epsms.eps.ua.es)</li>
+<li>192.168.0.8 (gentoo.epsms.eps.ua.es)</li>
+<li>192.168.0.9 (opensuse.epsms.eps.ua.es)</li>
+<li>192.168.0.10 (slackware.epsms.eps.ua.es)</li>
+<li>192.168.0.11 (arch.epsms.eps.ua.es)</li>
+<li>192.168.0.12 (openbsd.epsms.eps.ua.es)</li>
+</ul>
+<li><strong>Windows hosts</strong> in subnets (to become winNodes):</li>
+<ul>
+<li>192.168.0.13 (win2008.epsms.eps.ua.es)</li>
+<li>192.168.0.14 (win2000.epsms.eps.ua.es)</li>
+</ul>
+</ul>
+<p>&nbsp;</p>
+<p>Steps to <strong>install, configure and use System</strong>:</p>
+<p>(1) We need a host (with CentOS 6 64 bits) to install software.</p>
+<p>This host will be the Control Server. We want to deploy all infrastructure in the same host, so it will be Mysql Server, Nagios Server, Munin Server, Wiki Server, Web server, InfluxDB server and Grafana server.</p>
+<p>We install CentOS 6 64 bits in: 192.168.0.2 (epsms.eps.ua.es)</p>
+<p>&nbsp;</p>
+<p>(2) Copy software (epsms.tgz) to Control Server (epsms.eps.ua.es).</p>
+<p>As 'root' user (in Control Server), decompress tgz file.</p>
+<p>It will show a directory 'epsms' with three files:</p>
+<ul>
+<li>ansible.tgz (tgz file with code)</li>
+<li>install.py (python script to install software)</li>
+<li>INSTALL (text file with documentation)</li>
+</ul>
+<p>Watching 'INSTALL' file we'll know that Control server needs 'python 2.6' installed, 'EPEL' repository enabled and environment variable LANG with UTF8.</p>
+<p>&nbsp;</p>
+<p>(3) If we have all software installed, we're going to install software.</p>
+<p>Just type (as 'root' user): ./install.py</p>
+<p>Script will all steps done:</p>
+<ul>
+<li>Operating System and python version will be checked.</li>
+<li>If everything is OK 'ansible' software and dependencies will be installed.</li>
+<li>If 'ansible' installation is OK, '/etc/ansible' directory will be renamed to '/etc/ansible-datetime' and a new '/etc/ansible' directory will be created.</li>
+<li>Finally 'ansible.tgz' file will be unzipped to '/etc/ansible'</li>
+</ul>
+<p>When script is finished, execute python script '/etc/ansible/menu.py' (Menu's Control) for next steps.</p>
+<p>&nbsp;</p>
+<p>(4) We have installed software, but is not configured yet.</p>
+<p>So, next step will be configure System.Select option '1. Configure System'.</p>
+<p>First, script checks host (epsms.eps.ua.es) to be sure it's CentOS 6, LANG with UTF8, fqdn, EPEL repository enabled and SELinux status (enabled or disabled).</p>
+<p>If everything is OK, it will define 'epsms.eps.ua.es' as Control Server.</p>
+<p>If SELinux is enabled (enforcing type) we could have problems with output connections (for example with openvas checking vulnerabilities).</p>
+<p>In that case, we can disabled SELinux modifyng 'SELINUX' variable as 'disabled' in '/etc/sysconfig/selinux' file, and reboot.</p>
+<p>Now, script will ask some questions to define System's parameters:</p>
+<ul>
+<li>
+<p><strong>Remote User to connect': 'ansible'</strong></p>
+<p>We select 'ansible' user (a new user) to connect by ssh to nodes. Control server is a node too.</p>
+<p>So, script will try to connect as 'root' user to create 'ansible' user, install 'sudo' software, permit execute everythnig for 'ansible' user and copy public key of Control server to 'authorized_key' file of 'ansible' home. This way, 'ansible' can connect to node without password, and execute very command it needs.</p>
+<p>So, we are asked to enter 'root' password of 'monitortfm.eps.ua.es'. We do it, and 'ansible' user is create and configured.</p>
+</li>
+<li><strong>Working subnets: 192.168.0.0/27</strong>
+<p>Control server 'monitortfm.eps.ua.es' has to be inside 'wotking subnets'. If not, script will show an error.</p>
+</li>
+<li><strong>IPs to be exclude: 192.168.0.1</strong>
+<p>We want to check all hosts discovered on subnet except 192.168.0.1 (router).</p>
+</li>
+<li><strong>Mysql Host: 192.168.0.2</strong>
+<p>We want 'epsms.eps.ua.es' to be our Mysql Server. Script knows that host is configured as node (we can connect as 'ansible' user), it's a CentOS 6 (as Mysql Server, it has to be CentOS 6 with LANG as UTF-8, fqdn and EPEL repository enabled) and it's inside working subnets. So, everything is OK.</p>
+</li>
+<li><strong>Nagios Host: 192.168.0.2 </strong>
+<p>We want 'epsms.eps.ua.es' to be our Nagios Server. Script knows that host is configured as node (we can connect as 'ansible' user), it's a CentOS 6 (as Nagios Server, it has to be CentOS 6 with LANG as UTF-8, fqdn and EPEL repository enabled) and it's inside working subnets. So, everything is OK.</p>
+</li>
+</ul>
+<ul>
+<li><strong>Munin Host: 192.168.0.2</strong>
+<p>We want 'monitortfm.eps.ua.es' to be our Munin Server. Script knows that host is configured as node (we can connect as 'ansible' user), it's a CentOS 6 (as Munin Server, it has to be CentOS 6 with LANG as UTF-8, fqdn and EPEL repository enabled) and it's inside working subnets. So, everything is OK.</p>
+</li>
+</ul>
+<ul>
+<li><strong>Web Host: 192.168.0.2 </strong>
+<p>We want 'monitortfm.eps.ua.es' to be our Wiki Server and Web Server. It will install dokuwiki, phpMyAdmin, a REST API and PHP & Angularjs applications. Script knows that host is configured as node (we can connect as 'ansible' user), it's a CentOS 6 (as Web server, it has to be CentOS 6 with LANG as UTF-8, fqdn and EPEL repository enabled) and it's inside working subnets. So, everything is OK.</p>
+</li>
+</ul>
+<ul>
+<li><strong>Grafana Host: 192.168.0.2</strong>
+<p>We want 'monitortfm.eps.ua.es' to be our Grafana Server and InfluxDB Server. It will install grafana and influxdb. Script knows that host is configured as node (we can connect as 'ansible' user), it's a CentOS 6 (as Grafana server, it has to be CentOS 6 with LANG as UTF-8, fqdn and EPEL repository enabled) and it's inside working subnets. So, everything is OK.</p>
+</li>
+<li><strong>Openvas Host: 192.168.0.2</strong>
+<p>We want 'monitortfm.eps.ua.es' to be our Openvas Server. Script knows that host is configured as node (we can connect as 'ansible' user), it's a CentOS 6 (as Openvas Server, it has to be CentOS 6 with LANG as UTF-8, fqdn and EPEL repository enabled) and it's inside working subnets. So, everything is OK. We should check SELinux to disable it if necessary (with SELinux enabled, Openvas will be installed but it won't be able to scan ports).</p>
+</li>
+<li><strong>Password Admin user: 'your password'</strong>
+<p>Password to connect to servers as Admin user.</p>
+</li>
+<li><strong>Password Mysql root user: 'your password as root'</strong>
+<p>Password to connect to Mysql Database as 'root' user.</p>
+</li>
+<li><strong>Hosts administrators: 'Your IP address'</strong>
+<p>Leave empty to permit access from everywhere to 'admin' user.</p>
+</li>
+<li><strong>Frequency to check Installed Software or fixed time: 4</strong>
+<p>Every 4 hours System will check that every software is installed and correcty configured for all servers and nodes.</p>
+</li>
+<li><strong>Frequency to check new hosts in subnets or fixed time: 05:00</strong>
+<p>At 05:00 System will scan 'working subnet' to discover new hosts, and clasify them as 'nodes', 'winNodes' or 'outsiders'.</p>
+</li>
+<li><strong>Frequency to check vulnerabilities in hosts: 3</strong>
+<p>Every 3 months System will scan all hosts discovered to check vulnerabilities with Openvas.</p>
+</li>
+<li><strong>Frequency to get Info from Nodes or fixed time: 2</strong>
+<p>Every 2 hours System will get hardware and software basic information from nodes.</p>
+</li>
+<li><strong>Frequency to get Info Packages from Nodes or fixed time: 12</strong>
+<p>Every 12 hours System will get packages information from nodes.</p>
+</li>
+<li><strong>Frequency to get Info Executables from Nodes or fixed time: 24</strong>
+<p>Every 24 hours System will get executables information from nodes.</p>
+</li>
+<li><strong>Do you want to check windows hosts as nodes?: 'y'</strong>
+<p>We want to get hardware and software information from winNodes.</p>
+</li>
+<li><strong>Remote user to connect to Windows nodes: 'ansible'</strong>
+<p>We have to create 'ansible' user in windows nodes and permit access to WMI information. See <a href="faq.html#B2">FAQ</a> for details.</p>
+</li>
+<li><strong>Password Windows User Nodes: 'admin'</strong>
+<p>Password to connect as 'ansible' user to winNodes.</p>
+</li>
+<li><strong>Frequency to get Info from Windows Nodes or fixed time: 2</strong>
+<p>Every 2 hours System will get hardware and software information from winNodes.</p>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p>(5) Before finish, script will ask to configure hosts as nodes.</p>
+<p>If we want to configure a host as node, we type the IP or hostame and script will ask for password of 'root' user to connect by ssh and configure.</p>
+<p>So, we want to configure all of our nodes (freeBSD.epsms.eps.ua.es, ubuntu.epsms.eps.ua.es, solaris.epsms.eps.ua.es, debian.epsms.eps.ua.es, centos.epsms.eps.ua.es, fedora.epsms.eps.ua.es, openbsd.epsms.eps.ua.es, arch.epsms.eps.ua.es, gentoo.epsms.eps.ua.es, opensuse.epsms.eps.ua.es & slackware.epsms.eps.ua.es, ).</p>
+<p>We're going to type hostname and password 'root' for every host.</p>
+<p>&nbsp;</p>
+<p>(6) We want to configure windows hosts (win2008.epsms.eps.ua.es and win2000.epsms.eps.ua.es) as winNodes, so we create 'ansible' user and permit access to WMI information in all of them.</p>
+<p>&nbsp;</p>
+<p>(7) After questions and node's configuration, script will show a summary with all questions and answers to verify them.</p>
+<p>We confirm that everything is OK, and script continues with deployment of infrastructure, installing and configuring Control Server, Mysql Server, Nagios Server, Munin Server, Wiki Server, InfluxDB server, Grafana Server and Web Server (deployment can take some time).</p>
+<p>&nbsp;</p>
+<p>(8) When deployment is done, script will start scanning of 192.168.0.0/27 (working subnet) to discover hosts and clasify as nodes, winNodes and outsiders.</p>
+<p>We have configured all of Linux/Unix hosts except openBSD.epsms.eps.ua.es as nodes and Windows hosts as winNodes, so scan will clasify: freeBSD.epsms.eps.ua.es, ubuntu.epsms.eps.ua.es, solaris.epsms.eps.ua.es, debian.epsms.eps.ua.es, centos.epsms.eps.ua.es, fedora.epsms.eps.ua.es and epsms.eps.ua.es (Control server is a node too) as nodes, clasify: win2008.epsms.eps.ua.es as winNode, and openBSD.epsms.eps.ua.es as outsider.</p>
+<p>&nbsp;</p>
+<p>(9) After scanning, script will install and configure software in nodes (Nagios NRPE, Munin node and required tools to get information).</p>
+<p>Nagios NRPE opens TCP/5666 port and Munin node opens TCP/4949 port.</p>
+<p>So, we have to permit 'epsms.eps.ua.es' (Nagios Server and Munin Server) to access these ports.</p>
+<p>&nbsp;</p>
+<p>(10) When nodes are installed and correctly configured, script will start getting hardware and software information (everything but packages and executables information) from nodes and winNodes.</p>
+<p>&nbsp;</p>
+<p>(11) Then Openvas Server will be installed and configured. Script will do it after scanning and configuration of nodes because it takes a long time, and when Openvas configuration finish we'll have a lot of data collected from nodes.</p>
+<p>&nbsp;</p>
+<p>(12) Grafana Dashboards will be configured. Script will create a dahsboard (with the name of node/winNode/outsider as title) for every host (nodes and winNodes dahsboards will have much more information than outsiders).</p>
+<p>&nbsp;</p>
+<p>(13) Finally script will configure epsms.eps.ua.es (Control Server) modifyng 'crontab' to repeat all these jobs (every job will be repeated with a frequency defined at configuration step):</p>
+<ul>
+<li><strong>Verifyng software</strong> installed and configured in Servers every 4 hours.</li>
+<li><strong>Scanning working</strong> subnets, clasifyng hosts discovered as nodes, winNodes or outsiders every day at 05:00.</li>
+<li><strong>Verifyng software</strong> installed and configured in nodes every 4 hours.</li>
+<li><strong>Getting hardware</strong> ans software basic information from nodes every 2 hours.</li>
+<li><strong>Getting packages</strong> information from nodes every 12 hours.</li>
+<li><strong>Getting executables</strong> information from nodes every 24 hours.</li>
+<li><strong>Getting hardware and software</strong> information from <strong>winNodes</strong> every 2 hours.</li>
+<li><strong>Scanning vulnerabilities</strong> on all hosts (nodes, winNodes and outsiders) (every 3 months).</li>
+</ul>
+<p>&nbsp;</p>
+<p>(12) System is configured, but we want to configure a 'Read Only User' to permit access another person (just in read mode) from everywhere. So we have to execute '2. Configure Extra Variables' in the same 'Control Menu' to define read user.</p>
+<p>Now, script will ask some questions to define System's extra parameters:</p>
+<ul>
+<li><strong>Read Only User to access all servers (leave empty to not create): epsms</strong>
+<p>'epsms' user can access to all servers in 'read only mode'.</p>
+</li>
+<li><strong>Read Only User to access all servers (leave empty to not create): epsms</strong>
+<p>'epsms' user can access to all servers in 'read only mode'.</p>
+</li>
+<li><strong>Password Read Only User: epsms</strong>
+<p>Password to connect as 'epsms' user to all servers.</p>
+</li>
+<li><strong>Hosts Read Only User (IP addresses separated by white spaces): </strong>
+<p>Leave empty to permit access from everywhere to 'epsms' user.</p>
+</li>
+</ul>
+<p>Leave default values for the rest of parameters.</p>
+<p>See <a href="configextra.html">Extra Configuration Help</a> for details.</p>
+<p>&nbsp;</p>
+<p>(13) System is now installed and configured.</p>
+<p>As an administrator (admin user), we can use Servers to get hardware and software information from nodes and winNodes, to monitor status of hosts (nodes, winNodes and outsiders), to get graphical performance information about nodes, to view checks of vulnerabilities and analize dashboards (only connecting from your admin IP).</p>
+<p>As a read user, we can read the same information as administrator (except data from InfluxDB Server, because Web Interface is only available for admin user).</p>
+<p>Connecting to <strong>'https://epsms.eps.ua.es'</strong> we have a web menu with access to:</p>
+<ul>
+<li><strong>Nagios Server</strong> <a href="https://epsms.eps.ua.es/nagios" target="_blank">https://epsms.eps.ua.es/nagios</a> (user: 'admin|epsms' password: 'your password|epsms') -> Monitoring hosts of our working subnet '192.168.0.0/27'.</li>
+<li><strong>Munin Server</strong> <a href="https://epsms.eps.ua.es/munin" target="_blank">https://epsms.eps.ua.es/munin</a> (user: 'admin|epsms' password: 'your password|epsms') -> Watching performance information about nodes.</li>
+<li><strong>Wiki Server</strong> <a href="https://epsms.eps.ua.es/wiki" target="_blank">https://epsms.eps.ua.es/wiki</a> (user: 'admin|epsms' password: 'your password|epsms') -> With a Hardware/Software/Security inventory about nodes and winNodes</li>
+<li><strong>Mysql Server (PhpMyAdmin)</strong> <a href="https://epsms.eps.ua.es/phpmyadmin" target="_blank">https://epsms.eps.ua.es/phpmyadmin</a> ( mysql user: 'root|admin|epsms' password:'your password as root|your password|epsms') -> To manage Mysql Database or doing SQL queries to get information directly from 'inventory' database.</li>
+<li><strong>Web Server (PHP & Angularjs Applications)</strong> <a href="https://epsms.eps.ua.es/web" target="_blank">https://epsms.eps.ua.es/web</a> (user: 'admin|epsms' password:'your password or epsms') -> To analize PHP & Angularjs Applications and use them as templates to make a complete and customized application. See <a href="https://epsms.eps.ua.es/help/faq.html#D2">FAQ</a> for details.</li>
+<li><strong>InfluxDB Server</strong> <a href="https://epsms.eps.ua.es/influxdb" target="_blank">https://epsms.eps.ua.es/influxdb</a> (user: 'admin' password: 'your password') -> To manage influxdb database or doing SQL queries to get time-series information from nagios and munin).</li>
+<li><strong>Grafana Server</strong> <a href="https://epsms.eps.ua.es/grafana" target="_blank">https://epsms.eps.ua.es/grafana</a> (user: 'admin|epsms' password: 'your password|epsms') -> With metrics and analytics dahsboards and information from influxdb.</li>
+<li><strong>Openvas Server</strong> <a href="https://epsms.eps.ua.es/openvas" target="_blank">https://epsms.eps.ua.es/openvas</a> (user: 'admin|epsms' password: 'your password|epsms') -> To manage vulnerabilities checks, generate reports and watch results.</li>
+<li><strong>Documentation</strong> <a href="https://epsms.eps.ua.es/help" target="_blank">https://epsms.eps.ua.es/help</a></li>
+</ul>
+<p>All certificates are self-signed, so web browsers can have problems to show pages. We can avoid these problems downloading & installing CA certificate (last item on menu).</p>
+<p>&nbsp;</p>
+</td></tr>
+</table>
+</div>
+</body>
+</html>

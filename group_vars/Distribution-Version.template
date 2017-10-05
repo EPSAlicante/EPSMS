@@ -1,0 +1,41 @@
+####################################################################
+### Template for a Distribution-Version (without minor versions) ###
+### Filename examples -> Ubuntu-14 Centos-7 Fedora-19 ...        ### 
+####################################################################
+
+# Package Manager
+packageManager: Package Manager Name 
+
+# Base packages
+basePackages:
+- Package 1 
+- Package 2
+- Package N 
+
+# Munin Node daemon
+daemonMuninNode: Munin-Node daemon (full path. Ex /etc/init.d/munin-node)
+
+# Munin Node package
+packageMuninNode: 
+- Munin-Node Package 1
+- Munin-Node Package 2 
+- Munin-Node Package N 
+
+# Munin Node configuration File
+confFileMuninNode: Munin-Node configuration File (full path. Ex /etc/munin/munin-node.conf) 
+
+# Nagios Nrpe daemon
+daemonNagiosNrpe: Nagios-Nrpe daemon (full path. Ex /etc/init.d/nrpe) 
+
+# Nagios Nrpe package
+packageNagiosNrpe: 
+- Nagios-Nrpe Package 1 
+- Nagios-Nrpe Package 2 
+- Nagios-Nrpe Package N 
+
+# Nagios Nrpe configuration File
+confFileNagiosNrpe: Nagios-Nrpe configuration File (full path. Ex /etc/nagiod/nrpe.cfg) 
+
+# Nagios Nrpe plugins Path
+pluginsPathNagiosNrpe: Nagios-Nrpe plugins directory (full path. Ex /usr/lib/nagios/plugins)
+

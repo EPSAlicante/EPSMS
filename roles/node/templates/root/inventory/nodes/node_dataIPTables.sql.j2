@@ -1,0 +1,43 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for IPTbales of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["iptables"] is defined %}
+
+{% for table in hostvars[inventory_hostname]["iptables"] -%}
+
+{% for chain in table["policies"] -%}
+
+CHECK_IPTABLESPOLICY_{{ loop.index }}: SELECT * FROM IPTablesPolicy WHERE Server='{{ inventory_hostname }}' AND IPTable='{{ table["table"] }}' AND Chain='{{ chain["chain"] }}' AND Policy='{{ chain["policy"] }}' AND Auto AND End IS NULL;
+
+UPDATE_IPTABLESPOLICY_{{ loop.index }}: UPDATE IPTablesPolicy SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND IPTable='{{ table["table"] }}' AND Chain='{{ chain["chain"] }}' AND Policy='{{ chain["policy"] }}' AND Auto AND End IS NULL; 
+
+INSERT_IPTABLESPOLICY_{{ loop.index }}: INSERT INTO IPTablesPolicy (IPTable,Chain,Server,Policy,Init,Checked,Auto) VALUES ('{{ table["table"] }}', '{{ chain["chain"] }}', '{{ inventory_hostname }}', '{{ chain["policy"] }}', NOW(), NOW(), 1);
+
+{% for rule in chain["rules"] -%}
+
+CHECK_IPTABLES_{{ table["table"] }}_{{ chain["chain"] }}_{{ loop.index }}: SELECT * FROM IPTables WHERE Server='{{ inventory_hostname }}' AND IPTable='{{ table["table"] }}' AND Chain='{{ chain["chain"] }}' AND Num='{{ rule["num"] }}' AND Rule='{{ rule["rule"] }}' AND InterfaceIN='{{ rule["in"] }}' AND InterfaceOUT='{{ rule["out"] }}' AND Source='{{ rule["src"] }}' AND Destination='{{ rule["dst"] }}' AND Protocol='{{ rule["protocol"] }}' AND SPort='{{ rule["sport"] }}' AND DPort='{{ rule["dport"] }}' AND State='{{ rule["state"] }}' AND Jump='{{ rule["jump"] }}' AND Auto AND End IS NULL;
+
+UPDATE_IPTABLES_{{ table["table"] }}_{{ chain["chain"] }}_{{ loop.index }}: UPDATE IPTables SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND IPTable='{{ table["table"] }}' AND Chain='{{ chain["chain"] }}' AND Num='{{ rule["num"] }}' AND Rule='{{ rule["rule"] }}' AND InterfaceIN='{{ rule["in"] }}' AND InterfaceOUT='{{ rule["out"] }}' AND Source='{{ rule["src"] }}' AND Destination='{{ rule["dst"] }}' AND Protocol='{{ rule["protocol"] }}' AND SPort='{{ rule["sport"] }}' AND DPort='{{ rule["dport"] }}' AND State='{{ rule["state"] }}' AND Jump='{{ rule["jump"] }}' AND Auto AND End IS NULL;
+
+INSERT_IPTABLES_{{ table["table"] }}_{{ chain["chain"] }}_{{ loop.index }}: INSERT INTO IPTables (IPTable,Chain,Num,Rule,Server,InterfaceIN,interfaceOUT,Source,Destination,Protocol,SPort,DPort,State,Jump,Init,Checked,Auto) VALUES ('{{ table["table"] }}', '{{ chain["chain"] }}', '{{ rule["num"] }}', '{{ rule["rule"] }}', '{{ inventory_hostname }}', '{{ rule["in"] }}', '{{ rule["out"] }}', '{{ rule["src"] }}', '{{ rule["dst"] }}', '{{ rule["protocol"] }}', '{{ rule["sport"] }}', '{{ rule["dport"] }}', '{{ rule["state"] }}', '{{ rule["jump"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endfor %}
+
+{% endfor %}
+
+{% endif %}
+
+END-CHECK_IPTABLESPOLICY: SELECT * from IPTablesPolicy WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_IPTABLESPOLICY: UPDATE IPTablesPolicy SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_IPTABLES: SELECT * from IPTables WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_IPTABLES: UPDATE IPTables SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+

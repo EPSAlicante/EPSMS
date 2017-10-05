@@ -1,0 +1,25 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }}-ports | Back to {{ inventory_hostname }}-ports page]]
+
+
+==== Host {{ inventory_hostname }}: Ports Found (last 100) ====
+
+{% if hostvars[inventory_hostname]["portslast"] is defined -%}
+^  Ports (Last 100)  ^^^^^^^^^
+^  Protocol  ^  Port  ^  IP4  ^  Bind IP4  ^  IP6  ^ Bind IP6  ^  Process  ^  Since  ^  Until  ^
+{% for port in hostvars[inventory_hostname]["portslast"] -%}
+|  {{ port.Protocol }}  | {{ port.Port }} |  {{ "X" if port.IP4=="1" else "" }}  |  {{ port.BindIP4 }}  |  {{ "X" if port.IP6=="1" else "" }}  |  {{ port.BindIP6 }}  | {{ port.Process }} |  {{ port.Date }}  |  {{ "%s" % port.End if port.End != "None" else "Now" }}  |
+{% endfor %}
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }}-ports | Back to {{ inventory_hostname }}-ports page]]
+

@@ -1,0 +1,40 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# OpenVas Server Update 
+
+- name: Check openvas
+  shell: (openvas-check-setup --v7 > /dev/null && echo "OK") || echo "No" executable=/bin/bash
+  register: setupOpenvas
+  changed_when: False
+
+- name: Check running tasks
+  shell: (omp -u admin -w {{ passwdAdmin }} -G >/dev/null|grep -i "Running" > /dev/null && echo "Running") || echo "No" executable=/bin/bash
+  register: checkTasks
+  changed_when: False
+
+- name: Synchronize Network Vulnerability Tests (it can take a long time)
+  shell: openvas-nvt-sync executable=/bin/bash
+  ignore_errors: yes
+  when: checkTasks.stdout == "No"
+
+- name: Synchronize SCAP Feed (it can take a long time)
+  shell: /usr/sbin/openvas-scapdata-sync executable=/bin/bash
+  ignore_errors: yes
+  when: checkTasks.stdout == "No"
+
+- name: Synchronize CertData Feed (it can take a long time)
+  shell: /usr/sbin/openvas-certdata-sync executable=/bin/bash
+  ignore_errors: yes
+  when: checkTasks.stdout == "No"
+
+- name: restart openvas-scanner service
+  service: name=openvas-scanner state=restarted enabled=yes
+  ignore_errors: yes
+  when: checkTasks.stdout == "No"
+

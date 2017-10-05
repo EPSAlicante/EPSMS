@@ -1,0 +1,30 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Server {{ inventory_hostname }}: Drivers ====
+
+{% if hostvars[inventory_hostname]["SystemDriver"] is defined -%}
+{% for driver in hostvars[inventory_hostname]["SystemDriver"] -%}
+^  {{ driver["name"] }}  ^^ 
+^ Caption | {{ driver["caption"] }} |
+^ Path Name | {{ driver["pathName"] }} |
+^ Service Type | {{ driver["serviceType"] }} |
+^ Start Mode | {{ driver["startMode"] }} |
+^ State | {{ driver["state"] }} |
+^ Error Control | {{ driver["errorControl"] }} |
+
+{% endfor %}
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

@@ -1,0 +1,48 @@
+<html>
+<head>
+<style type="text/css">
+.caption:hover {
+  font-weight:bold; 
+}
+#image {
+  display: inline-block;
+  max-width:100%;
+  width:auto;
+  height:auto;
+  border:1px solid #ccc;
+}
+#image:hover {
+ border:1px solid #777; 
+}
+table {
+  table-layout:fixed;
+  width:100%;
+}
+td {
+  width:30%;
+  height:25%;
+}
+</style>
+</head>
+<body background="images/logo.png" style="background-color:#A4BBC7;background-position:center;background-repeat:no-repeat;">
+<div align="center">
+<table border='0' col='3' cellspacing='5' cellpadding='5'>
+<tr>
+<td align="center"><a href="https://{{ hostnameNagios }}/nagios" title="Open Nagios in new tab" target="_blank"><img id="image" title="Open Nagios in new tab" src="images/Nagios.png"><div class="caption">Events & alerts (Nagios)</div></a></td>
+<td align="center"><a href="https://{{ hostnameMunin }}/munin" title="Open Munin in new tab" target="_blank"><img id="image" title="Open Munin in new tab" src="images/Munin.png"><div class="caption">Performance graphs (Munin)</div></a></td>
+<td align="center"><a href="https://{{ hostnameWeb }}/wiki" title="Open Wiki in new tab" target="_blank"><img id="image" title="Open Wiki in new tab" src="images/Wiki.png"><div class="caption">Inventory (Dokuwiki)</div></a></td>
+</tr>
+<tr>
+<td align="center"><a href="https://{{ hostnameWeb }}/web" title="Open Web Apps Menu in new tab" target="_blank"><img id="image" title="Open Web Apps Menu in new tab" src="images/WebMenu.png"><div class="caption">PHP & AngularJS apps (Web Menu)</div></a></td>
+<td align="center"><a href="https://{{ hostnameWeb }}/influxdb" title="Open InfluxDB in new tab" target="_blank"><img id="image" title="Open InfluxDB in new tab" src="images/InfluxDB.png"><div class="caption">Time series DB (InfluxDB)</div></a></td>
+<td align="center"><a href="https://{{ hostnameWeb }}/grafana" title="Open Grafana in new tab" target="_blank"><img id="image" title="Open Grafana in new tab" src="images/Grafana.png"><div class="caption">Dashboards (Grafana)</div></a></td>
+</tr>
+<tr>
+<td align="center"><a href="https://{{ hostnameWeb }}/phpmyadmin" title="Open PhpMyAdmin in new tab" target="_blank"><img id="image" title="Open PhpMyAdmin in new tab" src="images/PhpMyAdmin.png"><div class="caption">Mysql management (PhpMyAdmin)</div></a></td>
+<td align="center"><a href="https://{{ hostnameWeb }}/openvas" title="Open Openvas in new tab" target="_blank"><img id="image" title="Open Openvas in new tab" src="images/Openvas.png"><div class="caption">Vulnerability scanning (Openvas)</div></a></td>
+<td align="center"><a href="https://{{ inventory_hostname }}/help" title="Open Help Menu in new tab" target="_blank"><img id="image" title="Open Help Menu in new tab" src="images/HelpMenu.png"><div class="caption">Help Menu</div></a></td>
+</tr>
+</table>
+</div>
+</body>
+</html>

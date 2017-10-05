@@ -1,0 +1,50 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Server {{ inventory_hostname }}: Baseboard ====
+
+{% if hostvars[inventory_hostname]["BaseBoard"] is defined -%}
+
+{% for board in hostvars[inventory_hostname]["BaseBoard"] -%}
+^  BASEBOARD: {{ board["tag"] }}  ^^
+^ Caption | {{ board["caption"] }} |
+^ Manufacturer | {{ board["manufacturer"] }} | 
+^ Product | {{ board["product"] }} |
+^ Model | {{ board["model"] }} |
+^ Version | {{ board["version"] }} |
+^ Serial Number | {{ board["serialNumber"] }} |
+^ Hosting Board | {{ board["hostingBoard"] }} |
+^ Hot Swappable | {{ board["hotSwappable"] }} |
+^ Powered On | {{ board["poweredOn"] }} |
+
+{% endfor %}
+{% endif %}
+{% if hostvars[inventory_hostname]["OnBoardDevice"] is defined -%}
+
+{% for device in hostvars[inventory_hostname]["OnBoardDevice"]|sort -%}
+^  DEVICE: {{ device["tag"] }}  ^^
+^ Description | {{ device["description"] }} |
+^ Type | {{ device["deviceType"] }} |
+^ Manufacturer | {{ device["manufacturer"] }} |
+^ Model | {{ device["model"] }} |
+^ Version | {{ device["version"] }} |
+^ Serial Number | {{ device["serialNumber"] }} |
+^ Enabled | {{ device["enabled"] }} |
+^ Hot Swappable | {{ device["hotSwappable"] }} |
+^ Powered On | {{ device["poweredOn"] }} |
+
+{% endfor %}
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

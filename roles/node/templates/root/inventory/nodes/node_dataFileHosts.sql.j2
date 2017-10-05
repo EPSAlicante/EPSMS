@@ -1,0 +1,39 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for File Hosts (/etc/hosts) of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["hosts"] is defined %}
+
+{% for host in hostvars[inventory_hostname]["hosts"] -%}
+
+CHECK_FILEHOST_{{ host["num"] }}: SELECT * FROM FileHost WHERE Server='{{ inventory_hostname }}' AND NumHost='{{ host["num"] }}' AND IP='{{ host["ip"] }}' AND Rule='{{ host["rule"] }}' AND Auto AND End IS NULL;
+
+UPDATE_FILEHOST_{{ host["num"] }}: UPDATE FileHost SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND NumHost='{{ host["num"] }}' AND IP='{{ host["ip"] }}' AND Rule='{{ host["rule"] }}' AND Auto AND End IS NULL;
+
+INSERT_FILEHOST_{{ host["num"] }}: INSERT INTO FileHost (NumHost,IP,Rule,Server,Init,Checked,Auto) VALUES ('{{ host["num"] }}', '{{ host["ip"] }}', '{{ host["rule"] }}', '{{ inventory_hostname }}', NOW(), NOW(), 1);
+
+{% for alias in host["aliases"] -%}
+
+CHECK_FILEHOSTALIAS_{{ host["num"] }}_{{ alias["num"] }}: SELECT * FROM FileHostAlias WHERE Server='{{ inventory_hostname }}' AND NumHost='{{ host["num"] }}' AND NumAlias='{{ alias["num"] }}' AND Name='{{ alias["name"] }}' AND Auto AND End IS NULL;
+
+UPDATE_FILEHOSTALIAS_{{ host["num"] }}_{{ alias["num"] }}: UPDATE FileHostAlias SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND NumHost='{{ host["num"] }}' AND NumAlias='{{ alias["num"] }}' AND Name='{{ alias["name"] }}' AND Auto AND End IS NULL; 
+
+INSERT_FILEHOSTALIAS_{{ host["num"] }}_{{ alias["num"] }}: INSERT INTO FileHostAlias (NumHost,NumAlias,Name,Server,Init,Checked,Auto) VALUES ('{{ host["num"] }}', '{{ alias["num"] }}', '{{ alias["name"] }}', '{{ inventory_hostname }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endfor %}
+
+{% endif %}
+
+END-CHECK_FILEHOST: SELECT * from FileHost WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_FILEHOST: UPDATE FileHost SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_FILEHOSTALIAS: SELECT * from FileHostAlias WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_FILEHOSTALIAS: UPDATE FileHostAlias SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+

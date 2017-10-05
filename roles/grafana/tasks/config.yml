@@ -1,0 +1,193 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Grafana Server Configuration
+
+- name: Copy grafana.conf to /etc/httpd/conf.d (Centos)
+  template: src=etc/httpd/conf.d/grafana.conf.j2 dest=/etc/httpd/conf.d/grafana.conf owner=root group=root mode=0644
+  delegate_to: "{{ hostWeb }}"
+  notify: restart apache
+  when: ansible_os_family == "RedHat"
+
+- name: Configure /etc/grafana/grafana.ini file (security)
+  lineinfile: name=/etc/grafana/grafana.ini state=present regexp="{{ item.key }}" insertafter="^\[security\]" line="{{ item.value }}"
+  with_items:
+    - { key: "^admin_password =", value: "admin_password = admin" }
+    - { key: "^admin_user =", value: "admin_user = admin" }
+  notify: restart grafana
+
+- name: Configure /etc/grafana/grafana.ini file (users)
+  lineinfile: name=/etc/grafana/grafana.ini state=present regexp="{{ item.key }}" insertafter="^\[users\]" line="{{ item.value }}"
+  with_items:
+    - { key: "^allow_sign_up =", value: "allow_sign_up = false" }
+    - { key: "^allow_org_create =", value: "allow_org_create = false" }
+  notify: restart grafana
+
+- name: Configure /etc/grafana/grafana.ini file (root_url)
+  lineinfile: name=/etc/grafana/grafana.ini state=present regexp="^root_url =" insertafter="^\[server\]" line="root_url = https://{{ hostnameGrafana }}/grafana"
+  notify: restart grafana
+
+- name: Configure /etc/grafana/grafana.ini file (HTTPS protocol and certificate)
+  lineinfile: name=/etc/grafana/grafana.ini state=present regexp="{{ item.key }}" insertafter="^\[server\]" line="{{ item.value }}"
+  with_items:
+    - { key: "^cert_key =", value: "cert_key = /etc/ssl/ansible/ansible-server.key" }
+    - { key: "^cert_file =", value: "cert_file = /etc/ssl/ansible/ansible-server.crt" }
+    - { key: "^protocol =", value: "protocol = https" }
+  notify: restart grafana
+
+- name: Configure /etc/init.d/grafana-server script (auth.proxy)
+  lineinfile: name=/etc/init.d/grafana-server state=present regexp="{{ item.key }}" insertafter="environment" line="{{ item.value }}"
+  with_items:
+    - { key: "export GF_AUTH_PROXY_AUTO_SIGN_UP=", value: "    export GF_AUTH_PROXY_AUTO_SIGN_UP=false" }
+    - { key: "export GF_AUTH_PROXY_ENABLED=", value: "    export GF_AUTH_PROXY_ENABLED=true" }
+  notify: restart grafana
+
+- meta: flush_handlers
+
+- name: Wait for grafana started
+  shell: (/etc/init.d/grafana-server status) || (sleep 10 && /etc/init.d/grafana-server status) || (sleep 10 && /etc/init.d/grafana-server status) executable=/bin/bash
+
+- name: Admin user Access
+  shell: (((curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/users|grep ':1,') >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  register: adminAccess
+  changed_when: false
+
+- name: Admin reset password
+  shell: sqlite3 /var/lib/grafana/grafana.db "update user set password = '59acf18b94d7eb0694c61e60ce44c110c7a683ac6a8f09580d626f90f4a242000746579358d77dd9e570e83fa24faa88a8a6', salt = 'F3FAxVm33R' where login = 'admin';" executable="/bin/bash"
+  register: resetPassword
+  until: resetPassword.rc == 0
+  retries: 5
+  delay: 30
+  when: adminAccess.stdout == "no"
+
+- name: Admin change password
+  shell: "(((curl -k -X PUT https://admin:admin@localhost:3000/api/admin/users/1/password -H 'Accept: application/json' -H 'Content-Type: application/json' --data-binary '{ \"Password\": \"{{ passwdAdmin }}\"}') && echo 'yes') || echo 'no') 2>/dev/null executable='/bin/bash'"
+  when: adminAccess.stdout == "no"
+
+- name: Read only user ID if it changed
+  shell: (curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/users|sed 's/},{/\n/g'|grep '"login":"{{ readUserOld|default('') }}"'|sed 's/,/\n/g'|grep '"id":'|cut -d':' -f2) 2>/dev/null executable="/bin/bash"
+  register: readUserOldID
+  changed_when: false
+  when: readUserOld|default('') != "" and readUser != readUserOld|default('') 
+
+- name: Delete read only user if it changed
+  shell: "curl -k -X DELETE https://admin:{{ passwdAdmin }}@localhost:3000/api/admin/users/{{ readUserOldID.stdout }} -H 'Accept: application/json' -H 'Content-Type: application/json' executable='/bin/bash'"
+  when: readUserOld|default('') != "" and readUser != readUserOld|default('')
+
+- name: Read only user Created 
+  shell: (((curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/users|grep '"login":"{{ readUser }}"') >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  register: readUserCreated
+  changed_when: false
+  when: readUser != ""
+
+- name: Create read only user 
+  shell: "curl -k -X POST https://admin:{{ passwdAdmin }}@localhost:3000/api/admin/users -H 'Accept: application/json' -H 'Content-Type: application/json' --data-binary '{ \"name\": \"{{ readUser }}\", \"email\": \"{{ readUser }}@{{ readUser }}\", \"login\":\"{{ readUser }}\", \"password\": \"{{ passwdReadUser }}\"}' executable='/bin/bash'"
+  when: readUser != "" and readUserCreated.stdout == "no"
+
+- name: Read only user ID
+  shell: (curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/users|sed 's/},{/\n/g'|grep '"login":"{{ readUser }}"'|sed 's/,/\n/g'|grep '"id":'|cut -d':' -f2) 2>/dev/null executable="/bin/bash"
+  register: readUserID
+  changed_when: false
+  when: readUser != ""
+
+- name: Read only user in Main Org (ID 1)
+  shell: (((curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/orgs/1/users|grep '"login":"{{ readUser }}"') >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  register: readUserOrg
+  changed_when: false
+  when: readUser != ""
+
+- name: Add read only user in Main Org (ID 1)
+  shell: "curl -k -X POST https://admin:{{ passwdAdmin }}@localhost:3000/api/orgs/1/users -H 'Accept: application/json' -H 'Content-Type: application/json' --data-binary '{ \"loginOrEmail\": \"{{ readUser }}\", \"role\": \"Read Only Editor\" }' executable='/bin/bash'"
+  when: readUser != "" and readUserOrg.stdout == "no"
+
+- name: Read only user in Main Org (ID 1) as Read Only Editor
+  shell: (((curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/orgs/1/users|sed 's/},{/\n/g'|grep '"login":"{{ readUser }}"'|sed 's/,/\n/g'|grep '"role":'|grep 'Read Only Editor') >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  register: readUserOrgRO
+  changed_when: false
+  when: readUser != ""
+
+- name: Update Role read only user in Main Org (ID 1)
+  shell: "curl -k -X PATCH https://admin:{{ passwdAdmin }}@localhost:3000/api/orgs/1/users/{{ readUserID.stdout }} -H 'Accept: application/json' -H 'Content-Type: application/json' --data-binary '{ \"role\": \"Read Only Editor\" }' executable='/bin/bash'"
+  when: readUser != "" and readUserOrgRO.stdout == "no"
+
+- name: Read only user Access
+  shell: (((curl -k -X GET https://{{ readUser }}:{{ passwdReadUser }}@localhost:3000/api/dashboards/home|grep 'Home') >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  register: readUserAccess
+  changed_when: false
+  when: readUser != ""
+
+- name: Read only user change password
+  shell: "curl -k -X PUT https://admin:{{ passwdAdmin }}@localhost:3000/api/admin/users/{{ readUserID.stdout }}/password -H 'Accept: application/json' -H 'Content-Type: application/json' --data-binary '{ \"password\": \"{{ passwdReadUser }}\" }' executable='/bin/bash'"
+  when: readUser != "" and readUserAccess.stdout == "no"
+
+- name: Check nagios Grafana datasource
+  shell: '(id=`curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/datasources/id/nagios|grep id|sed "s/[{}]//g"|cut -d":" -f2`; [ "$id" != "" ] && echo "$id" || echo "no") 2>/dev/null executable="/bin/bash"'
+  register: nagiosDatasource
+  changed_when: false
+
+- name: Delete nagios Grafana datasource
+  uri:
+    url: https://localhost:3000/api/datasources/{{ nagiosDatasource.stdout }}
+    validate_certs: no
+    method: DELETE 
+    headers:
+      Content-type: "application/json"
+    user: admin
+    password: "{{ passwdAdmin }}"
+    force_basic_auth: yes
+  changed_when: true
+  when: nagiosDatasource.stdout != "no" and adminAccess.stdout == "no"
+
+- name: Register nagios Grafana datasource
+  uri:
+    url: https://localhost:3000/api/datasources
+    validate_certs: no
+    method: POST
+    headers:
+      Content-type: "application/json"
+    user: admin
+    password: "{{ passwdAdmin }}"
+    body: "{{ lookup('template','var/lib/grafana/nagiosDataSource.json.j2') }}"
+    body_format: json
+    force_basic_auth: yes
+  changed_when: true
+  when: nagiosDatasource.stdout == "no" or (nagiosDatasource.stdout != "no" and adminAccess.stdout == "no")
+
+- name: Check munin Grafana datasource
+  shell: '(id=`curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/datasources/id/munin|grep id|sed "s/[{}]//g"|cut -d":" -f2`; [ "$id" != "" ] && echo "$id" || echo "no") 2>/dev/null executable="/bin/bash"'
+  register: muninDatasource
+  changed_when: false
+
+- name: Delete munin Grafana datasource
+  uri:
+    url: https://localhost:3000/api/datasources/{{ muninDatasource.stdout }}
+    validate_certs: no
+    method: DELETE 
+    headers:
+      Content-type: "application/json"
+    user: admin
+    password: "{{ passwdAdmin }}"
+    force_basic_auth: yes
+  changed_when: true
+  when: muninDatasource.stdout != "no"  and adminAccess.stdout == "no"
+
+- name: Register munin Grafana datasource
+  uri:
+    url: https://localhost:3000/api/datasources
+    validate_certs: no
+    method: POST
+    headers:
+      Content-type: "application/json"
+    user: admin
+    password: "{{ passwdAdmin }}"
+    body: "{{ lookup('template','var/lib/grafana/muninDataSource.json.j2') }}"
+    body_format: json
+    force_basic_auth: yes
+  changed_when: true
+  when: muninDatasource.stdout == "no" or (muninDatasource.stdout != "no"  and adminAccess.stdout == "no")
+

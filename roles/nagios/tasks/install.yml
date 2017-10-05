@@ -1,0 +1,28 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Nagios Server instllation 
+
+- name: Be sure nagios is installed (yum)
+  yum: pkg={{ item }} enablerepo={{ labelEpel }} state=installed
+  with_items: "{{ packageNagios }}"
+  register: instNagios
+  when: ansible_pkg_mgr == "yum"
+
+- name: Enlazar /etc/nagios3 -> /etc/nagios (Centos)
+  file: path=/etc/nagios3 state=link src=/etc/nagios force=yes
+  when: ansible_os_family == "RedHat" 
+
+- name: Enlazar /etc/init.d/nagios3 -> /etc/init.d/nagios (Centos)
+  file: path=/etc/init.d/nagios3 state=link src=/etc/init.d/nagios force=yes
+  when: ansible_os_family == "RedHat" 
+
+- name: Active Nagios in chkconfig
+  shell: (chkconfig nagios on) > /dev/null 2> /dev/null executable="/bin/bash"
+  when: instNagios|changed
+

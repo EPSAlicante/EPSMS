@@ -1,0 +1,67 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Nagios Server configuration
+
+- name: Copy nagios.conf to /etc/httpd/conf.d (Centos)
+  template: src=etc/httpd/conf.d/nagios.conf.j2 dest=/etc/httpd/conf.d/nagios.conf owner=root group=root mode=0644
+  notify: restart apache
+  when: ansible_os_family == "RedHat" 
+
+- name: Configure check_external_command in /etc/nagios3/nagios.cfg file
+  lineinfile: name=/etc/nagios3/nagios.cfg state=present regexp='^check_external_commands' line='check_external_commands=1'
+  notify: restart nagios
+
+- name: Configure use_authentication in /etc/nagios3/cgi.cfg file
+  lineinfile: name=/etc/nagios3/cgi.cfg state=present regexp='^use_authentication' line='use_authentication=1'
+  notify: restart nagios 
+
+- name: Configure authorized access in /etc/nagios3/cgi.cfg file
+  lineinfile: name=/etc/nagios3/cgi.cfg state=present regexp={{ item.find }} line={{ item.new }}
+  with_items:
+     - { find: '^authorized_for_system_information', new: 'authorized_for_system_information=*' }
+     - { find: '^authorized_for_configuration_information', new: 'authorized_for_configuration_information=*' }
+     - { find: '^authorized_for_system_commands', new: 'authorized_for_system_commands=*' }
+     - { find: '^authorized_for_all_services', new: 'authorized_for_all_services=*' }
+     - { find: '^authorized_for_all_hosts', new: 'authorized_for_all_hosts=*' }
+     - { find: '^authorized_for_all_service_commands', new: 'authorized_for_all_service_commands=*' }
+     - { find: '^authorized_for_all_host_commands', new: 'authorized_for_all_host_commands=*' }
+  notify: restart nagios
+
+- name: Configure authorized_for_read_only deny in /etc/nagios3/cgi.cfg file if read only user changed 
+  lineinfile: name=/etc/nagios3/cgi.cfg state=present regexp='^authorized_for_read_only' line='#authorized_for_read_only=*'
+  notify: restart nagios
+  when: readUserOld|default('') != "" and readUser != readUserOld|default('')
+
+- name: Configure authorized_for_read_only access in /etc/nagios3/cgi.cfg file
+  lineinfile: name=/etc/nagios3/cgi.cfg state=present regexp='^authorized_for_read_only' line='authorized_for_read_only={{ readUser }}'
+  notify: restart nagios
+  when: readUser != ""
+
+- name: Copy /etc/nagios3/objects/command-nrpe.cfg file (Definition of check_nrpe_1arg command) (Centos)
+  template: src=etc/nagios3/objects/command-nrpe.cfg.j2 dest=/etc/nagios3/objects/command-nrpe.cfg owner=root group=root mode=0664
+  notify: restart nagios
+  when: ansible_os_family == "RedHat" 
+
+- name: Configure /etc/nagios3/nagios.cfg file (Centos)
+  lineinfile: name=/etc/nagios3/nagios.cfg state=present regexp='^cfg_file=/etc/nagios3/objects/command-nrpe.cfg' line='cfg_file=/etc/nagios3/objects/command-nrpe.cfg'
+  notify: restart nagios
+  when: ansible_os_family == "RedHat" 
+
+- name: Add userApache to nagios group
+  user: name={{ userApache }} state=present groups=nagios
+
+- name: Comment localhost in /etc/nagios3/nagios.cfg file with 'host_name localhost.localdomain' (Centos)
+  lineinfile: name=/etc/nagios3/nagios.cfg state=present regexp="^#?cfg_file=/etc/nagios/objects/localhost.cfg" line='#cfg_file=/etc/nagios/objects/localhost.cfg'
+  notify: restart nagios
+  when: ansible_os_family == "RedHat" 
+
+- name: Copy localhost to /etc/nagios3/conf.d
+  template: src=etc/nagios3/conf.d/localhost_ansible.cfg.j2 dest=/etc/nagios3/conf.d/localhost_ansible.cfg owner=root group=root mode=0644
+  notify: restart nagios
+

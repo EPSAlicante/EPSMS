@@ -1,0 +1,149 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# InfluxDB Server Installation
+
+- name: Copy influxdb repository to /etc/yum.repos.d
+  copy: src=etc/yum.repos.d/influxdb.repo dest=/etc/yum.repos.d owner=root group=root mode=0644
+  when: ansible_pkg_mgr == "yum"
+
+- name: Be sure influxdb is installed
+  yum: pkg={{ item }} enablerepo=influxdb state=installed update_cache=yes
+  with_items: "{{ packageInfluxDB }}"
+  notify: restart influxdb
+  when: ansible_pkg_mgr == "yum"
+
+- name: Copy /etc/influxdb/influxdb.conf file
+  copy: src=etc/influxdb/influxdb.conf dest=/etc/influxdb owner=root group=root mode=0644
+  notify: restart influxdb
+
+- name: Copy influxdb.conf to /etc/httpd/conf.d (Centos)
+  template: src=etc/httpd/conf.d/influxdb.conf.j2 dest=/etc/httpd/conf.d/influxdb.conf owner=root group=root mode=0644
+  delegate_to: "{{ hostWeb }}"
+  notify: restart apache
+  when: ansible_os_family == "RedHat"
+
+- name: Add user to root group
+  user: name=influxdb groups=root
+
+- meta: flush_handlers
+
+- name: noAuth Access
+  shell: ((echo "show databases"|influx -ssl -unsafeSsl|grep internal >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  register: noAuthAccess
+  changed_when: false
+
+- name: Admin user Access
+  shell: ((echo "show databases"|influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" |grep internal >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  register: adminAccess
+  changed_when: false
+
+- name: Configure /etc/influxdb/influxdb.conf file (no auth)
+  lineinfile: name=/etc/influxdb/influxdb.conf state=present regexp="auth-enabled" line="  auth-enabled = false"
+  notify: restart influxdb
+  when: noAuthAccess.stdout == "no" and adminAccess.stdout == "no"
+
+- meta: flush_handlers
+  when: noAuthAccess.stdout == "no" and adminAccess.stdout == "no"
+
+- name: Wait for influxdb started
+  shell: (/etc/init.d/influxdb status) || (sleep 10 && /etc/init.d/influxdb status) || (sleep 10 && /etc/init.d/influxdb status) executable=/bin/bash
+  when: noAuthAccess.stdout == "no" and adminAccess.stdout == "no"
+
+- name: Wait for port 8086 open
+  wait_for: port=8086 delay=10 timeout=120
+  when: noAuthAccess.stdout == "no" and adminAccess.stdout == "no"
+
+- name: Admin created?
+  shell: ((echo "show users"|influx -ssl -unsafeSsl|grep '^admin' >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  register: adminCreated
+  changed_when: false
+  when: noAuthAccess.stdout == "yes" or adminAccess.stdout == "no"
+
+- name: Create admin user
+  shell: echo "CREATE USER admin WITH PASSWORD '{{ passwdAdmin }}' WITH ALL PRIVILEGES"|influx -ssl -unsafeSsl executable="/bin/bash"
+  when: (noAuthAccess.stdout == "yes" or adminAccess.stdout == "no") and adminCreated.stdout == "no"
+
+- name: Change Admin password
+  shell: echo "SET PASSWORD for admin='{{ passwdAdmin }}'"|influx -ssl -unsafeSsl executable="/bin/bash"
+  when: (noAuthAccess.stdout == "yes" or adminAccess.stdout == "no") and adminCreated.stdout == "yes"
+
+- name: Configure /etc/influxdb/influxdb.conf file (auth)
+  lineinfile: name=/etc/influxdb/influxdb.conf state=present regexp="auth-enabled" line="  auth-enabled = true"
+  register: configureAuth2
+  notify: restart influxdb
+  when: noAuthAccess.stdout == "yes" or adminAccess.stdout == "no"
+
+- meta: flush_handlers
+
+- name: Wait for influxdb started
+  shell: (/etc/init.d/influxdb status) || (sleep 10 && /etc/init.d/influxdb status) || (sleep 10 && /etc/init.d/influxdb status) executable=/bin/bash
+  when: noAuthAccess.stdout == "yes" or adminAccess.stdout == "no"
+
+- name: Wait for port 8086 open
+  wait_for: port=8086 delay=10 timeout=120
+  when: noAuthAccess.stdout == "no" and adminAccess.stdout == "no"
+
+- name: Munin and nagios Database?
+  shell: ((echo "show databases"|influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" |grep "{{ item }}" >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  with_items:
+    - munin
+    - nagios
+  register: databases
+  changed_when: false
+  when: noAuthAccess.stdout == "yes" or adminAccess.stdout == "no"
+
+- name: Create databases munin and nagios
+  shell: echo "CREATE DATABASE {{ item.item }}"|influx -ssl -unsafeSsl -username admin -password {{ passwdAdmin }} executable="/bin/bash"
+  with_items: "{{ databases.results }}"
+  when: (noAuthAccess.stdout == "yes" or adminAccess.stdout == "no") and item.stdout == "no"
+
+- name: Delete read only user if it changed
+  shell: echo "DROP USER {{ readUserOld|default('') }}"|influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}"  executable="/bin/bash"
+  when: readUserOld|default('') != "" and readUser != readUserOld|default('')
+
+- name: Read only user created?
+  shell: ((echo "show users"|influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" |grep '^{{ readUser }}' >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  register: readUserCreated
+  changed_when: false
+  when: readUser != ""
+
+- name: Create read only user
+  shell: echo "CREATE USER {{ readUser }} WITH PASSWORD '{{ passwdReadUser }}'"|influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}"  executable="/bin/bash"
+  when: readUser != "" and readUserCreated.stdout == "no"
+
+- name: Check read only user non admin
+  shell: (((echo "SHOW USERS"|influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" |grep '^{{ readUser }}'|tr '\t' ' '|tr -s ' '|cut -d' ' -f2|grep 'admin') >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  register: readUserAdmin
+  changed_when: false
+  when: readUser != ""
+
+- name: Revoke admin grants for read only user
+  shell: echo "REVOKE ALL PRIVILEGES FROM {{ readUser }}"|influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}"  executable="/bin/bash"
+  when: readUser != "" and readUserAdmin.stdout == "yes"
+
+- name: Check READ Grant for read only user (nagios database)
+  shell: (((echo "SHOW GRANTS FOR {{ readUser }}"|influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" |grep '^nagios'|grep 'READ') >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  register: readUserGrantNagios
+  changed_when: false
+  when: readUser != ""
+
+- name: Grant READ privilege for read only user (nagios database)
+  shell: echo "GRANT READ ON nagios TO {{ readUser }}"|influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}"  executable="/bin/bash"
+  when: readUser != "" and readUserGrantNagios.stdout == "no"
+
+- name: Check READ Grant for read only user (munin database)
+  shell: (((echo "SHOW GRANTS FOR {{ readUser }}"|influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}" |grep '^munin'|grep 'READ') >/dev/null && echo "yes") || echo "no") 2>/dev/null executable="/bin/bash"
+  register: readUserGrantMunin
+  changed_when: false
+  when: readUser != ""
+
+- name: Grant READ privilege for read only user (munin database)
+  shell: echo "GRANT READ ON munin TO {{ readUser }}"|influx -ssl -unsafeSsl -username admin -password "{{ passwdAdmin }}"  executable="/bin/bash"
+  when: readUser != "" and readUserGrantMunin.stdout == "no"
+

@@ -1,0 +1,23 @@
+# Made by Ansible
+
+# Name: Atomic Rocket Turtle RPM Repository for CentOS / Red Hat Enterprise Linux 6 -
+# URL: http://www.atomicrocketturtle.com/
+# Note: This isn't covered by ASL support. -Scott
+[atomic]
+name = CentOS / Red Hat Enterprise Linux $releasever - atomicrocketturtle.com
+baseurl = http://updates.atomicorp.com/channels/atomic/centos/$releasever/$basearch
+#baseurl = http://www3.atomicorp.com/channels/atomic/centos/$releasever/$basearch
+#baseurl = http://www4.atomicorp.com/channels/atomic/centos/$releasever/$basearch
+#baseurl = http://www5.atomicorp.com/channels/atomic/centos/$releasever/$basearch
+#baseurl = http://www6.atomicorp.com/channels/atomic/centos/$releasever/$basearch
+#baseurl = http://www7.atomicorp.com/channels/centos/$releasever/$basearch
+#baseurl = http://mirrors.thzhost.com/atomic/centos/$releasever/$basearch
+#baseurl = http://mirrors.hosting.in.th/atomic/centos/$releasever/$basearch
+enabled = 0
+priority = 1
+protect = 0
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY.art.txt
+        file:///etc/pki/rpm-gpg/RPM-GPG-KEY.atomicorp.txt
+gpgcheck = 0
+exclude = openvas-smb
+

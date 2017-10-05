@@ -1,0 +1,57 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Mysql Server installation 
+
+- name: Be sure mysql-server is installed (yum)
+  yum: pkg={{ item }} state=installed
+  with_items: "{{ packageMysql }}"
+  when: ansible_pkg_mgr == "yum"
+
+- name: Configure my.cnf file (commenting bind-address = 127.0.0.1)
+  lineinfile: name={{ pathMysqlConf }} state=present regexp='^bind-address\s+=\s+127.0.0.1' line='#bind-address = 127.0.0.1' backrefs=yes
+  notify: restart mysql
+
+- name: Configure my.cnf file (adding bind-address with 0.0.0.0) 
+  lineinfile: name={{ pathMysqlConf }} state=present regexp='^bind-address = 0.0.0.0$' insertafter='\[mysqld\]' line='bind-address = 0.0.0.0'
+  notify: restart mysql 
+
+- name: Configure my.cnf file (adding max_connect_errors)
+  lineinfile: name={{ pathMysqlConf }} state=present regexp='^max_connect_errors = 999999999$' insertafter='\[mysqld\]' line='max_connect_errors = 999999999'
+  notify: restart mysql
+
+- name: Create mysql log file (Centos)
+  file: path={{ logFileMysql }} state=file owner=mysql group=mysql mode=0640
+  when: ansible_os_family == "RedHat" 
+
+- name: Configure my.cnf file (adding general_log_file)
+  lineinfile: name={{ pathMysqlConf }} state=present regexp='^general_log_file = {{ logFileMysql }}$' insertafter='\[mysqld\]' line='general_log_file = {{ logFileMysql }}'
+  notify: restart mysql
+
+- name: Configure my.cnf file (adding general_log)
+  lineinfile: name={{ pathMysqlConf }} state=present regexp='^general_log = 1$' insertafter='\[mysqld\]' line='general_log = 1'
+  notify: restart mysql
+
+- name: Configure /etc/hosts.allow file with hostMysql
+  lineinfile: "name=/etc/hosts.allow state=present regexp='^mysqld: {{ hostMysql }}' line='mysqld: {{ hostMysql }}'"
+
+- name: Configure /etc/hosts.allow file with hostWeb
+  lineinfile: "name=/etc/hosts.allow state=present regexp='^mysqld: {{ hostWeb }}' line='mysqld: {{ hostWeb }}'"
+
+- name: Configure /etc/hosts.allow file with Administrators Hosts
+  lineinfile: "name=/etc/hosts.allow state=present regexp='^mysqld: {{ item }}' line='mysqld: {{ item }}'"
+  with_items: "{{ hostsAdmins }}"
+  when: hostsAdmins|count >0
+
+- name: Configure /etc/hosts.allow file with Adminsistrators Hosts (ALL)
+  lineinfile: "name=/etc/hosts.allow state=present regexp='^mysqld: ALL' line='mysqld: ALL'"
+  when: hostsAdmins|count == 0
+
+- name: Be sure mysql daemon is running and enabled
+  service: name={{ daemonMysql }} state=started enabled=true
+

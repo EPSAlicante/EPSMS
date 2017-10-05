@@ -1,0 +1,25 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Made by EPS Monitoring System
+
+# localhost 
+
+define host {
+        use                     linux-server
+        host_name               localhost
+        alias                   localhost
+        address                 127.0.0.1
+        }
+
+define service{
+        use                             generic-service         ; Name of service template to use
+        host_name                       localhost
+        service_description             TCP 22
+        check_command                   check_tcp!22
+        }
+

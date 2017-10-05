@@ -1,0 +1,15 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Outsider {{ item.name }}
+
+CHECK_SERVER: SELECT Name FROM Server WHERE Server.Name='{{ item.name }}' AND Server.IP='{{ item.IP }}' AND Server.Node={{ ("1" if item.type=="node" else "0") if item.type != "winNode" else "2" }} AND Server.Auto AND Server.End IS NULL ORDER BY Server.Init LIMIT 1;
+
+INSERT_SERVER: INSERT INTO Server (Name, IP, ShortName, Domain, Init, Checked, Node, Auto) VALUES ('{{ item.name }}', '{{ item.IP }}', '{{ item.name|replace(['.',"'%s'" % (item.domain if item.domain != "" else ansible_domain)]|join,"") }}', '{{ "%s" % item.domain if item.domain != "" else ansible_domain }}', NOW(), NOW(), {{ ("1" if item.type=="node" else "0") if item.type != "winNode" else "2" }} , 1); 
+
+UPDATE_SERVER: UPDATE Server SET Checked=NOW() WHERE Server.Name='{{ item.name }}' AND Server.IP='{{ item.IP }}' AND Server.Node={{ ("1" if item.type=="node" else "0") if item.type != "winNode" else "2" }} AND Server.Auto AND Server.End IS NULL ORDER BY Server.Init LIMIT 1;
+

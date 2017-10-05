@@ -1,0 +1,107 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Software of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["ansible_distribution"] is defined %}
+
+CHECK_SOFT_DISTRIBUTION: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Distribution' AND Name='Distribution' AND Value='{{ hostvars[inventory_hostname]["ansible_distribution"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_DISTRIBUTION: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Distribution' AND Name='Distribution' AND Value='{{ hostvars[inventory_hostname]["ansible_distribution"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_DISTRIBUTION: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Distribution', 'Software Distribution', 1);
+
+INSERT_SOFT_DISTRIBUTION: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Distribution', 'Distribution', '{{ hostvars[inventory_hostname]["ansible_distribution"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_distribution_version"] is defined %}
+
+CHECK_SOFT_VERSION: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Version' AND Name='Version' AND Value='{{ hostvars[inventory_hostname]["ansible_distribution_version"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_VERSION: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Version' AND Name='Version' AND Value='{{ hostvars[inventory_hostname]["ansible_distribution_version"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_VERSION: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Version', 'Distribution Version', 1);
+
+INSERT_SOFT_VERSION: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Version', 'Version', '{{ hostvars[inventory_hostname]["ansible_distribution_version"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_pkg_mgr"] is defined %}
+
+CHECK_SOFT_PKGMGR: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Package Manager' AND Name='Package Manager' AND Value='{{ hostvars[inventory_hostname]["ansible_pkg_mgr"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_PKGMGR: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Package Manager' AND Name='Package Manager' AND Value='{{ hostvars[inventory_hostname]["ansible_pkg_mgr"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_PKGMGR: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Package Manager', 'Package Manager', 1);
+
+INSERT_SOFT_PKGMGR: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Package Manager', 'Package Manager', '{{ hostvars[inventory_hostname]["ansible_pkg_mgr"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_domain"] is defined %}
+
+CHECK_SOFT_DOMAIN: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Domain' AND Name='Domain' AND Value='{{ hostvars[inventory_hostname]["ansible_domain"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_DOMAIN: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Domain' AND Name='Domain' AND Value='{{ hostvars[inventory_hostname]["ansible_domain"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_DOMAIN: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Domain', 'Domain DNS', 1);
+
+INSERT_SOFT_DOMAIN: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Domain', 'Domain', '{{ hostvars[inventory_hostname]["ansible_domain"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_kernel"] is defined %}
+
+CHECK_SOFT_KERNEL: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Kernel' AND Name='Kernel' AND Value='{{ hostvars[inventory_hostname]["ansible_kernel"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_KERNEL: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Kernel' AND Name='Kernel' AND Value='{{ hostvars[inventory_hostname]["ansible_kernel"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_KERNEL: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Kernel', 'Kernel Version', 1);
+
+INSERT_SOFT_KERNEL: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Kernel', 'Kernel', '{{ hostvars[inventory_hostname]["ansible_kernel"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_swaptotal_mb"] is defined %}
+
+CHECK_SOFT_SWAP: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Swap' AND Name='Swap' AND Value='{{ hostvars[inventory_hostname]["ansible_swaptotal_mb"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_SWAP: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Swap' AND Name='Swap' AND Value='{{ hostvars[inventory_hostname]["ansible_swaptotal_mb"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_SWAP: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Swap', 'Swap Memory (MB)', 1);
+
+INSERT_SOFT_SWAP: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Swap', 'Swap', '{{ hostvars[inventory_hostname]["ansible_swaptotal_mb"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_virtualization_type"] is defined %}
+
+CHECK_SOFT_VIRTTYPE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Virtualization' AND Name='Virtualization Type' AND Value='{{ hostvars[inventory_hostname]["ansible_virtualization_type"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_VIRTTYPE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Virtualization' AND Name='Virtualization Type' AND Value='{{ hostvars[inventory_hostname]["ansible_virtualization_type"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_VIRTTYPE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Virtualization', 'Virtualization', 1);
+
+INSERT_SOFT_VIRTTYPE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Virtualization', 'Virtualization Type', '{{ hostvars[inventory_hostname]["ansible_virtualization_type"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["ansible_virtualization_role"] is defined %}
+
+CHECK_SOFT_VIRTROLE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Virtualization' AND Name='Virtualization Role' AND Value='{{ hostvars[inventory_hostname]["ansible_virtualization_role"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_VIRTROLE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Virtualization' AND Name='Virtualization Role' AND Value='{{ hostvars[inventory_hostname]["ansible_virtualization_role"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_VIRTROLE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Virtualization', 'Virtualization', 1);
+
+INSERT_SOFT_VIRTROLE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked,Auto) VALUES ('{{ inventory_hostname }}', 'Virtualization', 'Virtualization Role', '{{ hostvars[inventory_hostname]["ansible_virtualization_role"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+END-CHECK_SOFTWARE: SELECT * from Software WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_SOFTWARE: UPDATE Software SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

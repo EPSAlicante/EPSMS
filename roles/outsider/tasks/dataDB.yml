@@ -1,0 +1,200 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Getting data from outsiders 
+
+- name: Make a temp file with subnets to scan
+  template: src=tmp/net_facts_subnets.tmp dest=/tmp/net_facts_subnets.tmp owner=root group=root mode=0644
+
+- name: Make a temp file with excluded IPs 
+  template: src=tmp/net_facts_exclude.tmp dest=/tmp/net_facts_exclude.tmp owner=root group=root mode=0644
+
+- name: Getting outsiders 
+  action: net_facts
+
+- name: Get PID
+  shell: echo "$$" executable=/bin/bash
+  register: PID
+
+- name: Remove temp file with subnets
+  file: path=/tmp/net_facts_subnets.tmp state=absent 
+
+- name: Remove temp file with excluded
+  file: path=/tmp/net_facts_exclude.tmp state=absent
+
+- name: Create outsiders directory (inside inventory)
+  file: path={{ pathInventoryDirectory }}/outsiders owner=root group=root state=directory
+  delegate_to: "{{ hostMysql }}"
+
+- name: Generate sql basic file for Outsider (in Mysql Server)
+  template: src=root/inventory/outsiders/out_basic.sql.j2 dest={{ pathInventoryDirectory }}/outsiders/{{ item.name }}_basic.{{ PID.stdout }}.sql owner=root group=root mode=0640
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostMysql }}"
+
+- name: Generate sql file for tcp ports of Outsider (in Mysql Server)
+  template: src=root/inventory/outsiders/out_dataPorts.sql.j2 dest={{ pathInventoryDirectory }}/outsiders/{{ item.name }}_dataPorts.{{ PID.stdout }}.sql owner=root group=root mode=0640
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostMysql }}"
+
+- name: Generate sql ending file for POST-Outsiders (in Mysql Server)
+  template: src=root/inventory/outsiders/POST_ending.sql.j2 dest={{ pathInventoryDirectory }}/outsiders/POST_ending.{{ PID.stdout }}.sql owner=root group=root mode=0640
+  delegate_to: "{{ hostMysql }}"
+
+- name: Generate script out.py (in Mysql Server)
+  template: src=root/inventory/outsiders/out.py.j2 dest={{ pathInventoryDirectory }}/outsiders/out.py owner=root group=root mode=0750 
+  delegate_to: "{{ hostMysql }}"
+
+- name: Get timeStamp
+  shell: echo $(date "+%Y-%m-%d %H:%M:%S") executable=/bin/bash
+  register: timeStamp
+  delegate_to: "{{ hostMysql }}"
+ 
+# Interesting if we need execute something before save outsiders data
+#- name: Execute script out.py (in Mysql Server) PRE-outsiders
+#  shell: '{{ pathInventoryDirectory }}/outsiders/out.py PRE > /dev/null 2> /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp; [ -s /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp ] && (echo "### ERROR outsiders - out.py PRE - $(date) ###" >> /var/log/ansible/mysql-errors.log; cat /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp >> /var/log/ansible/mysql-errors.log); rm -f /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp executable=/bin/bash'
+#  delegate_to: "{{ hostMysql }}"
+
+- name: Execute script out.py (in Mysql Server) for every outsider
+  shell: '{{ pathInventoryDirectory }}/outsiders/out.py {{ item.name }} "{{ PID.stdout }}" > /dev/null 2> /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp; [ -s /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp ] && (echo "### ERROR outsiders - out.py {{ item.name }} {{ PID.stdout }} - $(date) ###" >> /var/log/ansible/mysql-errors.log; cat /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp >> /var/log/ansible/mysql-errors.log); rm -f /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp executable=/bin/bash'
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostMysql }}"
+
+- name: Execute script out.py (in Mysql Server) POST-outsiders
+  shell: '{{ pathInventoryDirectory }}/outsiders/out.py POST "{{ PID.stdout }}" "{{ timeStamp.stdout }}" > /dev/null 2> /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp; [ -s /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp ] && (echo "### ERROR outsiders - out.py POST {{ PID.stdout }} {{ timeStamp.stdout }} - $(date) ###" >> /var/log/ansible/mysql-errors.log; cat /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp >> /var/log/ansible/mysql-errors.log); rm -f /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp executable=/bin/bash'
+  delegate_to: "{{ hostMysql }}"
+
+- name: Add nodes to inventory
+  template: src=etc/ansible/inventory/nodes.j2 dest={{ pathAnsible }}/inventory/nodes owner=root group=root mode=640
+ 
+- name: Add Windows nodes to inventory
+  template: src=etc/ansible/inventory/winNodes.j2 dest={{ pathAnsible }}/inventory/winNodes owner=root group=root mode=640
+
+- name: Add outsiders to inventory
+  template: src=etc/ansible/inventory/outsiders.j2 dest={{ pathAnsible }}/inventory/outsiders owner=root group=root mode=640
+
+- name: Getting Last 100 changes in host (node or outsider) (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="{{ item.name }}-last" query="Select Init as Date, End, Checked, Node from Server where Binary Name='{{ item.name|lower }}' and Auto order by Init desc limit 100"
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostMysql }}"
+
+- name: Getting Openvas Data (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="{{ item.name }}-openvas" query="Select StartScan as Date, CVSS, Severity, TotalHigh, TotalMedium, TotalLow, TotalLog, TotalFalsePositive, DATE_FORMAT(StartScan, '%y%m%d%H%i%s') as DateString from OpenvasHost where Binary Server='{{ item.name|lower }}' and Auto order by StartScan desc limit 100"
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostMysql }}"
+
+- name: Getting historical servers (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="servers-hist" query="SELECT S.Name as name, S.Domain as domain, S.IP, IF(MAX(S.node) = '1', 'node', IF(MAX(S.node) = '2', 'winNode', 'outsider')) as type, MAX(S.End) as date, IFNULL(O.severity,'') as severity, IFNULL(O.CVSS,'') as CVSS, IFNULL(O.StartScan,'') as scanDate FROM Server as S left join OpenvasHost as O on S.Name=O.Server WHERE S.End is not null and S.Auto and S.Name NOT IN (Select Name from Server where End is null) and (O.StartScan is null or O.StartScan IN (Select MAX(StartScan) from OpenvasHost where Server=S.Name)) group by S.Name, S.Domain, S.IP order by S.Name"
+  delegate_to: "{{ hostMysql }}"
+
+- name: Getting Munin information about hosts (in Munin Server)
+  shell: ((grep -q "^\[{{ item.name }}\]$" /etc/munin/conf.d/* && grep -q ";{{ item.name }}:" /var/lib/munin/datafile && echo "{{ item.name }}") || echo "No") 2>/dev/null executable=/bin/bash
+  with_items: "{{ network }}"
+  register: muninName
+  ignore_errors: yes  
+  delegate_to: "{{ hostMunin }}"
+
+- name: Getting Grafana dashsboards (in Grafana Server)
+  shell: echo "{{ item.name }}"
+  with_items: "{{ network }}"
+  register: grafanaName 
+  ignore_errors: yes
+  delegate_to: "{{ hostGrafana }}"
+
+- name: Copy servers pages (in Wiki Server)
+  template: src=var/lib/dokuwiki/data/pages/inventory/{{ item }}.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ item }}.txt.tmp owner=root group=root mode=0644
+  with_items:
+    - servers
+    - servers-nodes
+    - servers-winnodes
+    - servers-outsiders
+    - servers-hist
+  delegate_to: "{{ hostWeb }}"
+
+- name: Commit changes of servers pages & update (in Wiki Server)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ item }}.txt.tmp inventory:{{ item }}) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ item }}.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ item }}.* || true)
+  with_items:
+    - servers
+    - servers-nodes
+    - servers-winnodes
+    - servers-outsiders
+    - servers-hist
+  delegate_to: "{{ hostWeb }}"
+
+- name: Get userApache in Web Server
+  shell: stat -c "%U" /var/lib/dokuwiki/data executable=/bin/bash
+  register: userApacheServer
+  delegate_to: "{{ hostWeb }}"
+
+- name: Change owner of /var/lib/dokuwiki/data to userApache
+  shell: chown -R {{ userApacheServer.stdout }} /var/lib/dokuwiki/data executable=/bin/bash
+  delegate_to: "{{ hostWeb }}"
+
+- name: Copy host-portsext.txt (in Wiki Master)
+  template: src=var/lib/dokuwiki/data/pages/inventory/host-portsext.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ item.name|lower }}-portsext.txt.tmp owner=root group=root mode=0644
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostWeb }}"
+
+- name: Commit changes of host-portsext.txt & update (in Wiki Server)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ item.name|lower }}-portsext.txt.tmp inventory:{{ item.name|lower }}-portsext) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ item.name|lower }}-portsext.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ item.name|lower }}-portsext.* || true)
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostWeb }}"
+
+- name: Copy host-hostslast.txt (in Wiki Master)
+  template: src=var/lib/dokuwiki/data/pages/inventory/host-hostslast.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ item.name|lower }}-hostslast.txt.tmp owner=root group=root mode=0644
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostWeb }}"
+
+- name: Commit changes of host-hostslast.txt & update (in Wiki Server)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ item.name|lower }}-hostslast.txt.tmp inventory:{{ item.name|lower }}-hostslast) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ item.name|lower }}-hostslast.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ item.name|lower }}-hostslast.* || true)
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostWeb }}"
+
+- name: Copy host-openvas.txt (in Wiki Master)
+  template: src=var/lib/dokuwiki/data/pages/inventory/host-openvas.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ item.name|lower }}-openvas.txt.tmp owner=root group=root mode=0644
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostWeb }}"
+
+- name: Commit changes of host-openvas.txt & update (in Wiki Server)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ item.name|lower }}-openvas.txt.tmp inventory:{{ item.name|lower }}-openvas) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ item.name|lower }}-openvas.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ item.name|lower }}-openvas.* || true)
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostWeb }}"
+
+- name: Touch localhost_ansible.cfg file (in Nagios Master)
+  shell: touch /etc/nagios3/conf.d/localhost_ansible.cfg
+  delegate_to: "{{ hostNagios }}"
+
+- name: Copy item_ansible.cfg to /etc/nagios3/conf.d (in Nagios Master)
+  template: src=etc/nagios3/conf.d/out_ansible.cfg.j2 dest=/etc/nagios3/conf.d/{{ item.name }}_ansible.cfg owner=root group=root mode=0644
+  with_items: "{{ network }}"
+  notify: reload nagios Master
+  delegate_to: "{{ hostNagios }}"
+
+- name: Touch item_ansible.cfg files (in Nagios Master)
+  shell: touch /etc/nagios3/conf.d/{{ item.name }}_ansible.cfg
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostNagios }}"
+
+- name: Touch node_item_ansible.cfg files (in Nagios Master)
+  shell: ([ -f "/etc/nagios3/conf.d/node_{{ item.name }}_ansible.cfg" ] && touch /etc/nagios3/conf.d/node_{{ item.name }}_ansible.cfg) || echo
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostNagios }}"
+  when: item.type == "node"
+
+- name: Copy errorsAnsible_ansible.cfg to /etc/nagios3/conf.d (in Nagios Master)
+  template: src=etc/nagios3/conf.d/errorsAnsible_ansible.cfg.j2 dest=/etc/nagios3/conf.d/errorsAnsible_{{ hostnameAnsible }}_ansible.cfg owner=root group=root mode=0644
+  notify: reload nagios Master
+  delegate_to: "{{ hostNagios }}"
+
+- name: Touch errosAnsible_ansible.cfg file (in Nagios Master)
+  shell: touch /etc/nagios3/conf.d/errorsAnsible_{{ hostnameAnsible }}_ansible.cfg 
+  delegate_to: "{{ hostNagios }}"
+
+- name: Delete _ansible.cfg files older than localhost_ansible.cfg (in Nagios Master)
+  shell: find /etc/nagios3/conf.d/ -name "*_ansible.cfg" ! -name "localhost_ansible.cfg" -type f ! -newer /etc/nagios3/conf.d/localhost_ansible.cfg -delete
+  delegate_to: "{{ hostNagios }}"
+

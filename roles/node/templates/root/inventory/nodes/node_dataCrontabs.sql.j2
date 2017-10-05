@@ -1,0 +1,26 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Crontabs of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["crontabs"] is defined %}
+
+{% for cron in hostvars[inventory_hostname]["crontabs"] -%}
+
+CHECK_CRONTAB_{{ loop.index }}: SELECT * FROM Crontab WHERE Server='{{ inventory_hostname }}' AND Num='{{ cron["num"] }}' AND User='{{ cron["user"] }}' AND Minute='{{ cron["minute"] }}' AND Hour='{{ cron["hour"] }}' AND Day='{{ cron["day"] }}' AND Month='{{ cron["month"] }}' AND DayWeek='{{ cron["dayWeek"] }}' AND Command='{{ cron["command"] }}' AND Auto AND End IS NULL;
+
+UPDATE_CRONTAB_{{ loop.index }}: UPDATE Crontab SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Num='{{ cron["num"] }}' AND User='{{ cron["user"] }}' AND Minute='{{ cron["minute"] }}' AND Hour='{{ cron["hour"] }}' AND Day='{{ cron["day"] }}' AND Month='{{ cron["month"] }}' AND DayWeek='{{ cron["dayWeek"] }}' AND Command='{{ cron["command"] }}' AND Auto AND End IS NULL; 
+
+INSERT_CRONTAB_{{ loop.index }}: INSERT INTO Crontab (Num,Server,User,Minute,Hour,Day,Month,DayWeek,Command,Init,Checked,Auto) VALUES ('{{ cron["num"] }}','{{ inventory_hostname }}', '{{ cron["user"] }}', '{{ cron["minute"] }}', '{{ cron["hour"] }}', '{{ cron["day"] }}', '{{ cron["month"] }}', '{{ cron["dayWeek"] }}', '{{ cron["command"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_CRONTAB: SELECT * from Crontab WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_CRONTAB: UPDATE Crontab SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

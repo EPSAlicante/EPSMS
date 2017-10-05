@@ -1,0 +1,39 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Server {{ inventory_hostname }}: Processors ====
+
+{% if hostvars[inventory_hostname]["Processor"] is defined -%}
+{% for proc in hostvars[inventory_hostname]["Processor"] -%}
+^  {{ proc["deviceID"] }}  ^^ 
+^ Name | {{ proc["name"] }} |
+^ Caption | {{ proc["caption"] }} |
+^ Family | {{ proc["family"] }} |
+^ Manufacturer | {{ proc["manufacturer"] }} |
+^ Processor Type | {{ proc["processorType"] }} | 
+^ Current Clock Speed | {{ "%s MHz" % proc["currentClockSpeed"] if proc["currentClockSpeed"] != "" else "?" }} |
+^ Max Clock Speed | {{ "%s MHz" % proc["maxClockSpeed"] if proc["maxClockSpeed"] != "" else "?" }} |
+^ Numbre Of Cores | {{ proc["numberOfCores"] }} |
+^ Number Of Logical Processors | {{ proc["numberOfLogicalProcessors"] }} |
+^ Data Width | {{ "%s bits" % proc["dataWidth"] if proc["dataWidth"] != "" else "?" }} |
+^ L2 Cache Size | {{ "%s KB" % proc["L2CacheSize"] if proc["L2CacheSize"] != "" else "?" }} |
+^ L2 Cache Speed | {{ "%s MHz" % proc["L2CacheSpeed"] if proc["L2CacheSpeed"] != "" else "?" }} |
+^ L3 Cache Size | {{ "%s KB" % proc["L3CacheSize"] if proc["L3CacheSize"] != "" else "?" }} |
+^ L3 Cache Speed | {{ "%s MHz" % proc["L3CacheSpeed"] if proc["L3CacheSpeed"] != "" else "?" }} |
+^ Processor ID | {{ proc["processorID"] }} |
+
+{% endfor %}
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

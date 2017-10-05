@@ -1,0 +1,362 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Getting data from node
+
+- name: Getting Path Data from nodes
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/gnu/bin:/usr/gnu/sbin:/opt/csw/bin:/opt/csw/sbin" 
+  action: path_facts
+  register: pathFacts
+  changed_when: False
+  ignore_errors: yes
+  when: path is not defined
+
+- debug: msg="{{ path }}"
+
+- name: Find service binary
+  shell: ((({{ path.service }} --version || {{ path.service }} --help || {{ path.service }}) >/dev/null && echo "True") || echo "False") 2>/dev/null
+  register: checkService
+  changed_when: False
+  ignore_errors: yes
+
+- name: Find systemctl binary
+  shell: ((({{ path.systemctl }} --version || {{ path.systemctl }} --help || {{ path.systemctl }}) >/dev/null && echo "True") || echo "False") 2>/dev/null
+  register: checkSystemctl
+  changed_when: False
+  ignore_errors: yes
+
+- name: Get typeOS
+  shell: '{{ path.uname }} -s 2>/dev/null'
+  register: typeOS
+  changed_when: False
+  ignore_errors: yes
+
+- name: Getting Base Data from nodes
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/gnu/bin:/usr/gnu/sbin:/opt/csw/bin:/opt/csw/sbin"
+  action: base_facts
+  register: baseFacts
+  changed_when: False
+  ignore_errors: yes
+  when: packageManager is not defined
+
+- name: Getting Service Name
+  shell: ( echo "{{ daemonNagiosNrpe }}"|{{ path.sed }} 's/.*\///' ) 2>/dev/null executable={{ path.bash }}  
+  register: serviceName
+  changed_when: False
+  ignore_errors: yes
+  when: daemonNagiosNrpe|default("") != "" and not daemonNagiosNrpe.startswith('svc:')
+
+- name: Getting Open Port
+  shell: ((((echo {{ typeOS.stdout }}|grep -i 'BSD$') && ({{ path.netstat }} -an -p tcp|{{ path.grep }} tcp |{{ path.grep }} -v 'ESTABLISHED'|tr -s ' '|cut -d' ' -f4|{{ path.sed }} 's/^.*\\.//g'|{{ path.grep }} '5666')) || ((echo {{ typeOS.stdout }}|{{ path.grep }} -i '^SunOS$') && ({{ path.netstat }} -an -f inet -f inet6 -P tcp|tr '\t' ' '|tr -s ' '|{{ path.grep }} -i 'LISTEN'|{{ path.sed }} 's/^ *//g'|cut -d' ' -f1|{{ path.sed }} 's/^.*\\././g'|cut -d'.' -f2|cut -d' ' -f1|{{ path.grep }} '^[0-9]'|{{ path.grep }} '5666')) || ((echo {{ typeOS.stdout }}|{{ path.grep }} -iv 'BSD$'|{{ path.grep }} -iv 'SunOS') && ({{ path.netstat }} -tln|{{ path.grep }} 'tcp'|{{ path.awk }} '{gsub(".*:","",$4);print $4}'|{{ path.grep }} '5666'))) >/dev/null && echo 'open') 2>/dev/null executable={{ path.bash }}
+  register: portNagiosNrpe
+  changed_when: False
+  ignore_errors: yes
+  when: daemonNagiosNrpe|default("") != ""
+
+- name: Base Data
+  debug: msg=""
+  with_items:
+    - "Configuration File (Nagios-Nrpe): '{{ confFileNagiosNrpe|default(\"\") }}'"
+    - "Daemon (Nagios-Nrpe): '{{ daemonNagiosNrpe|default(\"\") }}'"
+    - "Service (Nagios-Nrpe): '{{ serviceName.stdout|default(\"\") }}'"
+    - "Port (Nagios-Nrpe): '{{ portNagiosNrpe.stdout|default(\"open\") }}'"
+  ignore_errors: yes
+
+- name: Getting basic data from nodes
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/gnu/bin:/usr/gnu/sbin:/opt/csw/bin:/opt/csw/sbin"
+  action: site_facts
+  register: siteFacts 
+  changed_when: False
+  ignore_errors: yes
+
+- name: Get PID
+  shell: echo "$$" executable={{ path.bash }}
+  register: PID
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success
+
+- name: Getting main IP (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="nodeIP" query="Select IP from Server where Name='{{ inventory_hostname }}' and End is null and Auto limit 1"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success and passwdAdmin|default("") != ""
+
+- name: Create nodes directory (inside inventory)
+  file: path={{ pathInventoryDirectory|default('/root/inventory') }}/nodes owner=root group=0 state=directory
+  delegate_to: "{{ hostMysql }}"
+  ignore_errors: yes
+  when: siteFacts|success
+
+- name: Generate sql basic file for Node (in Mysql Server)
+  template: src=root/inventory/nodes/node_basic.sql.j2 dest={{ pathInventoryDirectory|default('/root/inventory') }}/nodes/{{ inventory_hostname }}_basic.{{ PID.stdout }}.sql owner=root group=0 mode=0640
+  delegate_to: "{{ hostMysql }}"
+  ignore_errors: yes
+  when: siteFacts|success
+
+- name: Generate sql files (in Mysql Server)
+  template: src=root/inventory/nodes/node_data{{ item }}.sql.j2 dest={{ pathInventoryDirectory|default('/root/inventory') }}/nodes/{{ inventory_hostname }}_data{{ item }}.{{ PID.stdout }}.sql owner=root group=0 mode=0640
+  with_items:
+    - Ports
+    - Interfaces
+    - Hardware
+    - Software
+    - FileSystems
+    - Devices
+    - Memories
+    - Processor
+    - Bios
+    - Baseboards
+    - BaseboardDevices
+    - Caches
+    - Connectors
+    - Slots
+    - Modules
+    - IPTables
+    - TCPWrappers
+    - PAMAccess
+    - UsersGroups
+    - Sudo
+    - Resolver
+    - FileHosts
+    - Routes
+    - Crontabs
+  delegate_to: "{{ hostMysql }}"
+  ignore_errors: yes
+  when: siteFacts|success
+
+- name: Generate script node.py (in Mysql Server)
+  template: src=root/inventory/nodes/{{ item }}.j2 dest={{ pathInventoryDirectory|default('/root/inventory') }}/nodes/{{ item }} owner=root group=0 mode=0750 
+  with_items:
+    - node.py
+  delegate_to: "{{ hostMysql }}"
+  ignore_errors: yes
+  when: siteFacts|success
+
+- name: Execute script node.py (in Mysql Server)
+  shell: '{{ pathInventoryDirectory|default("/root/inventory") }}/nodes/node.py {{ inventory_hostname }} "{{ PID.stdout }}" > /dev/null 2> /var/log/ansible/.node_{{ PID.stdout }}-mysql-errors.tmp; [ -s /var/log/ansible/.node_{{ PID.stdout }}-mysql-errors.tmp ] && (echo "### ERROR nodes dataDB - node.py {{ inventory_hostname }} {{ PID.stdout }} - $(date) ###" >> /var/log/ansible/mysql-errors.log; cat /var/log/ansible/.node_{{ PID.stdout }}-mysql-errors.tmp >> /var/log/ansible/mysql-errors.log); rm -f /var/log/ansible/.node_{{ PID.stdout }}-mysql-errors.tmp executable=/bin/bash'
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success
+
+- name: Copy host-items.txt (in Wiki Master)
+  template: src=var/lib/dokuwiki/data/pages/inventory/host-{{ item }}.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp owner=root group=0 mode=0644
+  with_items:
+    - system
+    - portint
+    - devices
+    - filesystems
+    - interfaces
+    - caches
+    - connectors
+    - slots
+    - memory
+    - baseboard
+    - chassis
+    - bios
+    - processor
+    - modules
+    - iptables
+    - tcpwrappers
+    - pamaccess
+    - usersgroups
+    - sudo
+    - resolver
+    - filehosts
+    - routes
+    - crontabs
+  delegate_to: "{{ hostWeb }}"
+  ignore_errors: yes
+  when: siteFacts|success
+
+- name: Commit changes of host-items.txt & update (in Wiki Server)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp inventory:{{ inventory_hostname|lower }}-{{ item }}) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ inventory_hostname|lower }}-{{ item }}.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ inventory_hostname|lower }}-{{ item }}.* || true)
+  with_items:
+    - system
+    - portint
+    - devices
+    - filesystems
+    - interfaces
+    - caches
+    - connectors
+    - slots
+    - memory
+    - baseboard
+    - chassis
+    - bios
+    - processor
+    - modules
+    - iptables
+    - tcpwrappers
+    - pamaccess
+    - usersgroups
+    - sudo
+    - resolver
+    - filehosts
+    - routes
+    - crontabs
+  delegate_to: "{{ hostWeb }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success
+
+- name: Getting Last 100 Ports Found in node (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="portslast" query="Select Protocol, Port, IP4, BindIP4, IP6, BindIP6, Process, Init as Date, End, Checked from ServerPort where Server='{{ inventory_hostname }}' and Access='IN' and Auto order by Init desc, Protocol, Port limit 100"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success and passwdAdmin|default("") != "" 
+
+- name: Copy host-items.txt from DB (in Wiki Master)
+  template: src=var/lib/dokuwiki/data/pages/inventory/host-{{ item }}.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp owner=root group=0 mode=0644
+  with_items:
+    - ports
+    - portslast
+  delegate_to: "{{ hostWeb }}"
+  ignore_errors: yes
+  when: siteFacts|success and passwdAdmin|default("") != ""
+
+- name: Commit changes of host-items.txt from DB & update (in Wiki Server)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp inventory:{{ inventory_hostname|lower }}-{{ item }}) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ inventory_hostname|lower }}-{{ item }}.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ inventory_hostname|lower }}-{{ item }}.* || true)
+  with_items:
+    - ports
+    - portslast 
+  delegate_to: "{{ hostWeb }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success and passwdAdmin|default("") != ""
+
+- name: Getting packages count in node (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="packagesCount" query="Select count(*) as Total from Package where Server='{{ inventory_hostname }}' and End is null and Auto"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success and passwdAdmin|default("") != ""
+
+- name: Getting executables count in node (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="exesCount" query="Select count(*) as Total from Exe where Server='{{ inventory_hostname }}' and End is null and Auto"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success and passwdAdmin|default("") != ""
+
+- name: Getting IPTables rules count in node (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="iptablesCount" query="Select count(*) as Total from IPTables where Server='{{ inventory_hostname }}' and End is null and Auto"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success and passwdAdmin|default("") != ""
+
+- name: Copy host.txt (in Wiki Master)
+  template: src=var/lib/dokuwiki/data/pages/inventory/host.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}.txt.tmp owner=root group=0 mode=0644
+  delegate_to: "{{ hostWeb }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success and passwdAdmin|default("") != ""
+
+- name: Commit changes of host.txt & update (in Wiki Server)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}.txt.tmp inventory:{{ inventory_hostname|lower }}) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ inventory_hostname|lower }}.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ inventory_hostname|lower }}.* || true)
+  delegate_to: "{{ hostWeb }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success and passwdAdmin|default("") != ""
+
+- name: Get userApache in Web Server
+  shell: stat -c "%U" /var/lib/dokuwiki/data executable=/bin/bash
+  register: userApacheServer
+  delegate_to: "{{ hostWeb }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success
+
+- name: Change owner of /var/lib/dokuwiki/data to userApache
+  shell: chown -R {{ userApacheServer.stdout }} /var/lib/dokuwiki/data executable=/bin/bash
+  delegate_to: "{{ hostWeb }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFacts|success
+
+- name: Check NRPE connection (SSL)
+  shell: (/usr/lib/nagios/plugins/check_nrpe -H {{ inventory_hostname }} >/dev/null 2>/dev/null && echo "OK") || echo "no"
+  register: checkNRPE
+  changed_when: False
+  ignore_errors: yes
+  delegate_to: "{{ hostnameNagios }}"
+  when: confFileNagiosNrpe|default("") != "" and siteFacts|success
+
+- name: Check NRPE connection (no SSL)
+  shell: (/usr/lib/nagios/plugins/check_nrpe -n -H {{ inventory_hostname }} >/dev/null 2>/dev/null && echo "OK") || echo "no"
+  register: checkNRPEnoSSL
+  changed_when: False
+  ignore_errors: yes
+  delegate_to: "{{ hostnameNagios }}"
+  when: confFileNagiosNrpe|default("") != "" and siteFacts|success
+
+- name: check_Ansible_load plugin? 
+  shell: ( ({{ path.grep }} "^command\[check_Ansible_load\]" {{ confFileNagiosNrpe|dirname }}/nrpe.d/nrpe_load_ansible.cfg >/dev/null && echo "Yes") || echo "No" ) 2>/dev/null executable={{ path.bash }}
+  register: checkLoad 
+  changed_when: False
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and siteFacts|success
+
+- name: Copy nrpe_load_ansible.cfg to /etc/nagios/nrpe.d
+  template: src=etc/nagios/nrpe.d/nrpe_load_ansible.cfg.j2 dest={{ confFileNagiosNrpe|dirname }}/nrpe.d/nrpe_load_ansible.cfg owner=root group=0 mode=0644
+  register: nrpeLoad
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and siteFacts|success and checkLoad.stdout|default("No") != "Yes" 
+
+- name: check_Ansible_diskRoot plugin?
+  shell: ( ({{ path.grep }} "^command\[check_Ansible_diskRoot\]" {{ confFileNagiosNrpe|dirname }}/nrpe.d/nrpe_diskRoot_ansible.cfg >/dev/null && echo "Yes") || echo "No" ) 2>/dev/null executable={{ path.bash }}
+  register: checkDiskRoot
+  changed_when: False
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and siteFacts|success
+
+- name: Copy nrpe_diskRoot_ansible.cfg to /etc/nagios/nrpe.d
+  template: src=etc/nagios/nrpe.d/nrpe_diskRoot_ansible.cfg.j2 dest={{ confFileNagiosNrpe|dirname }}/nrpe.d/nrpe_diskRoot_ansible.cfg owner=root group=0 mode=0644
+  register: nrpeDiskRoot
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and siteFacts|success and checkDiskRoot.stdout|default("No") != "Yes"
+
+- name: Copy nrpe_ports_ansible.cfg to /etc/nagios/nrpe.d
+  template: src=etc/nagios/nrpe.d/nrpe_ports_ansible.cfg.j2 dest={{ confFileNagiosNrpe|dirname }}/nrpe.d/nrpe_ports_ansible.cfg owner=root group=0 mode=0644
+  register: nrpePorts
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and siteFacts|success
+
+- name: Copy node_ansible.cfg to /etc/nagios3/conf.d (in Nagios Master)
+  template: src=etc/nagios3/conf.d/node_ansible.cfg.j2 dest=/etc/nagios3/conf.d/node_{{ inventory_hostname }}_ansible.cfg owner=root group=0 mode=0644
+  notify: reload nagios Master
+  delegate_to: "{{ hostNagios }}"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and siteFacts|success
+
+- name: restart Nagios NRPE service
+  service: name={{ serviceName.stdout }} state=restarted enabled=yes
+  ignore_errors: yes
+  when: checkService.stdout == "True" and siteFacts|success and serviceName.stdout|default("") != "" and (not daemonNagiosNrpe.startswith('svc:')) and (nrpeLoad|default(false)|changed or nrpeDiskRoot|default(false)|changed or nrpePorts|default(false)|changed or portNagiosNrpe.stdout|default("open") != "open") 
+
+- name: restart Nagios NRPE daemon with systemctl 
+  shell: '{{ path.systemctl }} restart {{ serviceName.stdout }}' 
+  ignore_errors: yes
+  when: checkService.stdout != "True" and checkSystemctl.stdout == "True" and siteFacts|success and serviceName.stdout|default("") != "" and (not daemonNagiosNrpe.startswith('svc:')) and (nrpeLoad|default(false)|changed or nrpeDiskRoot|default(false)|changed or nrpePorts|default(false)|changed or portNagiosNrpe.stdout|default("open") != "open")
+
+- name: Restart Nagios NRPE daemon
+  shell: '{{ daemonNagiosNrpe }} restart'
+  ignore_errors: yes
+  when: checkSystemctl.stdout != "True" and siteFacts|success and daemonNagiosNrpe|default("") != "" and (not daemonNagiosNrpe.startswith('svc:')) and (nrpeLoad|default(false)|changed or nrpeDiskRoot|default(false)|changed or nrpePorts|default(false)|changed or portNagiosNrpe.stdout|default("open") != "open")
+
+- name: Restart Nagios NRPE daemon with SMF (Solaris)
+  shell: '{{ path.svcadm }} restart {{ daemonNagiosNrpe }}'
+  ignore_errors: yes
+  when: siteFacts|success and daemonNagiosNrpe.startswith('svc:') and (nrpeLoad|default(false)|changed or nrpeDiskRoot|default(false)|changed or nrpePorts|default(false)|changed or portNagiosNrpe.stdout|default("open") != "open")

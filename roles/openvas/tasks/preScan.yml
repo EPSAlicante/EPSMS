@@ -1,0 +1,74 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Prepare servers for scannig
+
+- debug: msg="SELinux is enable (enforcing). Openvas could be unable to scan sport. To disable SELinux check status with 'sestatus' command, modify '/etc/sysconfig/selinux' file with 'SELINUX=disabled' and reboot" 
+  when: ansible_selinux is defined and (ansible_selinux == true or (ansible_selinux.status is defined and ansible_selinux.status == 'enabled' and ansible_selinux.mode is defined and ansible_selinux.mode == 'enforcing'))
+
+- name: servers' List defined
+  shell: echo "Yes" executable=/bin/bash
+  register: serversListDefined
+  changed_when: False
+  when: serversList is defined
+
+- name: Getting servers' List (nodes, winNodes and outsiders) (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="serversList" query="Select Name from Server where End is null and Auto order by Name"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  when: serversList is undefined 
+
+- name: Check server in inventory and not in Exclude List or Special List (only for global checks)
+  shell: ((grep '^{{ item.Name }}$' {{ pathAnsible }}/inventory/* > /dev/null && echo "{{ item.Name }}") || echo "") 2>/dev/null executable=/bin/bash
+  with_items: "{{ serversList }}"
+  register: serversInventoryList 
+  ignore_errors: yes
+  changed_when: False
+  delegate_to: "{{ hostAnsible }}"
+  when: (item.Name not in excludeServersListOpenvas and (specialGroupOpenvas == "n" or item.Name not in specialServersListOpenvas)) or (serversListDefined is defined and serversListDefined.stdout == "Yes")
+
+- name: Check omp (OpenVas Management Protocol)
+  shell: (omp -u admin -w {{ passwdAdmin }} -g > /dev/null && echo "OK") || echo "No" executable=/bin/bash
+  register: ompStatus
+  changed_when: False
+
+- name: Get Scannig config
+  shell: omp -u admin -w {{ passwdAdmin }} -g|tr '\t' ' '|tr -s ' '|grep -i ' {{ configScanOpenvas }}$'|cut -d' ' -f1 executable=/bin/bash
+  register: ompConfig
+  changed_when: False
+  #when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+  when: ompStatus.stdout == "OK"
+
+- name: Get HTML format
+  shell: omp -u admin -w {{ passwdAdmin }} -F|tr '\t' ' '|tr -s ' '|grep -i ' HTML$'|cut -d' ' -f1 executable=/bin/bash
+  register: ompFormatHTML
+  changed_when: False
+  #when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+  when: ompStatus.stdout == "OK"
+
+- name: Get PDF format
+  shell: omp -u admin -w {{ passwdAdmin }} -F|tr '\t' ' '|tr -s ' '|grep -i ' PDF$'|cut -d' ' -f1 executable=/bin/bash
+  register: ompFormatPDF
+  changed_when: False
+  #when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+  when: ompStatus.stdout == "OK"
+
+- name: Get TXT format
+  shell: omp -u admin -w {{ passwdAdmin }} -F|tr '\t' ' '|tr -s ' '|grep -i ' TXT$'|cut -d' ' -f1 executable=/bin/bash
+  register: ompFormatTXT
+  changed_when: False
+  #when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+  when: ompStatus.stdout == "OK"
+
+- name: Get XML format
+  shell: omp -u admin -w {{ passwdAdmin }} -F|tr '\t' ' '|tr -s ' '|grep -i ' XML$'|cut -d' ' -f1 executable=/bin/bash
+  register: ompFormatXML
+  changed_when: False
+  #when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+  when: ompStatus.stdout == "OK"
+

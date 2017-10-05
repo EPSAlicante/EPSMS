@@ -1,0 +1,33 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }}-ports | Back to {{ inventory_hostname }}-ports page]]
+
+
+==== Host {{ inventory_hostname }}: TCP  & UDP Listenning Ports (Internal Scan) ====
+
+{% if hostvars[inventory_hostname]["tcp"] is defined -%}
+^  TCP Listenning Ports  ^^^^^^
+^  Port  ^  IP4  ^  Bind IP4  ^  IP6  ^  Bind IP6  ^  Process  ^
+{% for portTCP in hostvars[inventory_hostname]["tcp"] -%}
+|  {{ portTCP.port }}  |  {{ "X" if portTCP.ip4=="1" else "" }}  |  {{ portTCP.bindIP4 }}  |  {{ "X" if portTCP.ip6=="1" else "" }}  |  {{ portTCP.bindIP6 }}  | {{ portTCP.process }} |
+{% endfor %}
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["udp"] is defined -%}
+^  UDP Listenning Ports  ^^^^^^
+^  Port  ^  IP4  ^  Bind IP4  ^  IP6  ^  Bind IP6  ^  Process  ^
+{% for portUDP in hostvars[inventory_hostname]["udp"] -%}
+|  {{ portUDP.port }}  |  {{ "X" if portUDP.ip4=="1" else "" }}  |  {{ portUDP.bindIP4 }}  |  {{ "X" if portUDP.ip6=="1" else "" }}  |  {{ portUDP.bindIP6 }}  | {{ portUDP.process }} |
+{% endfor %}
+{% endif %}
+
+
+
+[[{{ inventory_hostname }}-ports | Back to {{ inventory_hostname }}-ports page]]
+

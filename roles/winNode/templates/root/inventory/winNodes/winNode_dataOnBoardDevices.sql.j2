@@ -1,0 +1,27 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for On Board Devices of {{ inventory_hostname }}
+
+
+{% if hostvars[inventory_hostname]["OnBoardDevice"] is defined %}
+
+{% for board in hostvars[inventory_hostname]["OnBoardDevice"] -%}
+
+CHECK_ONBOARDDEVICE_{{ loop.index }}: SELECT * FROM WinOnBoardDevice WHERE Server='{{ inventory_hostname }}' AND Tag='{{ board["tag"] }}' AND Caption='{{ board["caption"] }}' AND Description='{{ board["description"] }}' AND DeviceType='{{ board["deviceType"] }}' AND Manufacturer='{{ board["manufacturer"] }}' AND Model='{{ board["model"] }}' AND Version='{{ board["version"] }}' AND SerialNumber='{{ board["serialNumber"] }}' AND Enabled='{{ board["enabled"] }}' AND HotSwappable='{{ board["hotSwappable"] }}' AND PoweredOn='{{ board["poweredOn"] }}' AND Auto AND End IS NULL;
+
+UPDATE_ONBOARDDEVICE_{{ loop.index }}: UPDATE WinOnBoardDevice SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Tag='{{ board["tag"] }}' AND Caption='{{ board["caption"] }}' AND Description='{{ board["description"] }}' AND DeviceType='{{ board["deviceType"] }}' AND Manufacturer='{{ board["manufacturer"] }}' AND Model='{{ board["model"] }}' AND Version='{{ board["version"] }}' AND SerialNumber='{{ board["serialNumber"] }}' AND Enabled='{{ board["enabled"] }}' AND HotSwappable='{{ board["hotSwappable"] }}' AND PoweredOn='{{ board["poweredOn"] }}' AND Auto AND End IS NULL; 
+
+INSERT_ONBOARDDEVICE_{{ loop.index }}: INSERT INTO WinOnBoardDevice (Tag,Server,Caption,Description,DeviceType,Manufacturer,Model,Version,SerialNumber,Enabled,HotSwappable,PoweredOn,Init,Checked,Auto) VALUES ('{{ board["tag"] }}','{{ inventory_hostname }}', '{{ board["caption"] }}', '{{ board["description"] }}', '{{ board["deviceType"] }}', '{{ board["manufacturer"] }}', '{{ board["model"] }}', '{{ board["version"] }}', '{{ board["serialNumber"] }}', '{{ board["enabled"] }}', '{{ board["hotSwappable"] }}', '{{ board["poweredOn"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_ONBOARDDEVICE: SELECT * from WinOnBoardDevice WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_ONBOARDDEVICE: UPDATE WinOnBoardDevice SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

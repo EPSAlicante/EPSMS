@@ -1,0 +1,27 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for TCP & UDP ports of {{ item.name }}
+
+{% if item.tcp is defined -%}
+{% for portTCP in item.tcp -%}
+
+CHECK_PORT_TCP_{{ portTCP }}: SELECT * FROM ServerPort WHERE ServerPort.Server='{{ item.name }}' AND ServerPort.Protocol='TCP' AND ServerPort.Port={{ portTCP }} AND ServerPort.BindIP4='' AND ServerPort.BindIP6='' AND ServerPort.Process='' AND ServerPort.Access="OUT" AND ServerPort.Auto AND ServerPort.End IS NULL;
+
+UPDATE_PORT_TCP_{{ portTCP }}: UPDATE ServerPort SET Checked=NOW() WHERE ServerPort.Server='{{ item.name }}' AND ServerPort.Protocol='TCP' AND ServerPort.Port={{ portTCP }} AND ServerPort.BindIP4='' AND ServerPort.BindIP6='' AND ServerPort.Process='' AND ServerPort.Access="OUT" AND ServerPort.Auto AND ServerPort.End IS NULL;
+
+INSERT_PORT_TCP_{{ portTCP }}: INSERT IGNORE INTO Protocol (Name, Descrip, Auto) VALUES ('TCP', 'TCP Protocol', 1);
+
+INSERT_PORT_TCP_{{ portTCP }}: INSERT IGNORE INTO Port (Port, Protocol, Descrip, Auto) VALUES ({{ portTCP }}, 'TCP', 'TCP Port {{ portTCP }}', 1);
+
+INSERT_PORT_TCP_{{ portTCP }}: INSERT INTO ServerPort (Server,Port,Protocol,BindIP4,BindIP6,Process,Access,Init,Checked,Auto) VALUES ('{{ item.name }}', {{ portTCP }}, 'TCP', '', '', '', "OUT", NOW(), NOW(), 1);
+
+{% endfor %}
+{% endif %}
+
+END-CHECK_PORTS: SELECT * from ServerPort WHERE ServerPort.Server='{{ item.name }}' AND ServerPort.Access="OUT" AND ServerPort.Auto AND  ServerPort.End IS NULL AND ServerPort.Checked<'##checkedTime##';
+END-UPDATE_PORTS: UPDATE ServerPort SET End=NOW() WHERE ServerPort.Server='{{ item.name }}' AND ServerPort.Access="OUT" AND ServerPort.Auto AND ServerPort.End IS NULL AND ServerPort.Checked<'##checkedTime##';

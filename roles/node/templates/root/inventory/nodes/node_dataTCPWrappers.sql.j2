@@ -1,0 +1,47 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for TCP Wrappers of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["tcpwrappers"] is defined %}
+
+{% for type in ['allow','deny'] -%}
+
+{% if hostvars[inventory_hostname]["tcpwrappers"][type] is defined -%}
+
+{% for service in hostvars[inventory_hostname]["tcpwrappers"][type] -%}
+
+CHECK_TCPWRAPPERS_{{ loop.index }}: SELECT * FROM TCPWrappers WHERE Server='{{ inventory_hostname }}' AND Type='{{ type }}' AND Service='{{ service["service"] }}' AND Auto AND End IS NULL;
+
+UPDATE_TCPWRAPPERS_{{ loop.index }}: UPDATE TCPWrappers SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Type='{{ type }}' AND Service='{{ service["service"] }}' AND Auto AND End IS NULL; 
+
+INSERT_TCPWRAPPERS_{{ loop.index }}: INSERT INTO TCPWrappers (Type,Service,Server,Init,Checked,Auto) VALUES ('{{ type }}', '{{ service["service"] }}', '{{ inventory_hostname }}', NOW(), NOW(), 1);
+
+{% for host in service["hosts"] -%}
+
+CHECK_TCPWRAPPERSHOST_{{ type }}_{{ service["service"] }}_{{ loop.index }}: SELECT * FROM TCPWrappersHost WHERE Server='{{ inventory_hostname }}' AND Type='{{ type }}' AND Service='{{ service["service"] }}' AND Host='{{ host }}' AND Auto AND End IS NULL;
+
+UPDATE_TCPWRAPPERSHOST_{{ type }}_{{ service["service"] }}_{{ loop.index }}: UPDATE TCPWrappersHost SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Type='{{ type }}' AND Service='{{ service["service"] }}' AND Host='{{ host }}' AND Auto AND End IS NULL; 
+
+INSERT_TCPWRAPPERSHOST_{{ type }}_{{ service["service"] }}_{{ loop.index }}: INSERT INTO TCPWrappersHost (Type,Service,Host,Server,Init,Checked,Auto) VALUES ('{{ type }}', '{{ service["service"] }}', '{{ host }}', '{{ inventory_hostname }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endfor %}
+
+{% endif %}
+
+{% endfor %}
+
+{% endif %}
+
+END-CHECK_TCPWRAPPERS: SELECT * from TCPWrappers WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_TCPWRAPPERS: UPDATE TCPWrappers SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_TCPWRAPPERSHOST: SELECT * from TCPWrappersHost WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_TCPWRAPPERSHOST: UPDATE TCPWrappersHost SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+

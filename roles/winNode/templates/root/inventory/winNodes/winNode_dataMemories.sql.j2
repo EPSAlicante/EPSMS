@@ -1,0 +1,63 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Physical Memories of {{ inventory_hostname }}
+
+
+{% if hostvars[inventory_hostname]["PhysicalMemoryArray"] is defined %}
+
+{% for mem in hostvars[inventory_hostname]["PhysicalMemoryArray"] -%}
+
+CHECK_MEMORYARRAY_{{ loop.index }}: SELECT * FROM WinMemoryArray WHERE Server='{{ inventory_hostname }}' AND Tag='{{ mem["tag"] }}' AND Caption='{{ mem["caption"] }}' AND HotSwappable='{{ mem["hotSwappable"] }}' AND Location='{{ mem["location"] }}' AND MaxCapacity='{{ mem["maxCapacity"] }}' AND MemoryDevices='{{ mem["memoryDevices"] }}' AND MemoryErrorCorrection='{{ mem["memoryErrorCorrection"] }}' AND MemoryUse='{{ mem["use"] }}' AND Auto AND End IS NULL;
+
+UPDATE_MEMORYARRAY_{{ loop.index }}: UPDATE WinMemoryArray SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Tag='{{ mem["tag"] }}' AND Caption='{{ mem["caption"] }}' AND HotSwappable='{{ mem["hotSwappable"] }}' AND Location='{{ mem["location"] }}' AND MaxCapacity='{{ mem["maxCapacity"] }}' AND MemoryDevices='{{ mem["memoryDevices"] }}' AND MemoryErrorCorrection='{{ mem["memoryErrorCorrection"] }}' AND MemoryUse='{{ mem["use"] }}' AND Auto AND End IS NULL; 
+
+INSERT_MEMORYARRAY_{{ loop.index }}: INSERT INTO WinMemoryArray (Tag,Server,Caption,HotSwappable,Location,MaxCapacity,MemoryDevices,MemoryErrorCorrection,MemoryUse,Init,Checked,Auto) VALUES ('{{ mem["tag"] }}','{{ inventory_hostname }}', '{{ mem["caption"] }}', '{{ mem["hotSwappable"] }}', '{{ mem["location"] }}', '{{ mem["maxCapacity"] }}', '{{ mem["memoryDevices"] }}', '{{ mem["memoryErrorCorrection"] }}', '{{ mem["use"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["PhysicalMemory"] is defined %}
+
+{% for mem in hostvars[inventory_hostname]["PhysicalMemory"] -%}
+
+CHECK_MEMORY_{{ loop.index }}: SELECT * FROM WinMemory WHERE Server='{{ inventory_hostname }}' AND Tag='{{ mem["tag"] }}' AND Caption='{{ mem["caption"] }}' AND Capacity='{{ mem["capacity"] }}' AND DataWidth='{{ mem["dataWidth"] }}' AND TotalWidth='{{ mem["totalWidth"] }}' AND DeviceLocator='{{ mem["deviceLocator"] }}' AND FormFactor='{{ mem["formFactor"] }}' AND HotSwappable='{{ mem["hotSwappable"] }}' AND Manufacturer='{{ mem["manufacturer"] }}' AND MemoryType='{{ mem["memoryType"] }}' AND PositionInRow='{{ mem["positionInRow"] }}' AND Speed='{{ mem["speed"] }}' AND Auto AND End IS NULL;
+
+UPDATE_MEMORY_{{ loop.index }}: UPDATE WinMemory SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Tag='{{ mem["tag"] }}' AND Caption='{{ mem["caption"] }}' AND Capacity='{{ mem["capacity"] }}' AND DataWidth='{{ mem["dataWidth"] }}' AND TotalWidth='{{ mem["totalWidth"] }}' AND DeviceLocator='{{ mem["deviceLocator"] }}' AND FormFactor='{{ mem["formFactor"] }}' AND HotSwappable='{{ mem["hotSwappable"] }}' AND Manufacturer='{{ mem["manufacturer"] }}' AND MemoryType='{{ mem["memoryType"] }}' AND PositionInRow='{{ mem["positionInRow"] }}' AND Speed='{{ mem["speed"] }}' AND Auto AND End IS NULL; 
+
+INSERT_MEMORY_{{ loop.index }}: INSERT INTO WinMemory (Tag,Server,Caption,Capacity,DataWidth,TotalWidth,DeviceLocator,FormFactor,HotSwappable,Manufacturer,MemoryType,PositionInRow,Speed,Init,Checked,Auto) VALUES ('{{ mem["tag"] }}','{{ inventory_hostname }}', '{{ mem["caption"] }}', '{{ mem["capacity"] }}', '{{ mem["dataWidth"] }}', '{{ mem["totalWidth"] }}', '{{ mem["deviceLocator"] }}', '{{ mem["formFactor"] }}', '{{ mem["hotSwappable"] }}', '{{ mem["manufacturer"] }}', '{{ mem["memoryType"] }}', '{{ mem["positionInRow"] }}', '{{ mem["speed"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["PhysicalMemoryLocation"] is defined %}
+
+{% for location in hostvars[inventory_hostname]["PhysicalMemoryLocation"] -%}
+
+CHECK_MEMORYLOCATION_{{ loop.index }}: SELECT * FROM WinMemoryLocation WHERE Server='{{ inventory_hostname }}' AND GroupTag='{{ location["groupTag"] }}' AND PartTag='{{ location["partTag"] }}' AND Auto AND End IS NULL;
+
+UPDATE_MEMORYLOCATION_{{ loop.index }}: UPDATE WinMemoryLocation SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND GroupTag='{{ location["groupTag"] }}' AND PartTag='{{ location["partTag"] }}' AND Auto AND End IS NULL; 
+
+INSERT_MEMORYLOCATION_{{ loop.index }}: INSERT INTO WinMemoryLocation (GroupTag,PartTag,Server,Init,Checked,Auto) VALUES ('{{ location["groupTag"] }}', '{{ location["partTag"] }}','{{ inventory_hostname }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_MEMORYARRAY: SELECT * from WinMemoryArray WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_MEMORYARRAY: UPDATE WinMemoryArray SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_MEMORY: SELECT * from WinMemory WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_MEMORY: UPDATE WinMemory SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+
+END-CHECK_MEMORYLOCATION: SELECT * from WinMemoryLocation WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_MEMORYLOCATION: UPDATE WinMemoryLocation SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

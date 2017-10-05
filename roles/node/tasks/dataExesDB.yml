@@ -1,0 +1,152 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Getting executables data from node
+
+- name: Getting Path Data from nodes
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/gnu/bin:/usr/gnu/sbin:/opt/csw/bin:/opt/csw/sbin"
+  action: path_facts
+  register: pathFacts
+  changed_when: False
+  ignore_errors: yes
+  when: path is not defined
+
+- name: Get typeOS
+  shell: '{{ path.uname }} -s 2>/dev/null'
+  register: typeOS
+  changed_when: False
+  ignore_errors: yes
+
+- name: Getting executables data from nodes
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/gnu/bin:/usr/gnu/sbin:/opt/csw/bin:/opt/csw/sbin"
+  action: site_factsExes pathExes="{{ pathExes }}" pathNoExes="{{ pathNoExes }}"
+  register: siteFactsExes 
+  changed_when: False
+  ignore_errors: yes
+
+- name: Get PID
+  shell: echo "$$" executable={{ path.bash }}
+  register: PID
+  changed_when: False
+  ignore_errors: yes
+
+- name: Create nodes directory (inside inventory)
+  file: path={{ pathInventoryDirectory }}/nodes owner=root group=0 state=directory
+  delegate_to: "{{ hostMysql }}"
+  ignore_errors: yes
+  when: siteFactsExes|success
+
+- name: Generate sql file for executables (in Mysql Server)
+  template: src=root/inventory/nodes/node_dataExes.sql.j2 dest={{ pathInventoryDirectory }}/nodes/{{ inventory_hostname }}_dataExes.{{ PID.stdout }}.sql owner=root group=0 mode=0640
+  delegate_to: "{{ hostMysql }}"
+  ignore_errors: yes
+  when: siteFactsExes|success
+
+- name: Generate script node.py (in Mysql Server)
+  template: src=root/inventory/nodes/{{ item }}.j2 dest={{ pathInventoryDirectory }}/nodes/{{ item }} owner=root group=0 mode=0750 
+  with_items:
+    - node.py
+  delegate_to: "{{ hostMysql }}"
+  ignore_errors: yes
+  when: siteFactsExes|success
+
+- name: Execute script node.py (in Mysql Server)
+  shell: '{{ pathInventoryDirectory|default("/root/inventory") }}/nodes/node.py {{ inventory_hostname }} "{{ PID.stdout }}" > /dev/null 2> /var/log/ansible/.nodeExes_{{ PID.stdout }}-mysql-errors.tmp; [ -s /var/log/ansible/.nodeExes_{{ PID.stdout }}-mysql-errors.tmp ] && (echo "### ERROR nodes dataExesDB - node.py {{ inventory_hostname }} {{ PID.stdout }} - $(date) ###" >> /var/log/ansible/mysql-errors.log; cat /var/log/ansible/.nodeExes_{{ PID.stdout }}-mysql-errors.tmp >> /var/log/ansible/mysql-errors.log); rm -f /var/log/ansible/.nodeExes_{{ PID.stdout }}-mysql-errors.tmp executable=/bin/bash'
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFactsExes|success
+
+- name: Getting Exes of node with signature changed (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="exeschanged" query="Select BINARY Name as Name, Package, count(*) as Total from (Select distinct Name, Package, Signature from Exe where Server='{{ inventory_hostname }}' and Auto) as E1 group by HEX(Name), Package having count(*)>1 order by Name, Package"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFactsExes|success and passwdAdmin|default("") != ""
+
+- name: Getting Exes of node with attributtes changed (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="exesattrchanged" query="Select BINARY Name as Name, Package, FileSize, Signature, count(*) as Total from (Select distinct Name, Package, FileSize, FileUser, FileGroup, FilePerms, Signature from Exe where Server='{{ inventory_hostname }}' and Auto) as E1 group by HEX(Name), Package, FileSize, Signature having count(*) > 1 order by Name, Package;"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFactsExes|success and passwdAdmin|default("") != ""
+
+- name: Getting last 100 Exes found (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="exeslast" query="Select BINARY Name as Name, Package, FileSize, FileUser, FileGroup, FilePerms, Init as Date, End, Checked from Exe where Server='{{ inventory_hostname }}' and Auto order by Init desc, Name limit 100"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFactsExes|success and passwdAdmin|default("") != ""
+
+- name: Getting Exes with no package (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="exesnopackage" query="Select BINARY Name as Name, FileSize, FileUser, FileGroup, FilePerms, Init as Date, End, Checked from Exe where Server='{{ inventory_hostname }}' and End is null and Package='' and Auto order by Name, Init"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFactsExes|success and passwdAdmin|default("") != ""
+
+- name: Getting Exes with SETUID (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="exessetuid" query="Select BINARY Name as Name, Package, FileSize, FileUser, FileGroup, FilePerms, Init as Date, End, Checked from Exe where Server='{{ inventory_hostname }}' and End is null and FilePerms like '-__s%' and Auto order by Name, Init"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFactsExes|success and passwdAdmin|default("") != ""
+
+- name: Getting Exes with SETGID (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="exessetgid" query="Select BINARY Name as Name, Package, FileSize, FileUser, FileGroup, FilePerms, Init as Date, End, Checked from Exe where Server='{{ inventory_hostname }}' and End is null and FilePerms like '-_____s%' and Auto order by Name, Init"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFactsExes|success and passwdAdmin|default("") != ""
+
+- name: Copy host-items.txt from DB (in Wiki Master)
+  template: src=var/lib/dokuwiki/data/pages/inventory/host-{{ item }}.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp owner=root group=0 mode=0644
+  with_items:
+    - exes
+    - exeschanged
+    - exesattrchanged
+    - exesnopackage
+    - exessetuid
+    - exessetgid
+    - exeslast
+  delegate_to: "{{ hostWeb }}"
+  ignore_errors: yes
+  when: siteFactsExes|success and passwdAdmin|default("") != ""
+
+- name: Commit changes of host-items.txt from DB & update (in Wiki Server)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp inventory:{{ inventory_hostname|lower }}-{{ item }}) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ inventory_hostname|lower }}-{{ item }}.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ inventory_hostname|lower }}-{{ item }}.* || true)
+  with_items:
+    - exes
+    - exeschanged
+    - exesattrchanged
+    - exesnopackage
+    - exessetuid
+    - exessetgid
+    - exeslast
+  delegate_to: "{{ hostWeb }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFactsExes|success and passwdAdmin|default("") != ""
+
+- name: Get userApache in Web Server
+  shell: stat -c "%U" /var/lib/dokuwiki/data executable=/bin/bash
+  register: userApacheServer
+  delegate_to: "{{ hostWeb }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFactsExes|success
+
+- name: Change owner of /var/lib/dokuwiki/data to userApache
+  shell: chown -R {{ userApacheServer.stdout }} /var/lib/dokuwiki/data executable=/bin/bash
+  delegate_to: "{{ hostWeb }}"
+  changed_when: False
+  ignore_errors: yes
+  when: siteFactsExes|success
+

@@ -1,0 +1,47 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[ Servers | Back to Servers page]]
+
+
+==== Server {{ inventory_hostname }} ====
+
+^  Hardware  ^^ 
+^ System | {{ "[[ %s-system | %s (%s) ]]" % (inventory_hostname,hostvars[inventory_hostname]["ComputerSystem"]["model"] if hostvars[inventory_hostname]["ComputerSystem"]["model"] is defined else "?",hostvars[inventory_hostname]["ComputerSystem"]["systemType"] if hostvars[inventory_hostname]["ComputerSystem"]["systemType"] is defined else "?") if hostvars[inventory_hostname]["ComputerSystem"] is defined else "?" }} |
+^ Processor | {{ "[[ %s-processors | %s (%s sockets, %s vcpus) ]]" % (inventory_hostname,hostvars[inventory_hostname]["Processor"][0]["name"] if hostvars[inventory_hostname]["Processor"][0]["name"] is defined else "?",hostvars[inventory_hostname]["ComputerSystem"]["numberOfProcessors"] if hostvars[inventory_hostname]["ComputerSystem"] is defined and hostvars[inventory_hostname]["ComputerSystem"]["numberOfProcessors"] != "" else "?",hostvars[inventory_hostname]["ComputerSystem"]["numberOfLogicalProcessors"] if hostvars[inventory_hostname]["ComputerSystem"] is defined and hostvars[inventory_hostname]["ComputerSystem"]["numberOfLogicalProcessors"] != ""else "?") if hostvars[inventory_hostname]["Processor"] is defined else "?" }} |
+^ Memory | {{ "[[ %s-memory | %s MB (%s slots) ]]" % (inventory_hostname,(hostvars[inventory_hostname]["ComputerSystem"]["totalPhysicalMemory"]|int//1048576)|string if hostvars[inventory_hostname]["ComputerSystem"]["totalPhysicalMemory"] is defined and hostvars[inventory_hostname]["ComputerSystem"]["totalPhysicalMemory"] != "" else "?",hostvars[inventory_hostname]["PhysicalMemory"]|count if hostvars[inventory_hostname]["PhysicalMemory"] is defined else "?") if hostvars[inventory_hostname]["PhysicalMemory"] is defined else "%s MB" % ((hostvars[inventory_hostname]["ComputerSystem"]["totalPhysicalMemory"]|int//1048576)|string if hostvars[inventory_hostname]["ComputerSystem"]["totalPhysicalMemory"] is defined and hostvars[inventory_hostname]["ComputerSystem"]["totalPhysicalMemory"] != "" else "?") }} |
+^ Bios | {{ "[[ %s-bios | %s (%s) ]]" % (inventory_hostname,hostvars[inventory_hostname]["BIOS"]["name"] if hostvars[inventory_hostname]["BIOS"]["name"] is defined else "?",hostvars[inventory_hostname]["BIOS"]["releaseDate"] if hostvars[inventory_hostname]["BIOS"]["releaseDate"] is defined else "?") if hostvars[inventory_hostname]["BIOS"] is defined else "?" }} |
+^ Baseboard | {{ "[[ %s-baseboards | %s baseboards (%s devices) ]]" % (inventory_hostname,hostvars[inventory_hostname]["BaseBoard"]|count if hostvars[inventory_hostname]["BaseBoard"] is defined else "?",hostvars[inventory_hostname]["OnBoardDevice"]|count if hostvars[inventory_hostname]["OnBoardDevice"] is defined else "?" ) if hostvars[inventory_hostname]["BaseBoard"] is defined or hostvars[inventory_hostname]["OnBoardDevice"] is defined else "?" }} | 
+^ Devices | {{ "[[ %s-devices | %s devices ]]" % (inventory_hostname,hostvars[inventory_hostname]["DiskDrive"]|count) if hostvars[inventory_hostname]["DiskDrive"] is defined else "?" }} |
+^ Network Adapters | {{ "[[ %s-networkadapters | %s interfaces ]]" % (inventory_hostname,hostvars[inventory_hostname]["NetworkAdapter"]|count) if hostvars[inventory_hostname]["NetworkAdapter"] is defined else "?" }} | 
+^ Port Connectors | {{ "[[ %s-connectors | %s connectors ]]" % (inventory_hostname,hostvars[inventory_hostname]["PortConnector"]|count) if hostvars[inventory_hostname]["PortConnector"] is defined else "?" }} |
+^ Buses | {{ "[[ %s-buses | %s buses ]]" % (inventory_hostname,hostvars[inventory_hostname]["Bus"]|count) if hostvars[inventory_hostname]["Bus"] is defined else "?" }} |
+
+
+
+^  Software  ^^
+^ Operating System | {{ "[[ %s-operatingsystem | %s ]]" % (inventory_hostname,hostvars[inventory_hostname]["OperatingSystem"]["name"]) if hostvars[inventory_hostname]["OperatingSystem"] is defined else "?" }} |
+^ Version | {{ "%s" % hostvars[inventory_hostname]["OperatingSystem"]["version"] if hostvars[inventory_hostname]["OperatingSystem"] is defined else "?" }} |
+^ Logical Devices | {{ "[[ %s-logicaldevices | %s logical devices ]]" % (inventory_hostname,hostvars[inventory_hostname]["LogicalDisk"]|count) if hostvars[inventory_hostname]["LogicalDisk"] is defined else "?" }} |
+^ Logical Network Adapters | {{ "[[ %s-logicalnetworkadapters | %s logical network adapters ]]" % (inventory_hostname,hostvars[inventory_hostname]["NetworkAdapterConfiguration"]|count) if hostvars[inventory_hostname]["NetworkAdapterConfiguration"] is defined else "?" }} |
+^ System Drive | {{ "%s" % hostvars[inventory_hostname]["OperatingSystem"]["systemDrive"] if hostvars[inventory_hostname]["OperatingSystem"] is defined else "?" }} |
+^ Windows Directory | {{ "%s" % hostvars[inventory_hostname]["OperatingSystem"]["windowsDirectory"] if hostvars[inventory_hostname]["OperatingSystem"] is defined else "?" }} |
+^ OS Domain | {{ "[[ %s-domain | %s ]]" % (inventory_hostname,hostvars[inventory_hostname]["ComputerSystem"]["domain"]) if hostvars[inventory_hostname]["ComputerSystem"] is defined else "?" }} |
+^ Domain Role | {{ "%s" % (hostvars[inventory_hostname]["ComputerSystem"]["domainRole"]) if hostvars[inventory_hostname]["ComputerSystem"] is defined else "?" }} |
+^ OS Language | {{ "%s" % (hostvars[inventory_hostname]["OperatingSystem"]["OSLanguage"]) if hostvars[inventory_hostname]["OperatingSystem"] is defined else "?" }} |
+
+^  Software (Security)  ^^
+^ Ports (External Scan) | {{ "[[ %s-portsext | TCP ports ]]" % (inventory_hostname) }} |
+^ Users & Groups | {{ "[[ %s-accounts | %s System Accounts & %s User Accounts & %s Groups ]]" % (inventory_hostname,hostvars[inventory_hostname]["SystemAccount"]|count if hostvars[inventory_hostname]["SystemAccount"] is defined else "?", hostvars[inventory_hostname]["UserAccount"]|count if hostvars[inventory_hostname]["UserAccount"] is defined else "?" ,hostvars[inventory_hostname]["Group"]|count if hostvars[inventory_hostname]["Group"] is defined else "?") }} |
+^ Drivers | {{ "[[ %s-drivers | %s drivers ]]" % (inventory_hostname,hostvars[inventory_hostname]["SystemDriver"]|count) if hostvars[inventory_hostname]["SystemDriver"] is defined else "?" }} |
+^ Services | {{ "[[ %s-services | %s services ]]" % (inventory_hostname,hostvars[inventory_hostname]["Service"]|count) if hostvars[inventory_hostname]["Service"] is defined else "?" }} |
+^ Shares | {{ "[[ %s-shares | %s Shares ]]" % (inventory_hostname,hostvars[inventory_hostname]["Share"]|count if hostvars[inventory_hostname]["Share"] is defined else "?") }} |
+
+
+
+[[ Servers | Back to Servers page]]
+

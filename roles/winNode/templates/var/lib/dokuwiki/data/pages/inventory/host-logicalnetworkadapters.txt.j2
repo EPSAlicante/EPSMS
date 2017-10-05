@@ -1,0 +1,40 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Server {{ inventory_hostname }}: Logical Network Adapters ====
+
+{% if hostvars[inventory_hostname]["NetworkAdapterConfiguration"] is defined -%}
+{% for net in hostvars[inventory_hostname]["NetworkAdapterConfiguration"] -%}
+^  Adapter {{ net["index"] }}  ^^ 
+^ Description | {{ net["description"] }} |
+^ MAC Address | {{ net["MACAddress"] }} |
+^ IP Address | {{ net["IPAddress"] }} |
+^ IP Subnet | {{ net["IPSubnet"] }} |
+^ Default IP Gateway | {{ net["defaultIPGateway"] }} |
+^ Default TOS | {{ net["defaultTOS"] }} |
+^ Default TTL | {{ net["defaultTTL"] }} |
+^ DHCP Enabled | {{ net["DHCPEnabled"] }} |
+^ DHCP Server | {{ net["DHCPServer"] }} |
+^ DNS Domain | {{ net["DNSDomain"] }} |
+^ DNS Domain Suffix Search Order | {{ net["DNSDomainSuffixSearchOrder"] }} |
+^ DNS Domain Search Order | {{ net["DNSDomainSearchOrder"] }} |
+^ IGMP Level | {{ net["IGMPLevel"] }} |
+^ WINS Enable LMHosts Lookup | {{ net["WINSEnableLMHostsLookup"] }} |
+^ WINS Primary Server | {{ net["WINSPrimaryServer"] }} |
+^ WINS Secondary Server | {{ net["WINSSecondaryServer"] }} |
+
+{% endfor %}
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

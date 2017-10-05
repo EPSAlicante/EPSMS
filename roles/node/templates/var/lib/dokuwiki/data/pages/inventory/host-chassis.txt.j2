@@ -1,0 +1,24 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Host {{ inventory_hostname }}: Chassis ====
+
+{% if hostvars[inventory_hostname]["chassis"] is defined -%}
+^ Manufacturer | {{ "%s" % hostvars[inventory_hostname]["chassis"]["Manufacturer"] if hostvars[inventory_hostname]["chassis"]["Manufacturer"] is defined else " " }} | 
+^ Type | {{ "%s" % hostvars[inventory_hostname]["chassis"]["Type"] if hostvars[inventory_hostname]["chassis"]["Type"] is defined else " " }} |
+^ Version | {{ "%s" % hostvars[inventory_hostname]["chassis"]["Version"] if hostvars[inventory_hostname]["chassis"]["Version"] is defined else " " }} |
+^ Serial Number | {{ "%s" % hostvars[inventory_hostname]["chassis"]["Serial Number"] if hostvars[inventory_hostname]["chassis"]["Serial Number"] is defined else " " }} |
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

@@ -1,0 +1,55 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[ Servers | Back to Main page]]
+
+
+==== Host: {{ inventory_hostname }} ({{ hostvars[inventory_hostname]["nodeIP"][0]["IP"] }}) ====
+
+^  Hardware  ^^ 
+^ System | {{ "[[ %s-system | %s (%s) ]]" % (inventory_hostname,hostvars[inventory_hostname]["system"]["Product Name"] if hostvars[inventory_hostname]["system"]["Product Name"] is defined else "?",hostvars[inventory_hostname]["ansible_architecture"] if hostvars[inventory_hostname]["ansible_architecture"] is defined else "?") if hostvars[inventory_hostname]["system"] is defined else "%s" % (hostvars[inventory_hostname]["ansible_architecture"] if hostvars[inventory_hostname]["ansible_architecture"] is defined else "?") }} |
+^ Processor | {{ "[[ %s-processor | %s (%s sockets, %s cores, %s threads, %s vcpus) ]]" % (inventory_hostname,hostvars[inventory_hostname]["ansible_processor"][0] if hostvars[inventory_hostname]["ansible_processor"] is defined else "?",hostvars[inventory_hostname]["ansible_processor_count"] if hostvars[inventory_hostname]["ansible_processor_count"] is defined else "?",hostvars[inventory_hostname]["ansible_processor_cores"] if hostvars[inventory_hostname]["ansible_processor_cores"] is defined else "?",hostvars[inventory_hostname]["ansible_processor_threads_per_core"] if hostvars[inventory_hostname]["ansible_processor_threads_per_core"] is defined else "?",hostvars[inventory_hostname]["ansible_processor_vcpus"] if hostvars[inventory_hostname]["ansible_processor_vcpus"] is defined else "?") if hostvars[inventory_hostname]["processor"] is defined else "%s (%s sockets, %s cores, %s threads, %s vcpus)" % (hostvars[inventory_hostname]["ansible_processor"][0] if hostvars[inventory_hostname]["ansible_processor"] is defined else "?",hostvars[inventory_hostname]["ansible_processor_count"] if hostvars[inventory_hostname]["ansible_processor_count"] is defined else "?",hostvars[inventory_hostname]["ansible_processor_cores"] if hostvars[inventory_hostname]["ansible_processor_cores"] is defined else "?",hostvars[inventory_hostname]["ansible_processor_threads_per_core"] if hostvars[inventory_hostname]["ansible_processor_threads_per_core"] is defined else "?",hostvars[inventory_hostname]["ansible_processor_vcpus"] if hostvars[inventory_hostname]["ansible_processor_vcpus"] is defined else "?") }} |
+^ Memory | {{ "[[ %s-memory | %s MB (%s slots) ]]" % (inventory_hostname,hostvars[inventory_hostname]["ansible_memtotal_mb"] if hostvars[inventory_hostname]["ansible_memtotal_mb"] is defined else "?",hostvars[inventory_hostname]["memory"]["slots"]|count if hostvars[inventory_hostname]["memory"]["slots"] is defined else "?") if hostvars[inventory_hostname]["memory"] is defined else "%s MB" % (hostvars[inventory_hostname]["ansible_memtotal_mb"] if hostvars[inventory_hostname]["ansible_memtotal_mb"] is defined else "?") }} |
+^ Bios | {{ "[[ %s-bios | %s (%s) ]]" % (inventory_hostname,hostvars[inventory_hostname]["bios"]["Vendor"] if hostvars[inventory_hostname]["bios"]["Vendor"] is defined else "?",hostvars[inventory_hostname]["bios"]["Release Date"] if hostvars[inventory_hostname]["bios"]["Release Date"] is defined else "?") if hostvars[inventory_hostname]["bios"] is defined else "?" }} |
+^ Baseboard | {{ "[[ %s-baseboard | %s baseboards (%s devices) ]]" % (inventory_hostname,hostvars[inventory_hostname]["baseboard"]|count if hostvars[inventory_hostname]["baseboard"] is defined else "?",hostvars[inventory_hostname]["baseboarddevice"]|count if hostvars[inventory_hostname]["baseboarddevice"] is defined else "?" ) if hostvars[inventory_hostname]["baseboard"] is defined or hostvars[inventory_hostname]["baseboarddevice"] is defined else "?" }} | 
+^ Chassis | {{ "[[ %s-chassis | %s (%s) ]]" % (inventory_hostname,hostvars[inventory_hostname]["chassis"]["Manufacturer"] if hostvars[inventory_hostname]["chassis"]["Manufacturer"] is defined else "?",hostvars[inventory_hostname]["chassis"]["Type"] if hostvars[inventory_hostname]["chassis"]["Type"] is defined else "?") if hostvars[inventory_hostname]["chassis"] is defined else "?" }} |
+^ Devices | {{ "[[ %s-devices | %s devices ]]" % (inventory_hostname,hostvars[inventory_hostname]["ansible_devices"]|count) if hostvars[inventory_hostname]["ansible_devices"] is defined else "?" }} |
+^ Network Interfaces | {{ "[[ %s-interfaces | %s interfaces ]]" % (inventory_hostname,hostvars[inventory_hostname]["ansible_interfaces"]|count) if hostvars[inventory_hostname]["ansible_interfaces"] is defined else "[[ %s-interfaces | %s interfaces ]]" % (inventory_hostname,hostvars[inventory_hostname]["interfaces"]|count) if hostvars[inventory_hostname]["interfaces"] is defined else "?" }} | 
+^ Cache Memory | {{ "[[ %s-caches | %s cache memories ]]" % (inventory_hostname,hostvars[inventory_hostname]["cache"]|count) if hostvars[inventory_hostname]["cache"] is defined else "?" }} |
+^ Connectors | {{ "[[ %s-connectors | %s connectors ]]" % (inventory_hostname,hostvars[inventory_hostname]["connector"]|count) if hostvars[inventory_hostname]["connector"] is defined else "?" }} |
+^ Slots | {{ "[[ %s-slots | %s slots ]]" % (inventory_hostname,hostvars[inventory_hostname]["slot"]|count) if hostvars[inventory_hostname]["slot"] is defined else "?" }} |
+
+
+
+^  Software  ^^
+^ Distribution | {{ "%s" % hostvars[inventory_hostname]["ansible_distribution"] if hostvars[inventory_hostname]["ansible_distribution"] is defined else "?" }} |
+^ Version | {{ "%s" % hostvars[inventory_hostname]["ansible_distribution_version"] if hostvars[inventory_hostname]["ansible_distribution_version"] is defined else "?" }} |
+^ Kernel | {{ "%s" % hostvars[inventory_hostname]["ansible_kernel"] if hostvars[inventory_hostname]["ansible_kernel"] is defined else "?" }} |
+^ Modules | {{ "[[ %s-modules | %s modules ]]" % (inventory_hostname,hostvars[inventory_hostname]["module"]|count) if hostvars[inventory_hostname]["module"] is defined else "?" }} |
+^ Domain | {{ "%s" % (hostvars[inventory_hostname]["ansible_domain"]) if hostvars[inventory_hostname]["ansible_domain"] is defined and hostvars[inventory_hostname]["ansible_domain"] != "localdomain" else "%s" % (hostvars[inventory_hostname]["resolver"]["domain"]) if hostvars[inventory_hostname]["resolver"]["domain"] is defined else "?" }} |
+^ Resolver ( /etc/resolv.conf ) | {{ "[[ %s-resolver | nameservers: %s %s %s ]]" % (inventory_hostname,hostvars[inventory_hostname]["resolver"]["ns1"],hostvars[inventory_hostname]["resolver"]["ns2"],hostvars[inventory_hostname]["resolver"]["ns3"]) if hostvars[inventory_hostname]["resolver"] is defined else "?" }} |
+^ Hosts ( /etc/hosts ) | {{ "[[ %s-filehosts | %s hosts ]]" % (inventory_hostname,hostvars[inventory_hostname]["hosts"]|count if hostvars[inventory_hostname]["hosts"] is defined else "?") }} |
+^ Network Routes | {{ "[[ %s-routes | %s routes ]]" % (inventory_hostname,hostvars[inventory_hostname]["routes"]|count if hostvars[inventory_hostname]["routes"] is defined else "?") }} |
+^ Swap | {{ "%s MB" % hostvars[inventory_hostname]["ansible_swaptotal_mb"] if hostvars[inventory_hostname]["ansible_swaptotal_mb"] is defined else "?" }} |
+^ Virtualization | {{ "%s (%s)" % (hostvars[inventory_hostname]["ansible_virtualization_type"] if hostvars[inventory_hostname]["ansible_virtualization_type"] is defined else "?",hostvars[inventory_hostname]["ansible_virtualization_role"] if hostvars[inventory_hostname]["ansible_virtualization_role"] is defined else "?") if hostvars[inventory_hostname]["ansible_virtualization_type"] is defined else "No" }} |
+^ Filesystems | {{ "[[ %s-filesystems | %s filesystems ]]" % (inventory_hostname,hostvars[inventory_hostname]["ansible_mounts"]|count) if hostvars[inventory_hostname]["ansible_mounts"] is defined else "?" }} |
+
+^  Software (Security)  ^^
+^ Ports | {{ "[[ %s-ports | %s TCP ports & %s UDP ports ]]" % (inventory_hostname,hostvars[inventory_hostname]["tcp"]|count if hostvars[inventory_hostname]["tcp"] is defined else "0",hostvars[inventory_hostname]["udp"]|count if hostvars[inventory_hostname]["udp"] is defined else "0") if hostvars[inventory_hostname]["tcp"] is defined or hostvars[inventory_hostname]["udp"] is defined else "?" }} |
+^ Packages | {{ "[[ %s-packages | %s packages installed ]]" % (inventory_hostname,hostvars[inventory_hostname]["packagesCount"][0]["Total"] if (hostvars[inventory_hostname]["packagesCount"] is defined and hostvars[inventory_hostname]["packagesCount"] != "0") else "?") }} |
+^ Executables | {{ "[[ %s-exes | %s executables found ]]" % (inventory_hostname,hostvars[inventory_hostname]["exesCount"][0]["Total"] if (hostvars[inventory_hostname]["exesCount"] is defined and hostvars[inventory_hostname]["exesCount"] != "0") else "?") }} |
+^ Users & Groups | {{ "[[ %s-usersgroups | %s Users & %s groups ]]" % (inventory_hostname,hostvars[inventory_hostname]["lusers"]|count if hostvars[inventory_hostname]["lusers"] is defined else "?" ,hostvars[inventory_hostname]["lgroups"]|count if hostvars[inventory_hostname]["lgroups"] is defined else "?") }} |
+^ Sudo | {{ "[[ %s-sudo | %s rules ]]" % (inventory_hostname,hostvars[inventory_hostname]["sudoers"]["userSpec"]|count if hostvars[inventory_hostname]["sudoers"] is defined else "?") }} |
+^ Crontab | {{ "[[ %s-crontabs | %s crontab lines ]]" % (inventory_hostname,hostvars[inventory_hostname]["crontabs"]|count) if hostvars[inventory_hostname]["crontabs"] is defined and hostvars[inventory_hostname]["crontabs"]|count > 0 else "No lines" }} |
+^ IPTables | {{ "[[ %s-iptables | %s rules ]]" % (inventory_hostname,hostvars[inventory_hostname]["iptablesCount"][0]["Total"]) if hostvars[inventory_hostname]["iptables"] is defined else "No IPTables" }} |
+^ TCP Wrappers | {{ "[[ %s-tcpwrappers | %s rules (deny) & %s rules (allow) ]]" % (inventory_hostname,hostvars[inventory_hostname]["tcpwrappers"]["deny"]|count if hostvars[inventory_hostname]["tcpwrappers"]["deny"] is defined else "0",hostvars[inventory_hostname]["tcpwrappers"]["allow"]|count if hostvars[inventory_hostname]["tcpwrappers"]["allow"] is defined else "0") if hostvars[inventory_hostname]["tcpwrappers"] is defined else "No TCP Wrappers rules" }} |
+^ PAM Access | {{ "[[ %s-pamaccess | %s PAM modules (%s rules) ]]" % (inventory_hostname,hostvars[inventory_hostname]["pamaccess"]["modules"]|count,hostvars[inventory_hostname]["pamaccess"]["rules"]|count) if hostvars[inventory_hostname]["pamaccess"] is defined else "No PAM Access defined" }} |
+
+
+
+[[ Servers | Back to Main page]]
+

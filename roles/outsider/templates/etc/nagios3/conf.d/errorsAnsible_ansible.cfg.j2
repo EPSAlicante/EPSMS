@@ -1,0 +1,27 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Made by EPS Monitoring System
+
+# Checking errors in Ansible 
+
+# Ansible errors
+define service{
+        use                             generic-service         ; Name of service template to use
+        host_name                       {{ hostnameAnsible }} 
+        service_description             Ansible errors 
+        check_command                   check_nrpe_1arg!check_errorsAnsible
+        }
+
+# Ansible errors (Mysql)
+define service{
+        use                             generic-service         ; Name of service template to use
+        host_name                       {{ hostnameMysql }}
+        service_description             Mysql errors with Ansible
+        check_command                   check_nrpe_1arg!check_errorsMysql
+        }
+

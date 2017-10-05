@@ -1,0 +1,51 @@
+<html>
+<head>
+<style type="text/css">
+.caption:hover {
+  font-weight:bold;
+}
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+li {
+    float: left;
+}
+li a {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+li a:hover {
+    background-color: #111;
+}
+img {
+  width:25;
+  height:25;
+}
+</style>
+</head>
+<body width="100%" style="background:#A4BBC7">
+<div width="100%" height="10%">
+<ul>
+  <li><a href="table.html" title="Main Panel" target="epsms">Main Panel</a></li>
+  <li><a href="https://{{ hostnameNagios }}/nagios" title="Open Nagios in same tab" target="epsms">Nagios</a></li>
+  <li><a href="https://{{ hostnameMunin }}/munin" title="Open Munin in same tab" target="epsms">Munin</a></li>
+  <li><a href="https://{{ hostnameWeb }}/wiki" title="Open Wiki in same tab" target="epsms">Wiki</a></li>
+  <li><a href="https://{{ hostnameWeb }}/web" title="Open Web Apps Menu in same tab" target="epsms">Web Apps</a></li>
+  <li><a href="https://{{ hostnameWeb }}/influxdb" title="Open InfluxDB in same tab" target="epsms">InfluxDB</a></li>
+  <li><a href="https://{{ hostnameWeb }}/grafana" title="Open Grafana in same tab" target="epsms">Grafana</a></li>
+  <li><a href="https://{{ hostnameWeb }}/phpmyadmin" title="Open PhpMyAdmin in same tab" target="epsms">Mysql</a></li>
+  <li><a href="https://{{ hostnameWeb }}/openvas" title="Open Openvas in same tab" target="epsms">Openvas</a></li>
+  <li><a href="https://{{ inventory_hostname }}/help" title="Open Help Menu in same tab" target="epsms">Help</a></li>
+  <li><a href="ca.crt" title="Download CA certificate" target="epsms"><img id="cert" src="images/Cert.png" title="Download CA certificate"></a></li>
+</ul>
+</div>
+<iframe name="epsms" src="logo.html" width="100%" height="88%">No iframes</iframe>
+</body>
+</html>

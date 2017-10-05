@@ -1,0 +1,5085 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "EPS MS ({{ item.item }})",
+    "tags": [],
+    "style": "dark",
+    "timezone": "browser",
+    "editable": true,
+    "hideControls": false,
+    "sharedCrosshair": false,
+    "rows": [
+      {
+        "title": "Nagios Data (Ping)",
+        "showTitle": true,
+        "height": "250px",
+        "editable": true,
+        "collapse": false,
+        "panels": [
+          {
+            "title": "Ping (ms)",
+            "error": false,
+            "span": 7,
+            "editable": true,
+            "type": "graph",
+            "isNew": true,
+            "id": 1,
+            "targets": [
+              {
+                "policy": "default",
+                "dsType": "influxdb",
+                "resultFormat": "time_series",
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "check",
+                    "operator": "=",
+                    "value": "rta"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "type": "time",
+                    "params": [
+                      "$interval"
+                    ]
+                  },
+                  {
+                    "type": "fill",
+                    "params": [
+                      "null"
+                    ]
+                  }
+                ],
+                "select": [
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "value"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "ping"
+                      ]
+                    }
+                  ]
+                ],
+                "refId": "A",
+                "measurement": "check-host-alive"
+              }
+            ],
+            "datasource": "nagios",
+            "renderer": "flot",
+            "yaxes": [
+              {
+                "label": null,
+                "show": true,
+                "logBase": 1,
+                "min": 0,
+                "max": null,
+                "format": "short"
+              },
+              {
+                "label": null,
+                "show": true,
+                "logBase": 1,
+                "min": 0,
+                "max": null,
+                "format": "short"
+              }
+            ],
+            "xaxis": {
+              "show": true
+            },
+            "grid": {
+              "threshold1": null,
+              "threshold2": null,
+              "threshold1Color": "rgba(216, 200, 27, 0.27)",
+              "threshold2Color": "rgba(234, 112, 112, 0.22)"
+            },
+            "lines": true,
+            "fill": 5,
+            "linewidth": 2,
+            "points": false,
+            "pointradius": 5,
+            "bars": false,
+            "stack": false,
+            "percentage": false,
+            "legend": {
+              "show": true,
+              "values": true,
+              "min": true,
+              "max": true,
+              "current": true,
+              "total": false,
+              "avg": true,
+              "alignAsTable": true
+            },
+            "nullPointMode": "connected",
+            "steppedLine": false,
+            "tooltip": {
+              "value_type": "cumulative",
+              "shared": true,
+              "sort": 0,
+              "msResolution": false
+            },
+            "timeFrom": null,
+            "timeShift": null,
+	    "transparent": true,
+            "aliasColors": {
+              "check-host-alive.mean": "#EAB839",
+              "check-host-alive.ping": "#7EB26D"
+            },
+            "seriesOverrides": [],
+            "links": [],
+	    "decimals": 2
+          },
+          {
+            "cacheTimeout": null,
+            "colorBackground": false,
+            "colorValue": false,
+            "colors": [
+              "rgba(50, 172, 45, 0.97)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(245, 54, 54, 0.9)"
+            ],
+            "datasource": "nagios",
+            "editable": true,
+            "error": false,
+            "format": "none",
+            "gauge": {
+              "maxValue": 3,
+              "minValue": 0,
+              "show": true,
+              "thresholdLabels": false,
+              "thresholdMarkers": true
+            },
+            "id": 2,
+            "interval": null,
+            "isNew": true,
+            "links": [],
+            "mappingType": 1,
+            "mappingTypes": [
+              {
+                "name": "value to text",
+                "value": 1
+              },
+              {
+                "name": "range to text",
+                "value": 2
+              }
+            ],
+            "maxDataPoints": 100,
+            "nullPointMode": "connected",
+            "nullText": null,
+            "postfix": "",
+            "postfixFontSize": "50%",
+            "prefix": "",
+            "prefixFontSize": "50%",
+            "rangeMaps": [
+              {
+                "from": "null",
+                "text": "N/A",
+                "to": "null"
+              }
+            ],
+            "span": 2,
+            "sparkline": {
+              "fillColor": "rgba(31, 118, 189, 0.18)",
+              "full": false,
+              "lineColor": "rgb(31, 120, 193)",
+              "show": true
+            },
+            "targets": [
+              {
+                "dsType": "influxdb",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "measurement": "check-host-alive",
+                "policy": "default",
+                "refId": "A",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    },
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "alias"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "check",
+                    "operator": "=",
+                    "value": "rta"
+                  }
+                ]
+              }
+            ],
+            "thresholds": "1,2",
+            "title": "Ping (ms)",
+	    "transparent": true,
+            "type": "singlestat",
+            "valueFontSize": "80%",
+            "valueMaps": [
+              {
+                "op": "=",
+                "text": "N/A",
+                "value": "null"
+              }
+            ],
+            "valueName": "current",
+	    "decimals": 2
+          },
+          {
+            "title": "Ping (ms)",
+            "error": false,
+            "span": 3,
+            "editable": true,
+            "type": "table",
+            "isNew": true,
+            "id": 3,
+            "targets": [
+              {
+                "policy": "default",
+                "dsType": "influxdb",
+                "resultFormat": "table",
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "check",
+                    "operator": "=",
+                    "value": "rta"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "type": "time",
+                    "params": [
+                      "5m"
+                    ]
+                  },
+                  {
+                    "type": "fill",
+                    "params": [
+                      "null"
+                    ]
+                  }
+                ],
+                "select": [
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "value"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "value"
+                      ]
+                    }
+                  ]
+                ],
+                "refId": "A",
+                "measurement": "check-host-alive"
+              }
+            ],
+            "styles": [
+              {
+                "type": "date",
+                "pattern": "Time",
+                "dateFormat": "YYYY-MM-DD HH:mm:ss"
+              },
+              {
+                "unit": "short",
+                "type": "number",
+                "decimals": 2,
+                "colors": [
+                  "rgba(50, 172, 45, 0.97)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(245, 54, 54, 0.9)"
+                ],
+                "colorMode": "row",
+                "pattern": "/.*/",
+                "thresholds": [
+                  "1",
+                  "2"
+                ]
+              }
+            ],
+            "transform": "table",
+            "pageSize": null,
+            "showHeader": true,
+            "columns": [],
+            "scroll": true,
+            "fontSize": "100%",
+            "sort": {
+              "col": 0,
+              "desc": true
+            },
+            "datasource": "nagios",
+            "links": [],
+            "transparent": true
+          }
+        ]
+      },
+      {
+        "title": "Nagios Data (Host Status)",
+        "showTitle": true,
+        "height": "250px",
+        "editable": true,
+        "collapse": false,
+        "panels": [
+
+          {
+            "title": "Host Status (OK: 0, Warning:1, Critical:2, Unknown:3)",
+            "error": false,
+            "span": 7,
+            "editable": true,
+            "type": "graph",
+            "isNew": true,
+            "id": 4,
+            "targets": [
+              {
+                "policy": "default",
+                "dsType": "influxdb",
+                "resultFormat": "time_series",
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  },
+                  {
+                    "condition": "AND",
+                    "key": "check",
+                    "operator": "=",
+                    "value": "pl"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "type": "time",
+                    "params": [
+                      "$interval"
+                    ]
+                  },
+                  {
+                    "type": "fill",
+                    "params": [
+                      "null"
+                    ]
+                  }
+                ],
+                "select": [
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "value"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "value"
+                      ]
+                    }
+                  ]
+                ],
+                "refId": "A",
+                "measurement": "check-host-alive",
+                "query": "SELECT mean(\"value\") AS \"value\" FROM \"check-host-alive\" WHERE \"host\" = '{{ item.item }}' AND \"check\" = 'pl' AND $timeFilter GROUP BY time($interval) fill(null)",
+                "rawQuery": true
+              }
+            ],
+            "datasource": "nagios",
+            "renderer": "flot",
+            "yaxes": [
+              {
+                "label": "",
+                "show": true,
+                "logBase": 1,
+                "min": 0,
+                "max": 3,
+                "format": "none"
+              },
+              {
+                "label": "",
+                "show": true,
+                "logBase": 1,
+                "min": 0,
+                "max": 3,
+                "format": "none"
+              }
+            ],
+            "xaxis": {
+              "show": true
+            },
+            "grid": {
+              "threshold1": null,
+              "threshold2": null,
+              "threshold1Color": "rgba(216, 200, 27, 0.27)",
+              "threshold2Color": "rgba(234, 112, 112, 0.22)"
+            },
+            "lines": true,
+            "fill": 5,
+            "linewidth": 2,
+            "points": false,
+            "pointradius": 5,
+            "bars": false,
+            "stack": false,
+            "percentage": false,
+            "legend": {
+              "show": true,
+              "values": true,
+              "min": false,
+              "max": false,
+              "current": true,
+              "total": false,
+              "avg": false
+            },
+            "nullPointMode": "connected",
+            "steppedLine": true,
+            "tooltip": {
+              "value_type": "cumulative",
+              "shared": true,
+              "sort": 0,
+              "msResolution": false
+            },
+            "timeFrom": null,
+            "timeShift": null,
+            "aliasColors": {},
+            "seriesOverrides": [],
+            "links": [],
+            "transparent": true
+          },
+	  {
+	    "cacheTimeout": null,
+	    "colorBackground": false,
+	    "colorValue": true,
+	    "colors": [
+	      "rgba(50, 172, 45, 0.97)",
+	      "rgba(237, 129, 40, 0.89)",
+	      "rgba(245, 54, 54, 0.9)"
+	    ],
+	    "datasource": "nagios",
+	    "editable": true,
+	    "error": false,
+	    "format": "none",
+	    "gauge": {
+	      "maxValue": 3,
+	      "minValue": 0,
+	      "show": true,
+	      "thresholdLabels": false,
+	      "thresholdMarkers": true
+	    },
+	    "id": 5,
+	    "interval": null,
+	    "isNew": true,
+	    "links": [],
+	    "mappingType": 1,
+	    "mappingTypes": [
+	      {
+	        "name": "value to text",
+	        "value": 1
+	      },
+	      {
+	        "name": "range to text",
+	        "value": 2
+	      }
+	    ],
+	    "maxDataPoints": 100,
+	    "nullPointMode": "connected",
+	    "nullText": null,
+	    "postfix": "",
+	    "postfixFontSize": "50%",
+	    "prefix": "",
+	    "prefixFontSize": "50%",
+	    "rangeMaps": [
+	      {
+	        "from": "null",
+	        "text": "N/A",
+	        "to": "null"
+	      }
+	    ],
+	    "span": 2,
+	    "sparkline": {
+	      "fillColor": "rgba(31, 118, 189, 0.18)",
+	      "full": false,
+	      "lineColor": "rgb(31, 120, 193)",
+	      "show": true
+	    },
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "check-host-alive",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          },
+	          {
+	            "condition": "AND",
+	            "key": "check",
+	            "operator": "=",
+	            "value": "pl"
+	          }
+	        ]
+	      }
+	    ],
+	    "thresholds": "1,2",
+	    "title": "Host Status",
+	    "type": "singlestat",
+	    "valueFontSize": "50%",
+	    "valueMaps": [
+	      {
+	        "op": "=",
+	        "text": "N/A",
+	        "value": "null"
+	      },
+              {
+                "op": "=",
+                "text": "OK",
+                "value": "0"
+              },
+              {
+                "op": "=",
+                "text": "WARNING",
+                "value": "1"
+              },
+              {
+                "op": "=",
+                "text": "CRITICAL",
+                "value": "2"
+              },
+              {
+                "op": "=",
+                "text": "UNKNOWN",
+                "value": "3"
+              }
+	    ],
+	    "valueName": "current",
+	    "transparent": true
+	  },
+	  {
+	    "columns": [],
+	    "datasource": "nagios",
+	    "editable": true,
+	    "error": false,
+	    "fontSize": "100%",
+	    "id": 6,
+	    "isNew": true,
+	    "links": [],
+	    "pageSize": null,
+	    "scroll": true,
+	    "showHeader": true,
+	    "sort": {
+	      "col": 0,
+	      "desc": true
+	    },
+	    "span": 3,
+	    "styles": [
+	      {
+	        "dateFormat": "YYYY-MM-DD HH:mm:ss",
+	        "pattern": "Time",
+	        "type": "date"
+	      },
+	      {
+	        "colorMode": "row",
+	        "colors": [
+	          "rgba(50, 172, 45, 0.97)",
+	          "rgba(237, 129, 40, 0.89)",
+	          "rgba(245, 54, 54, 0.9)"
+	        ],
+	        "decimals": 2,
+	        "pattern": "/.*/",
+	        "thresholds": [
+	          "1",
+	          "2"
+	        ],
+	        "type": "number",
+	        "unit": "short"
+	      }
+	    ],
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "5m"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "check-host-alive",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "table",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          },
+	          {
+	            "condition": "AND",
+	            "key": "check",
+	            "operator": "=",
+	            "value": "pl"
+	          }
+	        ]
+	      }
+	    ],
+	    "title": "Host Status",
+	    "transform": "table",
+	    "transparent": true,
+	    "type": "table"
+	  }
+        ]
+      },
+{% if item.item in muninList.stdout_lines -%}
+{% if loadFact is defined and loadFact[item.item]|default("no") == "yes" -%}
+      {
+	"title": "Munin Data (Load)",
+	"showTitle": true,
+        "collapse": false,
+        "editable": true,
+        "height": "250px",
+        "panels": [
+          {
+            "aliasColors": {},
+            "bars": false,
+            "datasource": "munin",
+            "editable": true,
+            "error": false,
+            "fill": 5,
+            "grid": {
+              "threshold1": null,
+              "threshold1Color": "rgba(216, 200, 27, 0.27)",
+              "threshold2": null,
+              "threshold2Color": "rgba(234, 112, 112, 0.22)"
+            },
+            "id": 101,
+            "isNew": true,
+            "legend": {
+              "avg": true,
+              "current": true,
+              "max": true,
+              "min": true,
+              "show": true,
+              "total": false,
+              "values": true,
+              "alignAsTable": true
+            },
+            "lines": true,
+            "linewidth": 2,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "span": 7,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "dsType": "influxdb",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "measurement": "load",
+                "policy": "default",
+                "refId": "A",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "load"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    },
+                    {
+                      "params": [
+                        "value"
+                      ],
+                      "type": "alias"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  }
+                ]
+              }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Load",
+            "tooltip": {
+              "msResolution": false,
+              "shared": true,
+              "sort": 0,
+              "value_type": "cumulative"
+            },
+            "transparent": true,
+            "type": "graph",
+            "xaxis": {
+              "show": true
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": 0,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": 0,
+                "show": true
+              }
+            ],
+            "decimals": 2
+          },
+          {
+            "title": "Load",
+            "error": false,
+            "span": 2,
+            "editable": true,
+            "type": "singlestat",
+            "isNew": true,
+            "id": 102,
+            "targets": [
+              {
+                "policy": "default",
+                "dsType": "influxdb",
+                "resultFormat": "time_series",
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "type": "time",
+                    "params": [
+                      "$interval"
+                    ]
+                  },
+                  {
+                    "type": "fill",
+                    "params": [
+                      "null"
+                    ]
+                  }
+                ],
+                "select": [
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "load"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "value"
+                      ]
+                    }
+                  ]
+                ],
+                "refId": "A",
+                "measurement": "load"
+              }
+            ],
+            "links": [],
+            "datasource": "munin",
+            "maxDataPoints": 100,
+            "interval": null,
+            "cacheTimeout": null,
+            "format": "short",
+            "prefix": "",
+            "postfix": "",
+            "nullText": null,
+            "valueMaps": [
+              {
+                "value": "null",
+                "op": "=",
+                "text": "N/A"
+              }
+            ],
+            "mappingTypes": [
+              {
+                "name": "value to text",
+                "value": 1
+              },
+              {
+                "name": "range to text",
+                "value": 2
+              }
+            ],
+            "rangeMaps": [
+              {
+                "from": "null",
+                "to": "null",
+                "text": "N/A"
+              }
+            ],
+            "mappingType": 1,
+            "nullPointMode": "connected",
+            "prefixFontSize": "50%",
+            "valueFontSize": "80%",
+            "postfixFontSize": "50%",
+            "thresholds": "10,20",
+            "colorBackground": false,
+            "colorValue": true,
+            "colors": [
+              "rgba(50, 172, 45, 0.97)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(245, 54, 54, 0.9)"
+            ],
+            "sparkline": {
+              "show": true,
+              "full": false,
+              "lineColor": "rgb(31, 120, 193)",
+              "fillColor": "rgba(31, 118, 189, 0.18)"
+            },
+            "gauge": {
+              "show": true,
+              "minValue": 0,
+              "maxValue": 30,
+              "thresholdMarkers": true,
+              "thresholdLabels": false
+            },
+            "transparent": true,
+            "valueName": "current",
+            "decimals": 2
+          },
+          {
+            "title": "Load",
+            "error": false,
+            "span": 3,
+            "editable": true,
+            "type": "table",
+            "isNew": true,
+            "id": 103,
+            "targets": [
+              {
+                "policy": "default",
+                "dsType": "influxdb",
+                "resultFormat": "table",
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "type": "time",
+                    "params": [
+                      "5m"
+                    ]
+                  },
+                  {
+                    "type": "fill",
+                    "params": [
+                      "null"
+                    ]
+                  }
+                ],
+                "select": [
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "load"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "value"
+                      ]
+                    }
+                  ]
+                ],
+                "refId": "A",
+                "measurement": "load"
+              }
+            ],
+            "styles": [
+              {
+                "type": "date",
+                "pattern": "Time",
+                "dateFormat": "YYYY-MM-DD HH:mm:ss"
+              },
+              {
+                "unit": "short",
+                "type": "number",
+                "decimals": 2,
+                "colors": [
+                  "rgba(50, 172, 45, 0.97)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(245, 54, 54, 0.9)"
+                ],
+                "colorMode": "row",
+                "pattern": "/.*/",
+                "thresholds": [
+                  "10,20"
+                ]
+              }
+            ],
+            "transform": "table",
+            "pageSize": 50,
+            "showHeader": true,
+            "columns": [],
+            "scroll": true,
+            "fontSize": "100%",
+            "sort": {
+              "col": 0,
+              "desc": true
+            },
+            "links": [],
+            "transparent": true
+          }
+        ]
+      },
+{% endif %}
+{% if cpuFact is defined and cpuFact[item.item]|default("no") != "no" -%}
+      {
+        "title": "Munin Data (CPU)",
+        "showTitle": true,
+        "collapse": false,
+        "editable": true,
+        "height": "250px",
+        "panels": [
+          {
+            "aliasColors": {},
+            "bars": false,
+            "datasource": "munin",
+            "decimals": 2,
+            "editable": true,
+            "error": false,
+            "fill": 5,
+            "grid": {
+              "threshold1": null,
+              "threshold1Color": "rgba(216, 200, 27, 0.27)",
+              "threshold2": null,
+              "threshold2Color": "rgba(234, 112, 112, 0.22)"
+            },
+            "id": 104,
+            "isNew": true,
+            "legend": {
+              "avg": true,
+              "current": true,
+              "max": true,
+              "min": true,
+              "show": true,
+              "total": false,
+              "values": true,
+              "alignAsTable": true,
+              "rightSide": true,
+              "values": true
+            },
+            "lines": true,
+            "linewidth": 2,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": true,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "span": 12,
+            "stack": true,
+            "steppedLine": false,
+            "targets": [
+              {
+                "dsType": "influxdb",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "measurement": "cpu",
+                "policy": "default",
+                "refId": "A",
+                "resultFormat": "time_series",
+                "select": [
+{% for name in cpuFact[item.item] -%}
+		  [
+                    {
+                      "params": [
+                        "{{ name }}"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    },
+                    {
+                      "params": [
+                        "{{ name }}"
+                      ],
+                      "type": "alias"
+                    }
+{% if loop.last -%}
+		  ]
+{% else %}
+                  ],
+{% endif %}
+{% endfor %}
+                ],
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  }
+                ]
+              }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "CPU",
+            "tooltip": {
+              "msResolution": false,
+              "shared": true,
+              "sort": 0,
+              "value_type": "cumulative"
+            },
+            "transparent": true,
+            "type": "graph",
+            "xaxis": {
+              "show": true
+            },
+            "yaxes": [
+              {
+                "format": "short",
+                "label": "",
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              },
+              {
+                "format": "short",
+                "label": "",
+                "logBase": 1,
+                "max": null,
+                "min": null,
+                "show": true
+              }
+            ]
+          }
+        ]
+      },
+{% endif %}
+{% if memoryFact is defined and memoryFact[item.item]|default("no") != "no" -%}
+      {
+        "title": "Munin Data (Memory)",
+        "showTitle": true,
+        "collapse": false,
+        "editable": true,
+        "height": "250px",
+        "panels": [
+          {
+            "aliasColors": {},
+            "bars": false,
+            "datasource": "munin",
+	    "decimals": 2,
+            "editable": true,
+            "error": false,
+            "fill": 5,
+            "grid": {
+              "threshold1": null,
+              "threshold1Color": "rgba(216, 200, 27, 0.27)",
+              "threshold2": null,
+              "threshold2Color": "rgba(234, 112, 112, 0.22)"
+            },
+            "id": 105,
+            "isNew": true,
+            "legend": {
+              "avg": true,
+              "current": true,
+              "max": true,
+              "min": true,
+              "show": true,
+              "total": false,
+              "values": true,
+	      "alignAsTable": true,
+	      "rightSide": true
+            },
+            "lines": true,
+            "linewidth": 2,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "span": 12,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "dsType": "influxdb",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "measurement": "memory",
+                "policy": "default",
+                "refId": "A",
+                "resultFormat": "time_series",
+                "select": [
+{% for name in memoryFact[item.item] -%}
+                  [
+                    {
+                      "params": [
+                        "{{ name }}"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    },
+                    {
+                      "params": [
+                        "{{ name }}"
+                      ],
+                      "type": "alias"
+                    }
+{% if loop.last -%}
+                  ]
+{% else %}
+                  ],
+{% endif %}
+{% endfor %}
+                ],
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  }
+                ]
+              }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Memory",
+            "tooltip": {
+              "msResolution": false,
+              "shared": true,
+              "sort": 0,
+              "value_type": "cumulative"
+            },
+            "transparent": true,
+            "type": "graph",
+            "xaxis": {
+              "show": true
+            },
+            "yaxes": [
+              {
+                "format": "{{ "%s" % ("decmbytes" if (memRealFact is defined and memRealFact[item.item]|default("no") == "yes") else "bytes") }}",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": 0,
+                "show": true
+              },
+              {
+                "format": "{{ "%s" % ("decmbytes" if (memRealFact is defined and memRealFact[item.item]|default("no") == "yes") else "bytes") }}", 
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": 0,
+                "show": true
+              }
+            ]
+          }
+        ]
+      },
+{% endif %}
+{% if netstatFact is defined and netstatFact[item.item]|default("no") == "yes" -%}
+      {
+        "title": "Munin Data (Netstat)",
+        "showTitle": true,
+        "collapse": false,
+        "editable": true,
+        "height": "250px",
+        "panels": [
+	  {
+	    "title": "Netstat",
+	    "height": "300",
+	    "error": false,
+	    "span": 7,
+	    "editable": true,
+	    "type": "graph",
+	    "isNew": true,
+	    "id": 106,
+	    "targets": [
+	      {
+	        "policy": "default",
+	        "dsType": "influxdb",
+	        "resultFormat": "time_series",
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ],
+	        "groupBy": [
+	          {
+	            "type": "time",
+	            "params": [
+	              "$interval"
+	            ]
+	          },
+	          {
+	            "type": "fill",
+	            "params": [
+	              "null"
+	            ]
+	          }
+	        ],
+	        "select": [
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "active"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "active"
+	              ]
+	            }
+	          ],
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "established"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "established"
+	              ]
+	            }
+	          ],
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "failed"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "failed"
+	              ]
+	            }
+	          ],
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "passive"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "passive"
+	              ]
+	            }
+	          ],
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "resets"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "resets"
+	              ]
+	            }
+	          ]
+	        ],
+	        "refId": "A",
+	        "measurement": "netstat"
+	      }
+	    ],
+	    "datasource": "munin",
+	    "renderer": "flot",
+	    "yaxes": [
+	      {
+	        "label": null,
+	        "show": true,
+	        "logBase": 1,
+	        "min": 0,
+	        "max": null,
+	        "format": "short"
+	      },
+	      {
+	        "label": null,
+	        "show": true,
+	        "logBase": 1,
+	        "min": 0,
+	        "max": null,
+	        "format": "short"
+	      }
+	    ],
+	    "xaxis": {
+	      "show": true
+	    },
+	    "grid": {
+	      "threshold1": null,
+	      "threshold2": null,
+	      "threshold1Color": "rgba(216, 200, 27, 0.27)",
+	      "threshold2Color": "rgba(234, 112, 112, 0.22)"
+	    },
+	    "lines": true,
+	    "fill": 3,
+	    "linewidth": 2,
+	    "points": false,
+	    "pointradius": 5,
+	    "bars": false,
+	    "stack": false,
+	    "percentage": false,
+	    "legend": {
+	      "show": true,
+	      "values": true,
+	      "min": true,
+	      "max": true,
+	      "current": true,
+	      "total": false,
+	      "avg": true,
+              "alignAsTable": true
+	    },
+	    "nullPointMode": "connected",
+	    "steppedLine": false,
+	    "tooltip": {
+	      "value_type": "cumulative",
+	      "shared": true,
+	      "sort": 0,
+	      "msResolution": false
+	    },
+	    "timeFrom": null,
+	    "timeShift": null,
+	    "aliasColors": {
+	      "netstat.established": "#7EB26D",
+	      "netstat.active": "#0A437C"
+	    },
+	    "seriesOverrides": [],
+	    "links": [],
+	    "transparent": true
+	  },
+	  {
+	    "cacheTimeout": null,
+	    "colorBackground": false,
+	    "colorValue": true,
+	    "colors": [
+	      "rgba(50, 172, 45, 0.97)",
+	      "rgba(237, 129, 40, 0.89)",
+	      "rgba(245, 54, 54, 0.9)"
+	    ],
+	    "datasource": "munin",
+	    "decimals": 0,
+	    "editable": true,
+	    "error": false,
+	    "format": "none",
+	    "gauge": {
+	      "maxValue": 300,
+	      "minValue": 0,
+	      "show": true,
+	      "thresholdLabels": false,
+	      "thresholdMarkers": true
+	    },
+	    "height": "300",
+	    "id": 107,
+	    "interval": null,
+	    "isNew": true,
+	    "links": [],
+	    "mappingType": 1,
+	    "mappingTypes": [
+	      {
+	        "name": "value to text",
+	        "value": 1
+	      },
+	      {
+	        "name": "range to text",
+	        "value": 2
+	      }
+	    ],
+	    "maxDataPoints": 100,
+	    "nullPointMode": "connected",
+	    "nullText": null,
+	    "postfix": "",
+	    "postfixFontSize": "50%",
+	    "prefix": "",
+	    "prefixFontSize": "50%",
+	    "rangeMaps": [
+	      {
+	        "from": "null",
+	        "text": "N/A",
+	        "to": "null"
+	      }
+	    ],
+	    "span": 2,
+	    "sparkline": {
+	      "fillColor": "rgba(31, 118, 189, 0.18)",
+	      "full": false,
+	      "lineColor": "rgb(31, 120, 193)",
+	      "show": true
+	    },
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "netstat",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "established"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "thresholds": "100,200",
+	    "title": "Netstat (established)",
+	    "transparent": true,
+	    "type": "singlestat",
+	    "valueFontSize": "80%",
+	    "valueMaps": [
+	      {
+	        "op": "=",
+	        "text": "N/A",
+	        "value": "null"
+	      }
+	    ],
+	    "valueName": "current"
+	  },
+	  {
+	    "columns": [],
+	    "editable": true,
+	    "error": false,
+	    "fontSize": "100%",
+            "height": "300",
+	    "id": 108,
+	    "isNew": true,
+	    "links": [],
+	    "pageSize": 50,
+	    "scroll": true,
+	    "showHeader": true,
+	    "sort": {
+	      "col": 0,
+	      "desc": true
+	    },
+	    "span": 3,
+	    "styles": [
+	      {
+	        "dateFormat": "YYYY-MM-DD HH:mm:ss",
+	        "pattern": "Time",
+	        "type": "date"
+	      },
+	      {
+	        "colorMode": "row",
+	        "colors": [
+	          "rgba(50, 172, 45, 0.97)",
+	          "rgba(237, 129, 40, 0.89)",
+	          "rgba(245, 54, 54, 0.9)"
+	        ],
+	        "decimals": 0,
+	        "pattern": "/.*/",
+	        "thresholds": [
+	          "100",
+	          "200"
+	        ],
+	        "type": "number",
+	        "unit": "none"
+	      }
+	    ],
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "5m"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "netstat",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "table",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "established"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "title": "Netstat (established)",
+	    "transform": "table",
+	    "transparent": true,
+	    "type": "table"
+	  }
+        ]
+      },
+{% endif %}
+{% if processesFact is defined and processesFact[item.item]|default("no") != "no" -%}
+      {
+        "title": "Munin Data (Processes)",
+        "showTitle": true,
+        "collapse": false,
+        "editable": true,
+        "height": "250px",
+        "panels": [
+	  {
+	    "aliasColors": {
+	      "processes.sleeping": "#F9E2D2",
+	      "processes.processes": "#7EB26D",
+	      "processes.dead": "#BF1B00"
+	    },
+	    "bars": false,
+	    "datasource": "munin",
+	    "editable": true,
+	    "error": false,
+	    "fill": 3,
+	    "grid": {
+	      "threshold1": null,
+	      "threshold1Color": "rgba(216, 200, 27, 0.27)",
+	      "threshold2": null,
+	      "threshold2Color": "rgba(234, 112, 112, 0.22)"
+	    },
+            "height": "300",
+	    "id": 109,
+	    "isNew": true,
+	    "legend": {
+	      "avg": true,
+	      "current": true,
+	      "max": true,
+	      "min": true,
+	      "show": true,
+	      "total": false,
+	      "values": true,
+              "alignAsTable": true
+	    },
+	    "lines": true,
+	    "linewidth": 2,
+	    "links": [],
+	    "nullPointMode": "connected",
+	    "percentage": false,
+	    "pointradius": 5,
+	    "points": false,
+	    "renderer": "flot",
+	    "seriesOverrides": [
+	      {
+	        "alias": "processes.dead",
+	        "yaxis": 1
+	      }
+	    ],
+	    "span": 7,
+	    "stack": false,
+	    "steppedLine": false,
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "processes",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+{% for name in processesFact[item.item] -%}
+                  [
+                    {
+                      "params": [
+                        "{{ name }}"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    },
+                    {
+                      "params": [
+                        "{{ name }}"
+                      ],
+                      "type": "alias"
+                    }
+{% if loop.last -%}
+                  ]
+{% else %}
+                  ],
+{% endif %}
+{% endfor %}
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "timeFrom": null,
+	    "timeShift": null,
+	    "title": "Processes",
+	    "tooltip": {
+	      "msResolution": false,
+	      "shared": true,
+	      "sort": 0,
+	      "value_type": "cumulative"
+	    },
+	    "transparent": true,
+	    "type": "graph",
+	    "xaxis": {
+	      "show": true
+	    },
+	    "yaxes": [
+	      {
+	        "format": "short",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      },
+	      {
+	        "format": "short",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      }
+	    ]
+	  },
+	  {
+	    "cacheTimeout": null,
+	    "colorBackground": false,
+	    "colorValue": true,
+	    "colors": [
+	      "rgba(50, 172, 45, 0.97)",
+	      "rgba(237, 129, 40, 0.89)",
+	      "rgba(245, 54, 54, 0.9)"
+	    ],
+	    "datasource": "munin",
+	    "decimals": 0,
+	    "editable": true,
+	    "error": false,
+	    "format": "none",
+	    "gauge": {
+	      "maxValue": 600,
+	      "minValue": 0,
+	      "show": true,
+	      "thresholdLabels": false,
+	      "thresholdMarkers": true
+	    },
+            "height": "300",
+	    "id": 110,
+	    "interval": null,
+	    "isNew": true,
+	    "links": [],
+	    "mappingType": 1,
+	    "mappingTypes": [
+	      {
+	        "name": "value to text",
+	        "value": 1
+	      },
+	      {
+	        "name": "range to text",
+	        "value": 2
+	      }
+	    ],
+	    "maxDataPoints": 100,
+	    "nullPointMode": "connected",
+	    "nullText": null,
+	    "postfix": "",
+	    "postfixFontSize": "50%",
+	    "prefix": "",
+	    "prefixFontSize": "50%",
+	    "rangeMaps": [
+	      {
+	        "from": "null",
+	        "text": "N/A",
+	        "to": "null"
+	      }
+	    ],
+	    "span": 2,
+	    "sparkline": {
+	      "fillColor": "rgba(31, 118, 189, 0.18)",
+	      "full": false,
+	      "lineColor": "rgb(31, 120, 193)",
+	      "show": true
+	    },
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "processes",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+	          [
+	            {
+	              "params": [
+			"{{ "%s" % ("total" if (procTotalFact is defined and procTotalFact[item.item]|default("no") == "yes") else "processes") }}"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "thresholds": "250,500",
+	    "title": "Processes (total)",
+	    "transparent": true,
+	    "type": "singlestat",
+	    "valueFontSize": "80%",
+	    "valueMaps": [
+	      {
+	        "op": "=",
+	        "text": "N/A",
+	        "value": "null"
+	      }
+	    ],
+	    "valueName": "current"
+	  },
+	  {
+	    "columns": [],
+	    "editable": true,
+	    "error": false,
+	    "fontSize": "100%",
+            "height": "300",
+	    "id": 111,
+	    "isNew": true,
+	    "links": [],
+	    "pageSize": 50,
+	    "scroll": true,
+	    "showHeader": true,
+	    "sort": {
+	      "col": 0,
+	      "desc": true
+	    },
+	    "span": 3,
+	    "styles": [
+	      {
+	        "dateFormat": "YYYY-MM-DD HH:mm:ss",
+	        "pattern": "Time",
+	        "type": "date"
+	      },
+	      {
+	        "colorMode": "row",
+	        "colors": [
+	          "rgba(50, 172, 45, 0.97)",
+	          "rgba(237, 129, 40, 0.89)",
+	          "rgba(245, 54, 54, 0.9)"
+	        ],
+	        "decimals": 0,
+	        "pattern": "/.*/",
+	        "thresholds": [
+	          "250",
+	          "500"
+	        ],
+	        "type": "number",
+	        "unit": "none"
+	      }
+	    ],
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "5m"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+ 	         }
+	        ],
+	        "measurement": "processes",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "table",
+	        "select": [
+	          [
+	            {
+	              "params": [
+			"{{ "%s" % ("total" if (procTotalFact is defined and procTotalFact[item.item]|default("no") == "yes") else "processes") }}"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "title": "Processes (total)",
+	    "transform": "table",
+	    "transparent": true,
+	    "type": "table",
+	    "datasource": "munin"
+	  }
+        ]
+      },
+{% endif %}
+{% if netFact is defined and netFact[item.item]|default("no") != "no" -%}
+      {
+        "title": "Munin Data (Network)",
+        "showTitle": true,
+        "height": "250px",
+        "editable": true,
+        "collapse": false,
+        "panels": [
+{% for net in netFact[item.item] -%}
+	  {
+	    "aliasColors": {},
+	    "bars": false,
+	    "datasource": "munin",
+	    "decimals": 2,
+	    "editable": true,
+	    "error": false,
+	    "fill": 5,
+	    "grid": {
+	      "threshold1": null,
+	      "threshold1Color": "rgba(216, 200, 27, 0.27)",
+	      "threshold2": null,
+	      "threshold2Color": "rgba(234, 112, 112, 0.22)"
+	    },
+	    "id": {{ (loop.index0 * 2)  + 120 }},
+	    "isNew": true,
+	    "legend": {
+	      "avg": true,
+	      "current": true,
+	      "max": true,
+	      "min": true,
+	      "show": true,
+	      "total": false,
+	      "values": true,
+	      "alignAsTable": true
+	    },
+	    "lines": true,
+	    "linewidth": 2,
+	    "links": [],
+	    "nullPointMode": "connected",
+	    "percentage": false,
+	    "pointradius": 5,
+	    "points": false,
+	    "renderer": "flot",
+	    "seriesOverrides": [],
+	    "span": 6,
+	    "stack": false,
+	    "steppedLine": false,
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "if_{{ net }}",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "{{ "%s" % ("obytes" if (net == "em0" or net == "enc0" or net == "vio0" or net == "e1000g0") else "up") }}"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "math",
+	              "params": [
+	                "*8"
+	              ]
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "out"
+	              ]
+	            }
+	          ],
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "{{ "%s" % ("rbytes" if (net == "em0" or net == "enc0" or net == "vio0" or net == "e1000g0") else "down") }}"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "math",
+	              "params": [
+	                "*8"
+	              ]
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "in"
+	              ]
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "timeFrom": null,
+	    "timeShift": null,
+	    "title": "Network traffic ({{ net }})",
+	    "tooltip": {
+	      "msResolution": false,
+	      "shared": true,
+	      "sort": 0,
+	      "value_type": "cumulative"
+	    },
+	    "transparent": true,
+	    "type": "graph",
+	    "xaxis": {
+	      "show": true
+	    },
+	    "yaxes": [
+	      {
+	        "format": "bps",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      },
+	      {
+	        "format": "bps",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      }
+	    ]
+	  },
+	  {
+	    "aliasColors": {},
+	    "bars": false,
+	    "datasource": "munin",
+	    "decimals": 2,
+	    "editable": true,
+	    "error": false,
+	    "fill": 5,
+	    "grid": {
+	      "threshold1": null,
+	      "threshold1Color": "rgba(216, 200, 27, 0.27)",
+	      "threshold2": null,
+	      "threshold2Color": "rgba(234, 112, 112, 0.22)"
+	    },
+            "height": "300",
+            "id": {{ (loop.index0 * 2)  + 121 }},
+	    "isNew": true,
+	    "legend": {
+	      "alignAsTable": true,
+	      "avg": true,
+	      "current": true,
+	      "max": true,
+	      "min": true,
+	      "show": true,
+	      "total": false,
+	      "values": true
+	    },
+	    "lines": true,
+	    "linewidth": 2,
+	    "links": [],
+	    "nullPointMode": "connected",
+	    "percentage": false,
+	    "pointradius": 5,
+	    "points": false,
+	    "renderer": "flot",
+	    "seriesOverrides": [],
+	    "span": 6,
+	    "stack": false,
+	    "steppedLine": false,
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+		"measurement": "{{ "if_err%s_%s" % ("coll" if (net == "em0" or net == "enc0" or net == "vio0") else "", net) }}",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+{% if (net == "em0" or net == "enc0" or net == "vio0") %}
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "ierrors"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "input errros"
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "oerrors"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "output errors"
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "collisions"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "collisions"
+                      ]
+                    }
+                  ]
+{% else %}
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "rcvd"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "rx_errors"
+	              ]
+	            }
+	          ],
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "trans"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "tx_errors"
+	              ]
+	            }
+	          ],
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "rxdrop"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "rx_dropped"
+	              ]
+	            }
+	          ],
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "txdrop"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "tx_dropped"
+	              ]
+	            }
+	          ],
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "collisions"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "collisions"
+	              ]
+	            }
+	          ]
+{% endif %}
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "timeFrom": null,
+	    "timeShift": null,
+	    "title": "Network errors ({{ net }})",
+	    "tooltip": {
+	      "msResolution": false,
+	      "shared": true,
+	      "sort": 0,
+	      "value_type": "cumulative"
+	    },
+	    "transparent": true,
+	    "type": "graph",
+	    "xaxis": {
+	      "show": true
+	    },
+	    "yaxes": [
+	      {
+	        "format": "pps",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      },
+	      {
+	        "format": "pps",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      }
+	    ]
+	  }{{ "%s" % ("" if loop.last else ",") }}
+{% endfor %}
+        ]
+      },
+{% endif %}
+{% if netwinFact is defined and netwinFact[item.item]|default("no") == "yes" -%}
+      {
+        "title": "Munin Data (Network)",
+        "showTitle": true,
+        "height": "250px",
+        "editable": true,
+        "collapse": false,
+        "panels": [
+	  {
+	    "aliasColors": {},
+	    "bars": false,
+	    "datasource": "munin",
+	    "decimals": 2,
+	    "editable": true,
+	    "error": false,
+	    "fill": 5,
+	    "grid": {},
+	    "id": 134,
+	    "legend": {
+	      "alignAsTable": true,
+	      "avg": true,
+	      "current": true,
+	      "max": true,
+	      "min": true,
+	      "show": true,
+	      "total": false,
+	      "values": true
+	    },
+	    "lines": true,
+	    "linewidth": 2,
+	    "links": [],
+	    "nullPointMode": "connected",
+	    "percentage": false,
+	    "pointradius": 5,
+	    "points": false,
+	    "renderer": "flot",
+	    "seriesOverrides": [],
+	    "span": 12,
+	    "stack": false,
+	    "steppedLine": false,
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "network",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "up"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "out"
+	              ]
+	            }
+	          ],
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "down"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "in"
+	              ]
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "timeFrom": null,
+	    "timeShift": null,
+	    "title": "Network traffic",
+	    "tooltip": {
+	      "msResolution": false,
+	      "shared": true,
+	      "sort": 0,
+	      "value_type": "cumulative"
+	    },
+	    "transparent": true,
+	    "type": "graph",
+	    "xaxis": {
+	      "show": true,
+	      "mode": "time",
+	      "name": null,
+	      "values": []
+	    },
+	    "yaxes": [
+	      {
+	        "format": "pps",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      },
+	      {
+	        "format": "pps",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      }
+	    ],
+	    "thresholds": []
+	  }
+        ]
+      },
+{% endif %}
+{% if iopsFact is defined and iopsFact[item.item]|default("no") != "no" -%}
+      {
+        "title": "Munin Data (Disks IO)",
+        "showTitle": true,
+        "height": "250px",
+        "editable": true,
+        "collapse": false,
+        "panels": [
+{% for iops in iopsFact[item.item] -%}
+	  {
+	    "title": "IO <oper/sec> ({{ iops|regex_replace('^.*:') }})",
+	    "error": false,
+	    "span": "{{ "%s" % ("12" if loop.length == 1 else "6") }}",
+	    "editable": true,
+	    "type": "graph",
+	    "isNew": true,
+	    "id": {{ loop.index0 + 150 }},
+	    "targets": [
+	      {
+	        "policy": "default",
+	        "dsType": "influxdb",
+	        "resultFormat": "time_series",
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ],
+	        "groupBy": [
+	          {
+	            "type": "time",
+	            "params": [
+	              "$interval"
+	            ]
+	          },
+	          {
+	            "type": "fill",
+	            "params": [
+	              "null"
+	            ]
+	          }
+	        ],
+	        "select": [
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "{{ iops|regex_replace(':.*$') }}_rdio"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "read"
+	              ]
+	            }
+	          ],
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "{{ iops|regex_replace(':.*$') }}_wrio"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "write"
+	              ]
+	            }
+	          ]
+	        ],
+	        "refId": "A",
+	        "measurement": "diskstats_iops"
+	      }
+	    ],
+	    "datasource": "munin",
+	    "renderer": "flot",
+	    "yaxes": [
+	      {
+	        "label": null,
+	        "show": true,
+	        "logBase": 1,
+	        "min": 0,
+	        "max": null,
+	        "format": "short"
+	      },
+	      {
+	        "label": null,
+	        "show": true,
+	        "logBase": 1,
+	        "min": 0,
+	        "max": null,
+	        "format": "short"
+	      }
+	    ],
+	    "xaxis": {
+	      "show": true
+	    },
+	    "grid": {
+	      "threshold1": null,
+	      "threshold2": null,
+	      "threshold1Color": "rgba(216, 200, 27, 0.27)",
+	      "threshold2Color": "rgba(234, 112, 112, 0.22)"
+	    },
+	    "lines": true,
+	    "fill": 5,
+	    "linewidth": 2,
+	    "points": false,
+	    "pointradius": 5,
+	    "bars": false,
+	    "stack": false,
+	    "percentage": false,
+	    "legend": {
+	      "show": true,
+	      "values": true,
+	      "min": true,
+	      "max": true,
+	      "current": true,
+	      "total": false,
+	      "avg": true,
+	      "alignAsTable": true
+	    },
+	    "nullPointMode": "connected",
+	    "steppedLine": false,
+	    "tooltip": {
+	      "value_type": "cumulative",
+	      "shared": true,
+	      "sort": 0,
+	      "msResolution": false
+	    },
+	    "timeFrom": null,
+	    "timeShift": null,
+	    "aliasColors": {
+	      "diskstats_iops.write": "#BA43A9",
+	      "diskstats_iops.read": "#6ED0E0"
+	    },
+	    "seriesOverrides": [],
+	    "links": [],
+	    "transparent": true,
+	    "decimals": 2 
+	  }{{ "%s" % ("" if loop.last else ",") }}
+{% endfor %}
+        ]
+      },
+{% endif %}
+{% if bytesFact is defined and bytesFact[item.item]|default("no") != "no" -%}
+      {
+        "title": "Munin Data (Disks throughput)",
+        "showTitle": true,
+        "height": "250px",
+        "editable": true,
+        "collapse": false,
+        "panels": [
+{% for bytes in bytesFact[item.item] -%}
+	  {
+	    "aliasColors": {
+	      "diskstats_throughput.read": "#F9E2D2",
+	      "diskstats_throughput.write": "#99440A"
+	    },
+	    "bars": false,
+	    "datasource": "munin",
+	    "decimals": 0,
+	    "editable": true,
+	    "error": false,
+	    "fill": 5,
+	    "grid": {
+	      "threshold1": null,
+	      "threshold1Color": "rgba(216, 200, 27, 0.27)",
+	      "threshold2": null,
+	      "threshold2Color": "rgba(234, 112, 112, 0.22)"
+	    },
+	    "id": {{ loop.index0 + 160 }},
+	    "isNew": true,
+	    "legend": {
+	      "alignAsTable": true,
+	      "avg": true,
+	      "current": true,
+	      "max": true,
+	      "min": true,
+	      "show": true,
+	      "total": false,
+	      "values": true
+	    },
+	    "lines": true,
+	    "linewidth": 2,
+	    "links": [],
+	    "nullPointMode": "connected",
+	    "percentage": false,
+	    "pointradius": 5,
+	    "points": false,
+	    "renderer": "flot",
+	    "seriesOverrides": [],
+	    "span": {{ "%s" % ("12" if loop.length == 1 else "6") }},
+	    "stack": false,
+	    "steppedLine": false,
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "diskstats_throughput",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "{{ bytes|regex_replace(':.*$') }}_rdbytes"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "read"
+	              ],
+	              "type": "alias"
+	            }
+	          ],
+	          [
+	            {
+	              "params": [
+	                "{{ bytes|regex_replace(':.*$') }}_wrbytes"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "write"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "timeFrom": null,
+	    "timeShift": null,
+	    "title": "Throughput <bytes/sec> ({{ bytes|regex_replace('^.*:') }})",
+	    "tooltip": {
+	      "msResolution": false,
+	      "shared": true,
+	      "sort": 0,
+	      "value_type": "cumulative"
+	    },
+	    "transparent": true,
+	    "type": "graph",
+	    "xaxis": {
+	      "show": true
+	    },
+	    "yaxes": [
+	      {
+	        "format": "Bps",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0, 
+	        "show": true
+	      },
+	      {
+	        "format": "Bps",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      }
+	    ]
+	  }{{ "%s" % ("" if loop.last else ",") }}
+{% endfor %}
+        ]
+      },
+{% endif %}
+{% if iostatFact is defined and iostatFact[item.item]|default("no") != "no" -%}
+      {
+        "title": "Munin Data (Disks throughput)",
+        "showTitle": true,
+        "height": "250px",
+        "editable": true,
+        "collapse": false,
+        "panels": [
+{% for iostat in iostatFact[item.item] -%}
+          {
+            "aliasColors": {
+              "iostat.read": "#F9E2D2",
+              "iostat.write": "#99440A"
+            },
+            "bars": false,
+            "datasource": "munin",
+            "decimals": 0,
+            "editable": true,
+            "error": false,
+            "fill": 5,
+            "grid": {
+              "threshold1": null,
+              "threshold1Color": "rgba(216, 200, 27, 0.27)",
+              "threshold2": null,
+              "threshold2Color": "rgba(234, 112, 112, 0.22)"
+            },
+            "id": {{ loop.index0 + 170 }},
+            "isNew": true,
+            "legend": {
+              "alignAsTable": true,
+              "avg": true,
+              "current": true,
+              "max": true,
+              "min": true,
+              "show": true,
+              "total": false,
+              "values": true
+            },
+            "lines": true,
+            "linewidth": 2,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "span": {{ "%s" % ("12" if loop.length == 1 else "6") }},
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "dsType": "influxdb",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "measurement": "iostat",
+                "policy": "default",
+                "refId": "A",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "{{ iostat|regex_replace(':.*$') }}_read"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    },
+                    {
+                      "params": [
+                        "read"
+                      ],
+                      "type": "alias"
+                    }
+                  ],
+                  [
+                    {
+                      "params": [
+                        "{{ iostat|regex_replace(':.*$') }}_write"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    },
+                    {
+                      "params": [
+                        "write"
+                      ],
+                      "type": "alias"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  }
+                ]
+              }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Throughput <KBytes/sec> ({{ iostat|regex_replace('^.*:') }})",
+            "tooltip": {
+              "msResolution": false,
+              "shared": true,
+              "sort": 0,
+              "value_type": "cumulative"
+            },
+            "transparent": true,
+            "type": "graph",
+            "xaxis": {
+              "show": true
+            },
+            "yaxes": [
+              {
+                "format": "KBs",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": 0,
+                "show": true
+              },
+              {
+                "format": "KBs",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": 0,
+                "show": true
+              }
+            ]
+          }{{ "%s" % ("" if loop.last else ",") }}
+{% endfor %}
+        ]
+      },
+{% endif %}
+{% if waitFact is defined and waitFact[item.item]|default("no") != "no" -%}
+      {
+        "title": "Munin Data (Disks latency)",
+        "showTitle": true,
+        "height": "250px",
+        "editable": true,
+        "collapse": false,
+        "panels": [
+{% for wait in waitFact[item.item] -%}
+	  {
+	    "aliasColors": {},
+	    "bars": false,
+	    "datasource": "munin",
+	    "decimals": 3,
+	    "editable": true,
+	    "error": false,
+	    "fill": 5,
+	    "grid": {
+	      "threshold1": null,
+	      "threshold1Color": "rgba(216, 200, 27, 0.27)",
+	      "threshold2": null,
+	      "threshold2Color": "rgba(234, 112, 112, 0.22)"
+	    },
+	    "id": {{ (loop.index0 * 3) + 180 }},
+	    "isNew": true,
+	    "legend": {
+	      "alignAsTable": true,
+	      "avg": true,
+	      "current": true,
+	      "max": true,
+	      "min": true,
+	      "show": true,
+	      "total": false,
+	      "values": true
+	    },
+	    "lines": true,
+	    "linewidth": 2,
+	    "links": [],
+	    "nullPointMode": "connected",
+	    "percentage": false,
+	    "pointradius": 5,
+	    "points": false,
+	    "renderer": "flot",
+	    "seriesOverrides": [],
+	    "span": 7,
+	    "stack": false,
+	    "steppedLine": false,
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "diskstats_latency",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+	          [
+	            {
+	              "type": "field",
+	              "params": [
+	                "{{ wait|regex_replace(':.*$') }}_avgwait"
+	              ]
+	            },
+	            {
+	              "type": "mean",
+	              "params": []
+	            },
+	            {
+	              "type": "alias",
+	              "params": [
+	                "iowait"
+	              ]
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "timeFrom": null,
+	    "timeShift": null,
+	    "title": "Latency <sec> ({{ wait|regex_replace('^.*:') }})",
+	    "tooltip": {
+	      "msResolution": false,
+	      "shared": true,
+	      "sort": 0,
+	      "value_type": "cumulative"
+ 	    },
+	    "transparent": true,
+	    "type": "graph",
+	    "xaxis": {
+	      "show": true
+	    },
+	    "yaxes": [
+	      {
+	        "format": "short",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      },
+	      {
+	        "format": "short",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      }
+	    ]
+	  },
+	  {
+	    "cacheTimeout": null,
+	    "colorBackground": false,
+	    "colorValue": true,
+	    "colors": [
+	      "rgba(50, 172, 45, 0.97)",
+	      "rgba(237, 129, 40, 0.89)",
+	      "rgba(245, 54, 54, 0.9)"
+	    ],
+	    "datasource": "munin",
+	    "decimals": 3,
+	    "editable": true,
+	    "error": false,
+	    "format": "none",
+	    "gauge": {
+	      "maxValue": 3,
+	      "minValue": 0,
+	      "show": true,
+	      "thresholdLabels": false,
+	      "thresholdMarkers": true
+	    },
+	    "id": {{ (loop.index0 * 3) + 181 }},
+	    "interval": null,
+	    "isNew": true,
+	    "links": [],
+	    "mappingType": 1,
+	    "mappingTypes": [
+	      {
+	        "name": "value to text",
+	        "value": 1
+	      },
+	      {
+	        "name": "range to text",
+	        "value": 2
+	      }
+	    ],
+	    "maxDataPoints": 100,
+	    "nullPointMode": "connected",
+	    "nullText": null,
+	    "postfix": "",
+	    "postfixFontSize": "50%",
+	    "prefix": "",
+	    "prefixFontSize": "50%",
+	    "rangeMaps": [
+	      {
+	        "from": "null",
+	        "text": "N/A",
+	        "to": "null"
+	      }
+	    ],
+	    "span": 2,
+	    "sparkline": {
+	      "fillColor": "rgba(31, 118, 189, 0.18)",
+	      "full": false,
+	      "lineColor": "rgb(31, 120, 193)",
+	      "show": true
+	    },
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "diskstats_latency",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "{{ wait|regex_replace(':.*$') }}_avgwait"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "thresholds": "1,2",
+	    "title": "Latency <sec> ({{ wait|regex_replace('^.*:') }})",
+	    "transparent": true,
+	    "type": "singlestat",
+	    "valueFontSize": "80%",
+	    "valueMaps": [
+	      {
+	        "op": "=",
+	        "text": "N/A",
+	        "value": "null"
+	      }
+	    ],
+	    "valueName": "current"
+	  },
+	  {
+	    "columns": [],
+	    "datasource": "munin",
+	    "editable": true,
+	    "error": false,
+	    "fontSize": "100%",
+	    "id": {{ (loop.index0 * 3) + 182 }},
+	    "isNew": true,
+	    "links": [],
+	    "pageSize": 50,
+	    "scroll": true,
+	    "showHeader": true,
+	    "sort": {
+	      "col": 0,
+	      "desc": true
+	    },
+	    "span": 3,
+	    "styles": [
+	      {
+	        "dateFormat": "YYYY-MM-DD HH:mm:ss",
+	        "pattern": "Time",
+	        "type": "date"
+	      },
+	      {
+	        "colorMode": "row",
+	        "colors": [
+	          "rgba(50, 172, 45, 0.97)",
+	          "rgba(237, 129, 40, 0.89)",
+	          "rgba(245, 54, 54, 0.9)"
+	        ],
+	        "decimals": 3,
+	        "pattern": "/.*/",
+	        "thresholds": [
+	          "1",
+	          "2"
+	        ],
+	        "type": "number",
+	        "unit": "none"
+	      }
+	    ],
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "5m"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "diskstats_latency",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "table",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "{{ wait|regex_replace(':.*$') }}_avgwait"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "title": "Latency <sec> ({{ wait|regex_replace('^.*:') }})",
+	    "transform": "table",
+	    "transparent": true,
+	    "type": "table"
+	  }{{ "%s" % ("" if loop.last else ",") }}
+{% endfor %}
+        ]
+      },
+{% endif %}
+{% if utilFact is defined and utilFact[item.item]|default("no") != "no" -%}
+      {
+        "title": "Munin Data (Disks utilization)",
+        "showTitle": true,
+        "height": "250px",
+        "editable": true,
+        "collapse": false,
+        "panels": [
+{% for util in utilFact[item.item] -%}
+	  {
+	    "aliasColors": {
+	      "diskstats_utilization.%": "#CFFAFF"
+	    },
+	    "bars": false,
+	    "datasource": "munin",
+	    "decimals": 2,
+	    "editable": true,
+	    "error": false,
+	    "fill": 5,
+	    "grid": {
+	      "threshold1": null,
+	      "threshold1Color": "rgba(216, 200, 27, 0.27)",
+	      "threshold2": null,
+	      "threshold2Color": "rgba(234, 112, 112, 0.22)"
+	    },
+	    "id": {{ (loop.index0 * 3) + 210 }},
+	    "isNew": true,
+	    "legend": {
+	      "alignAsTable": true,
+	      "avg": true,
+	      "current": true,
+	      "max": true,
+	      "min": true,
+	      "show": true,
+	      "total": false,
+	      "values": true
+	    },
+	    "lines": true,
+	    "linewidth": 2,
+	    "links": [],
+	    "nullPointMode": "connected",
+	    "percentage": false,
+	    "pointradius": 5,
+	    "points": false,
+	    "renderer": "flot",
+	    "seriesOverrides": [],
+	    "span": 7,
+	    "stack": false,
+	    "steppedLine": false,
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "diskstats_utilization",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "{{ util|regex_replace(':.*$') }}_util"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "%"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "timeFrom": null,
+	    "timeShift": null,
+	    "title": "Utilization <%> ({{ util|regex_replace('^.*:') }})",
+	    "tooltip": {
+	      "msResolution": false,
+	      "shared": true,
+	      "sort": 0,
+	      "value_type": "cumulative"
+	    },
+	    "transparent": true,
+	    "type": "graph",
+	    "xaxis": {
+	      "show": true
+	    },
+	    "yaxes": [
+	      {
+	        "format": "percent",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      },
+	      {
+	        "format": "percent",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      }
+	    ]
+	  },
+	  {
+	    "cacheTimeout": null,
+	    "colorBackground": false,
+	    "colorValue": true,
+	    "colors": [
+	      "rgba(50, 172, 45, 0.97)",
+	      "rgba(237, 129, 40, 0.89)",
+	      "rgba(245, 54, 54, 0.9)"
+	    ],
+	    "datasource": "munin",
+	    "decimals": 2,
+	    "editable": true,
+	    "error": false,
+	    "format": "none",
+	    "gauge": {
+	      "maxValue": 100,
+	      "minValue": 0,
+	      "show": true,
+	      "thresholdLabels": false,
+	      "thresholdMarkers": true
+	    },
+	    "id": {{ (loop.index0 * 3) + 211 }},
+	    "interval": null,
+	    "isNew": true,
+	    "links": [],
+	    "mappingType": 1,
+	    "mappingTypes": [
+	      {
+	        "name": "value to text",
+	        "value": 1
+	      },
+	      {
+	        "name": "range to text",
+	        "value": 2
+	      }
+	    ],
+	    "maxDataPoints": 100,
+	    "nullPointMode": "connected",
+	    "nullText": null,
+	    "postfix": "%",
+	    "postfixFontSize": "50%",
+	    "prefix": "",
+	    "prefixFontSize": "50%",
+	    "rangeMaps": [
+	      {
+	        "from": "null",
+	        "text": "N/A",
+	        "to": "null"
+	      }
+	    ],
+	    "span": 2,
+	    "sparkline": {
+	      "fillColor": "rgba(31, 118, 189, 0.18)",
+	      "full": false,
+	      "lineColor": "rgb(31, 120, 193)",
+	      "show": true
+	    },
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "diskstats_utilization",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "{{ util|regex_replace(':.*$') }}_util"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "thresholds": "25,50",
+	    "title": "Utilization <%> ({{ util|regex_replace('^.*:') }})",
+	    "transparent": true,
+	    "type": "singlestat",
+	    "valueFontSize": "70%",
+	    "valueMaps": [
+	      {
+	        "op": "=",
+	        "text": "N/A",
+	        "value": "null"
+	      }
+	    ],
+	    "valueName": "current"
+	  },
+	  {
+	    "columns": [],
+	    "datasource": "munin",
+	    "editable": true,
+	    "error": false,
+	    "fontSize": "100%",
+	    "id": {{ (loop.index0 * 3) + 212 }},
+	    "isNew": true,
+	    "links": [],
+	    "pageSize": 50,
+	    "scroll": true,
+	    "showHeader": true,
+	    "sort": {
+	      "col": 0,
+	      "desc": true
+	    },
+	    "span": 3,
+	    "styles": [
+	      {
+	        "dateFormat": "YYYY-MM-DD HH:mm:ss",
+	        "pattern": "Time",
+	        "type": "date"
+	      },
+	      {
+	        "colorMode": "row",
+	        "colors": [
+	          "rgba(50, 172, 45, 0.97)",
+	          "rgba(237, 129, 40, 0.89)",
+	          "rgba(245, 54, 54, 0.9)"
+	        ],
+	        "decimals": 2,
+	        "pattern": "/.*/",
+	        "thresholds": [
+	          "25",
+	          "50"
+	        ],
+	        "type": "number",
+	        "unit": "none"
+	      }
+	    ],
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "5m"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "diskstats_utilization",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "table",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "{{ util|regex_replace(':.*$') }}_util"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "title": "Utilization <%> ({{ util|regex_replace('^.*:') }})",
+	    "transform": "table",
+	    "transparent": true,
+	    "type": "table"
+	  }{{ "%s" % ("" if loop.last else ",") }}
+{% endfor %}
+        ]
+      },
+{% endif %}
+{% if usageFact is defined and usageFact[item.item]|default("no") != "no" -%}
+      {
+        "title": "Munin Data (Disks usage)",
+        "showTitle": true,
+        "height": "250px",
+        "editable": true,
+        "collapse": false,
+        "panels": [
+{% for usage in usageFact[item.item] -%}
+	  {
+	    "aliasColors": {
+	      "df.%": "#CFFAFF"
+	    },
+	    "bars": false,
+	    "datasource": "munin",
+	    "decimals": 2,
+	    "editable": true,
+	    "error": false,
+	    "fill": 5,
+	    "grid": {},
+	    "id": {{ (loop.index0 * 3) + 240 }},
+	    "legend": {
+	      "alignAsTable": true,
+	      "avg": true,
+	      "current": true,
+	      "max": true,
+	      "min": true,
+	      "show": true,
+	      "total": false,
+	      "values": true
+	    },
+	    "lines": true,
+	    "linewidth": 2,
+	    "links": [],
+	    "nullPointMode": "connected",
+	    "percentage": false,
+	    "pointradius": 5,
+	    "points": false,
+	    "renderer": "flot",
+	    "seriesOverrides": [],
+	    "span": 7,
+	    "stack": false,
+	    "steppedLine": false,
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "df",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "{{ usage|regex_replace(':.*$') }}"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "space"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }{{ "%s" % ("," if inodeFact is defined and inodeFact[item.item]|default("no") != "no" and usage in inodeFact[item.item] else "") }}
+{% if inodeFact is defined and inodeFact[item.item]|default("no") != "no" and usage in inodeFact[item.item] -%}
+              {
+                "dsType": "influxdb",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "measurement": "df_inode",
+                "policy": "default",
+                "refId": "B",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "{{ usage|regex_replace(':.*$') }}"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    },
+                    {
+                      "params": [
+                        "inodes"
+                      ],
+                      "type": "alias"
+                    }
+                  ]
+                ],
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  }
+                ]
+              }
+{% endif %}
+	    ],
+	    "timeFrom": null,
+	    "timeShift": null,
+	    "title": "Usage <%> ({{ usage|regex_replace('^.*:') }})",
+	    "tooltip": {
+	      "msResolution": false,
+	      "shared": true,
+	      "sort": 0,
+	      "value_type": "cumulative"
+	    },
+	    "transparent": true,
+	    "type": "graph",
+	    "xaxis": {
+	      "show": true,
+	      "mode": "time",
+	      "name": null,
+	      "values": []
+	    },
+	    "yaxes": [
+	      {
+	        "format": "percent",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      },
+	      {
+	        "format": "percent",
+	        "label": null,
+	        "logBase": 1,
+	        "max": null,
+	        "min": 0,
+	        "show": true
+	      }
+	    ],
+	    "thresholds": []
+	  },
+	  {
+	    "cacheTimeout": null,
+	    "colorBackground": false,
+	    "colorValue": true,
+	    "colors": [
+	      "rgba(50, 172, 45, 0.97)",
+	      "rgba(237, 129, 40, 0.89)",
+	      "rgba(245, 54, 54, 0.9)"
+	    ],
+	    "datasource": "munin",
+	    "decimals": 2,
+	    "editable": true,
+	    "error": false,
+	    "format": "none",
+	    "gauge": {
+	      "maxValue": 100,
+	      "minValue": 0,
+	      "show": true,
+	      "thresholdLabels": false,
+	      "thresholdMarkers": true
+	    },
+	    "id": {{ (loop.index0 * 3) + 241 }},
+	    "interval": null,
+	    "links": [],
+	    "mappingType": 1,
+	    "mappingTypes": [
+	      {
+	        "name": "value to text",
+	        "value": 1
+	      },
+	      {
+	        "name": "range to text",
+	        "value": 2
+	      }
+	    ],
+	    "maxDataPoints": 100,
+	    "nullPointMode": "connected",
+	    "nullText": null,
+	    "postfix": "%",
+	    "postfixFontSize": "50%",
+	    "prefix": "",
+	    "prefixFontSize": "50%",
+	    "rangeMaps": [
+	      {
+	        "from": "null",
+	        "text": "N/A",
+	        "to": "null"
+	      }
+	    ],
+	    "span": 2,
+	    "sparkline": {
+	      "fillColor": "rgba(31, 118, 189, 0.18)",
+	      "full": false,
+	      "lineColor": "rgb(31, 120, 193)",
+	      "show": true
+	    },
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "$interval"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "df",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "time_series",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "{{ usage|regex_replace(':.*$') }}"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "thresholds": "70,90",
+	    "title": "Usage <%> ({{ usage|regex_replace('^.*:') }})",
+	    "transparent": true,
+	    "type": "singlestat",
+	    "valueFontSize": "70%",
+	    "valueMaps": [
+	      {
+	        "op": "=",
+	        "text": "N/A",
+	        "value": "null"
+	      }
+	    ],
+	    "valueName": "current"
+	  },
+	  {
+	    "columns": [],
+	    "datasource": "munin",
+	    "editable": true,
+	    "error": false,
+	    "fontSize": "100%",
+	    "id": {{ (loop.index0 * 3) + 242 }},
+	    "links": [],
+	    "pageSize": 50,
+	    "scroll": true,
+	    "showHeader": true,
+	    "sort": {
+	      "col": 0,
+	      "desc": true
+	    },
+	    "span": 3,
+	    "styles": [
+	      {
+	        "dateFormat": "YYYY-MM-DD HH:mm:ss",
+	        "pattern": "Time",
+	        "type": "date"
+	      },
+	      {
+	        "colorMode": "row",
+	        "colors": [
+	          "rgba(50, 172, 45, 0.97)",
+	          "rgba(237, 129, 40, 0.89)",
+	          "rgba(245, 54, 54, 0.9)"
+	        ],
+	        "decimals": 2,
+	        "pattern": "/.*/",
+	        "thresholds": [
+	          "70",
+	          "90"
+	        ],
+	        "type": "number",
+	        "unit": "none"
+	      }
+	    ],
+	    "targets": [
+	      {
+	        "dsType": "influxdb",
+	        "groupBy": [
+	          {
+	            "params": [
+	              "5m"
+	            ],
+	            "type": "time"
+	          },
+	          {
+	            "params": [
+	              "null"
+	            ],
+	            "type": "fill"
+	          }
+	        ],
+	        "measurement": "df",
+	        "policy": "default",
+	        "refId": "A",
+	        "resultFormat": "table",
+	        "select": [
+	          [
+	            {
+	              "params": [
+	                "{{ usage|regex_replace(':.*') }}"
+	              ],
+	              "type": "field"
+	            },
+	            {
+	              "params": [],
+	              "type": "mean"
+	            },
+	            {
+	              "params": [
+	                "value"
+	              ],
+	              "type": "alias"
+	            }
+	          ]
+	        ],
+	        "tags": [
+	          {
+	            "key": "host",
+	            "operator": "=",
+	            "value": "{{ item.item }}"
+	          }
+	        ]
+	      }
+	    ],
+	    "title": "Usage <%> ({{ usage|regex_replace('^.*:') }})",
+	    "transform": "table",
+	    "transparent": true,
+	    "type": "table"
+	  }{{ "%s" % ("" if loop.last else ",") }}
+{% endfor %}
+        ]
+      },
+{% endif %}
+{% if openfilesFact is defined and openfilesFact[item.item]|default("no") == "yes" -%}
+      {
+        "title": "Munin Data (Open files)",
+        "showTitle": true,
+        "collapse": false,
+        "editable": true,
+        "height": "250px",
+        "panels": [
+          {
+            "aliasColors": {
+	      "open_files.max open files": "#DEDAF7",
+    	      "open_files.open files": "#EAB839"
+	    },
+            "bars": false,
+            "datasource": "munin",
+            "editable": true,
+            "error": false,
+            "fill": 5,
+            "grid": {
+              "threshold1": null,
+              "threshold1Color": "rgba(216, 200, 27, 0.27)",
+              "threshold2": null,
+              "threshold2Color": "rgba(234, 112, 112, 0.22)"
+            },
+            "id": 290,
+            "isNew": true,
+            "legend": {
+              "avg": true,
+              "current": true,
+              "max": true,
+              "min": true,
+              "show": true,
+              "total": false,
+              "values": true,
+              "alignAsTable": true
+            },
+            "lines": true,
+            "linewidth": 2,
+            "links": [],
+            "nullPointMode": "connected",
+            "percentage": false,
+            "pointradius": 5,
+            "points": false,
+            "renderer": "flot",
+            "seriesOverrides": [],
+            "span": 7,
+            "stack": false,
+            "steppedLine": false,
+            "targets": [
+              {
+                "dsType": "influxdb",
+                "groupBy": [
+                  {
+                    "params": [
+                      "$interval"
+                    ],
+                    "type": "time"
+                  },
+                  {
+                    "params": [
+                      "null"
+                    ],
+                    "type": "fill"
+                  }
+                ],
+                "measurement": "open_files",
+                "policy": "default",
+                "refId": "A",
+                "resultFormat": "time_series",
+                "select": [
+                  [
+                    {
+                      "params": [
+                        "max"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    },
+                    {
+                      "params": [
+                        "max open files"
+                      ],
+                      "type": "alias"
+                    }
+                  ],
+                  [
+                    {
+                      "params": [
+                        "used"
+                      ],
+                      "type": "field"
+                    },
+                    {
+                      "params": [],
+                      "type": "mean"
+                    },
+                    {
+                      "params": [
+                        "open files"
+                      ],
+                      "type": "alias"
+                    }
+		  ],
+                ],
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  }
+                ]
+              }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "Open files",
+            "tooltip": {
+              "msResolution": false,
+              "shared": true,
+              "sort": 0,
+              "value_type": "cumulative"
+            },
+            "transparent": true,
+            "type": "graph",
+            "xaxis": {
+              "show": true
+            },
+            "yaxes": [
+              {
+                "format": "none",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": 0,
+                "show": true
+              },
+              {
+                "format": "none",
+                "label": null,
+                "logBase": 1,
+                "max": null,
+                "min": 0,
+                "show": true
+              }
+            ],
+            "decimals": 0
+          },
+          {
+            "title": "Open files/Max (%)",
+            "error": false,
+            "span": 2,
+            "editable": true,
+            "type": "singlestat",
+            "isNew": true,
+            "id": 291,
+            "targets": [
+              {
+                "policy": "default",
+                "dsType": "influxdb",
+                "resultFormat": "time_series",
+                "refId": "A",
+                "measurement": "open_files",
+                "query": "SELECT (mean(\"used\")*100)/mean(\"max\") AS \"value\" FROM \"open_files\" WHERE \"host\" = '{{ item.item }}' AND $timeFilter GROUP BY time($interval) fill(null)",
+                "rawQuery": true,
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "type": "time",
+                    "params": [
+                      "$interval"
+                    ]
+                  },
+                  {
+                    "type": "fill",
+                    "params": [
+                      "null"
+                    ]
+                  }
+                ],
+                "select": [
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "used"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "value"
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ],
+            "links": [],
+            "datasource": "munin",
+            "maxDataPoints": 100,
+            "interval": null,
+            "cacheTimeout": null,
+            "format": "short",
+            "prefix": "",
+            "postfix": "%",
+            "nullText": null,
+            "valueMaps": [
+              {
+                "value": "null",
+                "op": "=",
+                "text": "N/A"
+              }
+            ],
+            "mappingTypes": [
+              {
+                "name": "value to text",
+                "value": 1
+              },
+              {
+                "name": "range to text",
+                "value": 2
+              }
+            ],
+            "rangeMaps": [
+              {
+                "from": "null",
+                "to": "null",
+                "text": "N/A"
+              }
+            ],
+            "mappingType": 1,
+            "nullPointMode": "connected",
+            "prefixFontSize": "50%",
+            "valueFontSize": "70%",
+            "postfixFontSize": "50%",
+            "thresholds": "70,90",
+            "colorBackground": false,
+            "colorValue": true,
+            "colors": [
+              "rgba(50, 172, 45, 0.97)",
+              "rgba(237, 129, 40, 0.89)",
+              "rgba(245, 54, 54, 0.9)"
+            ],
+            "sparkline": {
+              "show": true,
+              "full": false,
+              "lineColor": "rgb(31, 120, 193)",
+              "fillColor": "rgba(31, 118, 189, 0.18)"
+            },
+            "gauge": {
+              "show": true,
+              "minValue": 0,
+              "maxValue": 100,
+              "thresholdMarkers": true,
+              "thresholdLabels": false
+            },
+            "transparent": true,
+            "valueName": "current",
+            "decimals": 2
+          },
+          {
+            "title": "Open files/Max (%)",
+            "error": false,
+            "span": 3,
+            "editable": true,
+            "type": "table",
+            "isNew": true,
+            "id": 292,
+            "targets": [
+              {
+                "policy": "default",
+                "dsType": "influxdb",
+                "resultFormat": "table",
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "type": "time",
+                    "params": [
+                      "5m"
+                    ]
+                  },
+                  {
+                    "type": "fill",
+                    "params": [
+                      "null"
+                    ]
+                  }
+                ],
+                "select": [
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "used"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "value"
+                      ]
+                    }
+                  ]
+                ],
+                "refId": "A",
+                "measurement": "open_files",
+                "query": "SELECT (mean(\"used\")*100)/mean(\"max\") AS \"value\" FROM \"open_files\" WHERE \"host\" = '{{ item.item }}' AND $timeFilter GROUP BY time(5m) fill(null)",
+                "rawQuery": true
+              }
+            ],
+            "styles": [
+              {
+                "type": "date",
+                "pattern": "Time",
+                "dateFormat": "YYYY-MM-DD HH:mm:ss"
+              },
+              {
+                "unit": "short",
+                "type": "number",
+                "decimals": 2,
+                "colors": [
+                  "rgba(50, 172, 45, 0.97)",
+                  "rgba(237, 129, 40, 0.89)",
+                  "rgba(245, 54, 54, 0.9)"
+                ],
+                "colorMode": "row",
+                "pattern": "/.*/",
+                "thresholds": [
+                  "10,20"
+                ]
+              }
+            ],
+            "transform": "table",
+            "pageSize": 50,
+            "showHeader": true,
+            "columns": [],
+            "scroll": true,
+            "fontSize": "100%",
+            "sort": {
+              "col": 0,
+              "desc": true
+            },
+            "links": [],
+            "transparent": true
+          }
+        ]
+      },
+{% endif %}
+      {
+        "title": "Munin Data (Miscellaneous)",
+        "showTitle": true,
+        "height": "250px",
+        "editable": true,
+        "collapse": false,
+        "panels": [
+{% if usersFact is defined and usersFact[item.item]|default("no") == "yes" -%}
+	  {
+            "title": "Users",
+            "height": "300",
+            "error": false,
+            "span": 6,
+            "editable": true,
+            "type": "graph",
+            "isNew": true,
+            "id": 300,
+            "targets": [
+              {
+                "policy": "default",
+                "dsType": "influxdb",
+                "resultFormat": "time_series",
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "type": "time",
+                    "params": [
+                      "$interval"
+                    ]
+                  },
+                  {
+                    "type": "fill",
+                    "params": [
+                      "null"
+                    ]
+                  }
+                ],
+                "select": [
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "X"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "X"
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "pts"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "pts"
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "pty"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "pty"
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "tty"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "tty"
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "other"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "other"
+                      ]
+                    }
+                  ]
+                ],
+                "refId": "A",
+                "measurement": "users"
+              }
+            ],
+            "datasource": "munin",
+            "renderer": "flot",
+            "yaxes": [
+              {
+                "label": null,
+                "show": true,
+                "logBase": 1,
+                "min": 0,
+                "max": null,
+                "format": "short"
+              },
+              {
+                "label": null,
+                "show": true,
+                "logBase": 1,
+                "min": 0,
+                "max": null,
+                "format": "short"
+              }
+            ],
+            "xaxis": {
+              "show": true
+            },
+            "grid": {
+              "threshold1": null,
+              "threshold2": null,
+              "threshold1Color": "rgba(216, 200, 27, 0.27)",
+              "threshold2Color": "rgba(234, 112, 112, 0.22)"
+            },
+            "lines": true,
+            "fill": 3,
+            "linewidth": 2,
+            "points": false,
+            "pointradius": 5,
+            "bars": false,
+            "stack": false,
+            "percentage": false,
+            "legend": {
+              "show": true,
+              "values": true,
+              "min": true,
+              "max": true,
+              "current": true,
+              "total": false,
+              "avg": true,
+              "alignAsTable": true
+            },
+            "nullPointMode": "connected",
+            "steppedLine": false,
+            "tooltip": {
+              "value_type": "cumulative",
+              "shared": true,
+              "sort": 0,
+              "msResolution": false
+            },
+            "timeFrom": null,
+            "timeShift": null,
+            "aliasColors": {
+            },
+            "seriesOverrides": [],
+            "links": [],
+            "transparent": true
+          },
+{% endif %}
+{% if uptimeFact is defined and uptimeFact[item.item]|default("no") == "yes" -%}
+	  {
+            "title": "Uptime",
+            "height": "301",
+            "error": false,
+            "span": 6,
+            "editable": true,
+            "type": "graph",
+            "isNew": true,
+            "id": 191,
+            "targets": [
+              {
+                "policy": "default",
+                "dsType": "influxdb",
+                "resultFormat": "time_series",
+                "tags": [
+                  {
+                    "key": "host",
+                    "operator": "=",
+                    "value": "{{ item.item }}"
+                  }
+                ],
+                "groupBy": [
+                  {
+                    "type": "time",
+                    "params": [
+                      "$interval"
+                    ]
+                  },
+                  {
+                    "type": "fill",
+                    "params": [
+                      "null"
+                    ]
+                  }
+                ],
+                "select": [
+                  [
+                    {
+                      "type": "field",
+                      "params": [
+                        "uptime"
+                      ]
+                    },
+                    {
+                      "type": "mean",
+                      "params": []
+                    },
+                    {
+                      "type": "alias",
+                      "params": [
+                        "uptime"
+                      ]
+                    }
+                  ]
+                ],
+                "refId": "A",
+                "measurement": "uptime"
+              }
+            ],
+            "datasource": "munin",
+            "renderer": "flot",
+            "yaxes": [
+              {
+                "label": null,
+                "show": true,
+                "logBase": 1,
+                "min": 0,
+                "max": null,
+                "format": "short"
+              },
+              {
+                "label": null,
+                "show": true,
+                "logBase": 1,
+                "min": 0,
+                "max": null,
+                "format": "short"
+              }
+            ],
+            "xaxis": {
+              "show": true
+            },
+            "grid": {
+              "threshold1": null,
+              "threshold2": null,
+              "threshold1Color": "rgba(216, 200, 27, 0.27)",
+              "threshold2Color": "rgba(234, 112, 112, 0.22)"
+            },
+            "lines": true,
+            "fill": 3,
+            "linewidth": 2,
+            "points": false,
+            "pointradius": 5,
+            "bars": false,
+            "stack": false,
+            "percentage": false,
+            "legend": {
+              "show": true,
+              "values": true,
+              "min": true,
+              "max": true,
+              "current": true,
+              "total": false,
+              "avg": true,
+              "alignAsTable": true
+            },
+            "nullPointMode": "connected",
+            "steppedLine": false,
+            "tooltip": {
+              "value_type": "cumulative",
+              "shared": true,
+              "sort": 0,
+              "msResolution": false
+            },
+            "timeFrom": null,
+            "timeShift": null,
+            "aliasColors": {
+            },
+            "seriesOverrides": [],
+            "links": [],
+            "transparent": true
+          },
+{% endif %}
+          {
+            "title": "More Munin data",
+            "error": false,
+            "span": 12,
+            "editable": true,
+            "type": "text",
+            "isNew": true,
+            "id": 399,
+            "mode": "html",
+            "content": "<p align='center'>View more munin information in <a href='https://{{ hostnameMunin }}/munin-cgi/munin-cgi-html/{{ "%s" % ansible_domain if item.item.split('.')[0] is number else item.item.split('.')[1:]|join('.') }}/{{ item.item }}/index.html' target='_blank'>https://{{ hostnameMunin }}/munin-cgi/munin-cgi-html/{{ "%s" % ansible_domain if item.item.split('.')[0] is number else item.item.split('.')[1:]|join('.') }}/{{ item.item }}/index.html</a></p>",
+            "links": [],
+            "transparent": true,
+	    "height": "25"
+          }
+        ]
+      }
+{% else -%}
+      {
+        "title": "Munin Data",
+        "showTitle": true,
+        "collapse": false,
+        "editable": true,
+        "height": "25px",
+        "panels": [
+          {
+	    "title": "No data from munin",
+	    "error": false,
+	    "span": 12,
+	    "editable": true,
+	    "type": "text",
+	    "isNew": true,
+	    "id": 101,
+	    "mode": "html",
+	    "content": "<p align='center'>{{ item.item }} has no information from munin (it's not a munin client or there're problems to get info)</p>",
+	    "links": [],
+	    "transparent": true
+	  }
+	]
+      }
+{% endif %}
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "time_options": [
+        "5m",
+        "15m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+      ]
+    },
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": []
+    },
+    "schemaVersion": 12,
+    "version": 1,
+    "links": [],
+    "gnetId": null
+  }
+}

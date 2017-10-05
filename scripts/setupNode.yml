@@ -1,0 +1,171 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+- hosts: newNode 
+  gather_facts: True
+  user: root
+  vars: 
+    ansibleUser: "{{ createUser }}"
+    uidUser: "{{ uidUserValue }}"
+    hostAnsible: "{{ hostAnsibleValue }}"
+    pathAnsible: "{{ pathAnsibleValue }}"
+    pathAnsibleLibrary: "{{ pathAnsibleLibraryValue }}"
+    ansible_ssh_user: "root"
+
+  tasks:
+
+  - name: Getting Path Data from node
+    action: path_facts
+    ignore_errors: yes
+
+  - name: Get typeOS
+    shell: '{{ path.uname }} -s 2>/dev/null'
+    register: typeOS
+    ignore_errors: yes
+
+  - name: Getting Base Data from node
+    action: base_facts
+    ignore_errors: yes
+ 
+  - name: Setup | Check public RSA key (local user) and create if not exists 
+    local_action: shell (find ~/.ssh/id_rsa.pub >/dev/null 2>/dev/null) || (ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa)
+    ignore_errors: yes
+
+  - name: Getting home directory
+    shell: ( [ "{{ typeOS.stdout }}" == "SunOS" ] && echo "/export/home" ) || echo "/home"
+    register: homeDirectory
+    ignore_errors: yes
+
+  - name: Setup | create user (default uid)
+    user: name={{ ansibleUser }} comment="Ansible user" home="{{ homeDirectory.stdout|default('/home') }}/{{ ansibleUser }}"
+    when: ansibleUser != "root"  and uidUser == "default"
+
+  - name: Setup | create user (specific uid)
+    user: name={{ ansibleUser }} comment="Ansible user" home="{{ homeDirectory.stdout|default('/home') }}/{{ ansibleUser }}" uid={{ uidUser }}
+    when: ansibleUser != "root" and uidUser != "default"
+ 
+  - name: Permission 0700 ansibleUser home
+    file: path="{{ homeDirectory.stdout|default('/home') }}/{{ ansibleUser }}" mode=0700 state=directory
+    when: ansibleUser != "root"
+
+  - name: Change user to NP (Non Password) for solaris
+    shell: '{{ path.passwd }} -N {{ ansibleUser }}'
+    when: typeOS.stdout == "SunOS"
+
+  - name: Setup | authorized key upload
+    authorized_key: user={{ ansibleUser }} key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+ 
+  - name: Be sure sudo is installed (apt)
+    shell: DEBIAN_FRONTEND=noninteractive {{ path['apt-get'] }} -y --force-yes install {{ item }}
+    with_items:
+      - sudo
+    ignore_errors: yes
+    when: packageManager|default("") == "apt"
+
+  - name: Be sure bash & sudo are installed (conary)
+    shell: 'out=$({{ path.conary }} update --resolve {{ item }} 2>&1); ret=$?; echo "$out"; [ $ret -eq 0 ] || echo "$out"|{{ path.grep }} -iq "no new troves were found"'
+    with_items:
+      - bash
+      - sudo
+    register: conaryOutput
+    changed_when: conaryOutput.stdout != "no new troves were found"
+    ignore_errors: yes
+    when: packageManager|default("") == "conary"
+
+  - name: Be sure bash & sudo are installed (emerge)
+    shell: '({{ path.equery }} -q list {{ item }} >/dev/null 2>&1 && echo "Installed") || {{ path.emerge }} {{ item }}' 
+    with_items:
+      - bash
+      - sudo
+    register: emergeOutput
+    changed_when: emergeOutput.stdout != "Installed"
+    ignore_errors: yes
+    when: packageManager|default("") == "emerge"
+
+  - name: Be sure bash & sudo are installed (freebsd_pkg)
+    #shell: 'out=`{{ path.pkg }} install {{ item }} 2>&1`; ret=$?; echo "$out"; [ $ret -eq 0 ] || echo "$out"|{{ path.grep }} -iq "already installed"' 
+    package: name="{{ item }}" state="present"
+    with_items:
+      - bash
+      - sudo
+    #register: freebsdOutput
+    #changed_when: freebsdOutput.stdout != "already installed"
+    ignore_errors: yes
+    when: packageManager|default("") == "freebsd_pkg"
+
+  - name: Be sure bash & sudo are installed (macports)
+    macports: name={{ item }} state=present
+    with_items:
+      - bash
+      - sudo
+    ignore_errors: yes
+    when: packageManager|default("") == "macports"
+
+  - name: Be sure bash & sudo are installed (openbsd_pkg)
+    openbsd_pkg: name={{ item }} state=present
+    with_items:
+      - bash
+      - sudognu
+    ignore_errors: yes
+    when: packageManager|default("") == "openbsd_pkg"
+
+  - name: Be sure bash & sudo are installed (pacman)
+    pacman: name={{ item }} state=present update_cache=yes
+    with_items:
+      - bash
+      - sudo
+    ignore_errors: yes
+    when: packageManager|default("") == "pacman"
+
+  - name: Be sure bash & sudo are installed (pkgutil)
+    pkgutil: name={{ item }} state=present
+    with_items:
+      - bash
+      - sudo
+    ignore_errors: yes
+    when: packageManager|default("") == "pkgutil"
+
+  - name: Be sure bash & sudo are installed (slackpkg)
+    slackpkg: name={{ item }} state=present
+    with_items:
+      - bash
+      - sudo
+    ignore_errors: yes
+    when: packageManager|default("") == "slackpkg"
+
+  - name: Be sure bash & sudo are installed (yum)
+    yum: pkg={{ item }} state=installed
+    with_items:
+      - bash
+      - sudo
+    ignore_errors: yes
+    when: packageManager|default("") == "yum"
+
+  - name: Be sure bash & sudo are installed (zypper)
+    zypper: name={{ item }} state=present
+    with_items:
+      - bash
+      - sudo
+    ignore_errors: yes
+    when: packageManager|default("") == "zypper"
+
+  - name: Enlazar /bin/bash
+    shell: (([ -f /bin/bash ] && echo 'Done') || ([ `{{ path.find }} / -name 'bash'|wc -l` -gt 0 ] && ln -s `{{ path.find }} /etc /usr/local / -name 'bash'|head -1` /bin/bash &&  echo 'link') || echo 'No' ) 2>/dev/null executable='bash'
+    register: linkBash
+    changed_when: linkBash.stdout == "link"
+    ignore_errors: yes
+
+  - name: Enlazar /etc/sudoers
+    shell: (([ -f /etc/sudoers ] && echo 'Done') || ([ `{{ path.find }} / -name 'sudoers'|wc -l` -gt 0 ] && ln -s `{{ path.find }} /etc /usr/local / -name 'sudoers'|head -1` /etc/sudoers &&  echo 'link') || echo 'No' ) 2>/dev/null executable='bash'
+    register: linkSudoers
+    changed_when: linkSudoers.stdout == "link"
+    ignore_errors: yes
+
+  - name: Sudoers | update sudoers file and validate
+    lineinfile: "dest=/etc/sudoers insertafter=EOF line='{{ ansibleUser }} ALL=NOPASSWD: ALL' regexp='{{ ansibleUser }} ALL=NOPASSWD: ALL' state=present"
+    when: ansibleUser != "root"

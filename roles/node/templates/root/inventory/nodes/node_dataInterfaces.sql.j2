@@ -1,0 +1,25 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Network Interfaces of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["interfaces"] is defined %}
+
+{% for interface in hostvars[inventory_hostname]["interfaces"] -%}
+
+CHECK_INTERFACE_{{ loop.index }}: SELECT * FROM Interface WHERE Server='{{ inventory_hostname }}' AND Name='{{ interface.device }}' AND Address='{{ interface.address }}' AND NameDNS='{{ interface.namedns }}' AND Network='{{ interface.network }}' AND Netmask='{{ interface.netmask }}' AND MAC='{{ interface.macaddress }}' AND Type='{{ interface.type }}' AND Module='{{ hostvars[inventory_hostname]["ansible_" + interface.device].module if hostvars[inventory_hostname]["ansible_" + interface.device] is defined and hostvars[inventory_hostname]["ansible_" + interface.device].module is defined else "" }}' AND active='{{ 1 if interface.active else 0 }}' AND Auto AND End IS NULL;
+
+UPDATE_INTERFACE_{{ loop.index }}: UPDATE Interface SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Name='{{ interface.device }}' AND Address='{{ interface.address }}' AND NameDNS='{{ interface.namedns }}' AND Network='{{ interface.network }}' AND Netmask='{{ interface.netmask }}' AND MAC='{{ interface.macaddress }}' AND Type='{{ interface.type }}' AND Module='{{ hostvars[inventory_hostname]["ansible_" + interface.device].module if hostvars[inventory_hostname]["ansible_" + interface.device] is defined and hostvars[inventory_hostname]["ansible_" + interface.device].module is defined else "" }}' AND active='{{ 1 if interface.active else 0 }}' AND Auto AND End IS NULL;
+
+INSERT_INTERFACE_{{ loop.index }}: INSERT INTO Interface (Name,Server,Address,NameDNS,Network,Netmask,MAC,Type,Module,Active,Init,Checked,Auto) VALUES ('{{ interface.device }}','{{ inventory_hostname }}', '{{ interface.address }}', '{{ interface.namedns }}', '{{ interface.network }}', '{{ interface.netmask }}', '{{ interface.macaddress }}', '{{ interface.type }}', '{{ hostvars[inventory_hostname]["ansible_" + interface.device].module if hostvars[inventory_hostname]["ansible_" + interface.device] is defined and hostvars[inventory_hostname]["ansible_" + interface.device].module is defined else "" }}', {{ 1 if interface.active else 0 }}, NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+END-CHECK_INTERFACE: SELECT * from Interface WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_INTERFACE: UPDATE Interface SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

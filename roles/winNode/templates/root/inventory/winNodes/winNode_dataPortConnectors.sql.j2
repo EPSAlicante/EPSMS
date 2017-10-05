@@ -1,0 +1,27 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Port Connectors of {{ inventory_hostname }}
+
+
+{% if hostvars[inventory_hostname]["PortConnector"] is defined %}
+
+{% for port in hostvars[inventory_hostname]["PortConnector"] -%}
+
+CHECK_PORTCONNECTOR_{{ loop.index }}: SELECT * FROM WinPortConnector WHERE Server='{{ inventory_hostname }}' AND Tag='{{ port["tag"] }}' AND ConnectorType='{{ port["connectorType"] }}' AND ExternalReferenceDesignator='{{ port["externalReferenceDesignator"] }}' AND InternalReferenceDesignator='{{ port["internalReferenceDesignator"] }}' AND PortType='{{ port["portType"] }}' AND Auto AND End IS NULL;
+
+UPDATE_PORTCONNECTOR_{{ loop.index }}: UPDATE WinPortConnector SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Tag='{{ port["tag"] }}' AND ConnectorType='{{ port["connectorType"] }}' AND ExternalReferenceDesignator='{{ port["externalReferenceDesignator"] }}' AND InternalReferenceDesignator='{{ port["internalReferenceDesignator"] }}' AND PortType='{{ port["portType"] }}' AND Auto AND End IS NULL; 
+
+INSERT_PORTCONNECTOR_{{ loop.index }}: INSERT INTO WinPortConnector (Tag,Server,ConnectorType,ExternalReferenceDesignator,InternalReferenceDesignator,PortType,Init,Checked,Auto) VALUES ('{{ port["tag"] }}','{{ inventory_hostname }}', '{{ port["connectorType"] }}', '{{ port["externalReferenceDesignator"] }}', '{{ port["internalReferenceDesignator"] }}', '{{ port["portType"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_PORTCONNECTOR: SELECT * from WinPortConnector WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_PORTCONNECTOR: UPDATE WinPortConnector SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

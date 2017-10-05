@@ -1,0 +1,270 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>SOFTWARE</title><style></style></head><body id="preview">
+<h1><a id="software"></a>Software</h1>
+<h3><a id="IP"></a>Get IP information</h3>
+<blockquote>
+<p>GET <a href="./software/IP">/software/IP</a></p>
+</blockquote>
+<h5><a id="output_IP"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+	"<span class="hljs-attribute">IP</span>":<span class="hljs-value"><span class="hljs-string">"192.168.0.2"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="distribution"></a>Get Linux/Unix Distribution information</h3>
+<blockquote>
+<p>GET <a href="./software/distribution">/software/distribution</a></p>
+</blockquote>
+<h5><a id="output_distribution"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Distribution</span>":<span class="hljs-value"><span class="hljs-string">"CentOS"</span></span>,
+        "<span class="hljs-attribute">Version</span>":<span class="hljs-value"><span class="hljs-string">"6.8"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="kernel"></a>Get Linux/Unix Kernel information</h3>
+<blockquote>
+<p>GET <a href="./software/kernel">/software/kernel</a></p>
+</blockquote>
+<h5><a id="output_kernel"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Kernel</span>":<span class="hljs-value"><span class="hljs-string">"2.6.32-504.12.2.el6.x86_64"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="modules"></a>Get Linux/Unix Modules information</h3>
+<blockquote>
+<p>GET <a href="./software/modules">/software/modules</a></p>
+</blockquote>
+<h5><a id="output_modules"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"ata_generic"</span></span>,
+        "<span class="hljs-attribute">File Name</span>":<span class="hljs-value"><span class="hljs-string">"/lib/modules/2.6.32-504.12.2.el6.x86_64/kernel/drivers/ata/ata_generic.ko"</span></span>,
+        "<span class="hljs-attribute">Author</span>":<span class="hljs-value"><span class="hljs-string">"Alan Cox"</span></span>,
+        "<span class="hljs-attribute">Description</span>":<span class="hljs-value"><span class="hljs-string">"low-level driver for generic ATA"</span></span>,
+        "<span class="hljs-attribute">License</span>":<span class="hljs-value"><span class="hljs-string">"GPL"</span></span>,
+	"<span class="hljs-attribute">Version</span>":<span class="hljs-value"><span class="hljs-string">"0.2.15"</span></span>,
+	"<span class="hljs-attribute">Version Magic</span>":<span class="hljs-value"><span class="hljs-string">"2.6.32-504.12.2.el6.x86_64 SMP mod_unload modversions"</span></span>,
+	"<span class="hljs-attribute">Source Version</span>":<span class="hljs-value"><span class="hljs-string">"499FB4E1092967C387376DA"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="domain"></a>Get Linux/Unix Domain information</h3>
+<blockquote>
+<p>GET <a href="./software/domain">/software/domain</a></p>
+</blockquote>
+<h5><a id="output_domain"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Domain</span>":<span class="hljs-value"><span class="hljs-string">"eps.ua.es"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="resolver"></a>Get Linux/Unix DNS Resolver information</h3>
+<blockquote>
+<p>GET <a href="./software/resolver">/software/resolver</a></p>
+</blockquote>
+<h5><a id="output_resolver"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Domain</span>":<span class="hljs-value"><span class="hljs-string">"eps.ua.es"</span></span>,
+	"<span class="hljs-attribute">NameServer 1</span>":<span class="hljs-value"><span class="hljs-string">"8.8.8.8"</span></span>,
+	"<span class="hljs-attribute">NameServer 2</span>":<span class="hljs-value"><span class="hljs-string">"8.8.4.4"</span></span>,
+	"<span class="hljs-attribute">NameServer 3</span>":<span class="hljs-value"><span class="hljs-string">""</span></span>,
+        "<span class="hljs-attribute">Options</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">option</span>":<span class="hljs-value"><span class="hljs-string">""</span></span>
+            }
+        ]</span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="filehost"></a>Get Linux/Unix '/etc/hosts' File information</h3>
+<blockquote>
+<p>GET <a href="./software/filehost">/software/filehost</a></p>
+</blockquote>
+<h5><a id="output_filehost"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Rule</span>":<span class="hljs-value"><span class="hljs-string">"192.168.0.2 epsms.eps.ua.es epsms"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="routes"></a>Get Linux/Unix Routes information</h3>
+<blockquote>
+<p>GET <a href="./software/routes">/software/routes</a></p>
+</blockquote>
+<h5><a id="output_routes"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Destination</span>":<span class="hljs-value"><span class="hljs-string">"0.0.0.0"</span></span>,
+	"<span class="hljs-attribute">Gateway</span>":<span class="hljs-value"><span class="hljs-string">"192.168.0.1"</span></span>,
+	"<span class="hljs-attribute">Mask</span>":<span class="hljs-value"><span class="hljs-string">"0.0.0.0"</span></span>,
+	"<span class="hljs-attribute">Flags</span>":<span class="hljs-value"><span class="hljs-string">"UG"</span></span>,
+	"<span class="hljs-attribute">Interface</span>":<span class="hljs-value"><span class="hljs-string">"eth0"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="swap"></a>Get Linux/Unix Swap information</h3>
+<blockquote>
+<p>GET <a href="./software/swap">/software/swap</a></p>
+</blockquote>
+<h5><a id="output_swap"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Swap</span>":<span class="hljs-value"><span class="hljs-string">"1023"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="virtualization"></a>Get Linux/Unix Virtualization information</h3>
+<blockquote>
+<p>GET <a href="./software/virtualization">/software/virtualization</a></p>
+</blockquote>
+<h5><a id="output_virtualization"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Virtualization Role</span>":<span class="hljs-value"><span class="hljs-string">"guest"</span></span>,
+	"<span class="hljs-attribute">Virtualization Type</span>":<span class="hljs-value"><span class="hljs-string">"kvm"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="filesystems"></a>Get Linux/Unix FileSystems information</h3>
+<blockquote>
+<p>GET <a href="./software/filesystems">/software/filesystems</a></p>
+</blockquote>
+<h5><a id="output_filesystems"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Name</span>":<span class="hljs-value"><span class="hljs-string">"/dev/sda1"</span></span>,
+        "<span class="hljs-attribute">Type</span>":<span class="hljs-value"><span class="hljs-string">"ext4"</span></span>,
+        "<span class="hljs-attribute">Mount</span>":<span class="hljs-value"><span class="hljs-string">"/"</span></span>,
+        "<span class="hljs-attribute">Options</span>":<span class="hljs-value"><span class="hljs-string">"rw"</span></span>,
+        "<span class="hljs-attribute">Size</span>":<span class="hljs-value"><span class="hljs-string">"8857329664"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="wlogicaldevices"></a>Get Windows Logical Devices information</h3>
+<blockquote>
+<p>GET <a href="./software/wlogicaldevices">/software/wlogicaldevices</a></p>
+</blockquote>
+<h5><a id="output_wlogicaldevices"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Device ID</span>":<span class="hljs-value"><span class="hljs-string">"C:"</span></span>,
+        "<span class="hljs-attribute">Caption</span>":<span class="hljs-value"><span class="hljs-string">"C:"</span></span>,
+        "<span class="hljs-attribute">Drive Type</span>":<span class="hljs-value"><span class="hljs-string">"Local Disk"</span></span>,
+        "<span class="hljs-attribute">File System</span>":<span class="hljs-value"><span class="hljs-string">"NTFS"</span></span>,
+	"<span class="hljs-attribute">Size</span>":<span class="hljs-value"><span class="hljs-string">"36405055488"</span></span>,
+	"<span class="hljs-attribute">Access</span>":<span class="hljs-value"><span class="hljs-string">"Unknown"</span></span>,
+	"<span class="hljs-attribute">Availability</span>":<span class="hljs-value"><span class="hljs-string">""</span></span>,
+	"<span class="hljs-attribute">Compressed</span>":<span class="hljs-value"><span class="hljs-string">"False"</span></span>,
+	"<span class="hljs-attribute">Config Manager Error Code</span>":<span class="hljs-value"><span class="hljs-string">"Device is working properly"</span></span>,
+	"<span class="hljs-attribute">Supports Disk Quotas</span>":<span class="hljs-value"><span class="hljs-string">"True"</span></span>,
+	"<span class="hljs-attribute">Quotas Disabled</span>":<span class="hljs-value"><span class="hljs-string">"True"</span></span>,
+	"<span class="hljs-attribute">Supports File Based Compression</span>":<span class="hljs-value"><span class="hljs-string">"True"</span></span>,
+	"<span class="hljs-attribute">Volume Name</span>":<span class="hljs-value"><span class="hljs-string">""</span></span>,
+	"<span class="hljs-attribute">Volume Serial Number</span>":<span class="hljs-value"><span class="hljs-string">"DCC702D1"</span></span>,
+        "<span class="hljs-attribute">Partitions</span>":<span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">Partition Device ID</span>":<span class="hljs-value"><span class="hljs-string">"Disk #0, Partition #0"</span></span>
+            }
+        ]</span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="woperatingsystem"></a>Get Windows Operating System information</h3>
+<blockquote>
+<p>GET <a href="./software/woperatingsystem">/software/woperatingsystem</a></p>
+</blockquote>
+<h5><a id="output_woperatingsystem"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"win2003.epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">OS Name</span>":<span class="hljs-value"><span class="hljs-string">"Microsoft Windows Server 2003 Standard Edition"</span></span>,
+        "<span class="hljs-attribute">OS Description</span>":<span class="hljs-value"><span class="hljs-string">""</span></span>,
+        "<span class="hljs-attribute">Boot Device</span>":<span class="hljs-value"><span class="hljs-string">"\Device\HarddiskVolume1"</span></span>,
+        "<span class="hljs-attribute">Service Pack Version</span>":<span class="hljs-value"><span class="hljs-string">"0.0"</span></span>,
+        "<span class="hljs-attribute">OS Architecture</span>":<span class="hljs-value"><span class="hljs-string">""</span></span>,
+        "<span class="hljs-attribute">OS Type</span>":<span class="hljs-value"><span class="hljs-string">"WINNT"</span></span>,
+        "<span class="hljs-attribute">Product Type</span>":<span class="hljs-value"><span class="hljs-string">"Server"</span></span>,
+        "<span class="hljs-attribute">Version</span>":<span class="hljs-value"><span class="hljs-string">"5.2.3790"</span></span>,
+	"<span class="hljs-attribute">Serial Number</span>":<span class="hljs-value"><span class="hljs-string">"69893-640-1686511-45804"</span></span>,
+	"<span class="hljs-attribute">Country</span>":<span class="hljs-value"><span class="hljs-string">"Spain"</span></span>,
+	"<span class="hljs-attribute">Language</span>":<span class="hljs-value"><span class="hljs-string">"Spanish - International Sort"</span></span>,
+	"<span class="hljs-attribute">PAE Enabled</span>":<span class="hljs-value"><span class="hljs-string">"False"</span></span>,
+	"<span class="hljs-attribute">Manufacturer</span>":<span class="hljs-value"><span class="hljs-string">"Microsoft Corporation"</span></span>,
+	"<span class="hljs-attribute">Current Time Zone</span>":<span class="hljs-value"><span class="hljs-string">"60"</span></span>,
+	"<span class="hljs-attribute">Encryption Level</span>":<span class="hljs-value"><span class="hljs-string">"168"</span></span>,
+	"<span class="hljs-attribute">Number Of Licensed Users</span>":<span class="hljs-value"><span class="hljs-string">"100"</span></span>,
+	"<span class="hljs-attribute">Operating System SKU</span>":<span class="hljs-value"><span class="hljs-string">""</span></span>,
+	"<span class="hljs-attribute">Organization</span>":<span class="hljs-value"><span class="hljs-string">"UA"</span></span>,
+	"<span class="hljs-attribute">Registered User</span>":<span class="hljs-value"><span class="hljs-string">"EPS"</span></span>,
+	"<span class="hljs-attribute">Max Number Of Processes</span>":<span class="hljs-value"><span class="hljs-string">""</span></span>,
+	"<span class="hljs-attribute">System Device</span>":<span class="hljs-value"><span class="hljs-string">"\Device\HarddiskVolume1"</span></span>,
+	"<span class="hljs-attribute">System Drive</span>":<span class="hljs-value"><span class="hljs-string">"C:"</span></span>,
+	"<span class="hljs-attribute">Windows Directory</span>":<span class="hljs-value"><span class="hljs-string">"C:\WINDOWS"</span></span>,
+	"<span class="hljs-attribute">System Directory</span>":<span class="hljs-value"><span class="hljs-string">"C:\WINDOWS\system32"</span></span>,
+	"<span class="hljs-attribute">Total Visible Memory Size</span>":<span class="hljs-value"><span class="hljs-string">"1047568"</span></span>,
+	"<span class="hljs-attribute">Total Swap Space Size</span>":<span class="hljs-value"><span class="hljs-string">"0"</span></span>,
+	"<span class="hljs-attribute">Total Virtual Memory Size</span>":<span class="hljs-value"><span class="hljs-string">"3574108"</span></span>,
+	"<span class="hljs-attribute">Distributed</span>":<span class="hljs-value"><span class="hljs-string">"False"</span></span>
+    }
+]
+</code></pre>
+<hr>
+<h3><a id="wdomain"></a>Get Windows Domain information</h3>
+<blockquote>
+<p>GET <a href="./software/wdomain">/software/wdomain</a></p>
+</blockquote>
+<h5><a id="output_wdomain"></a>Output (example)</h5>
+<p><code>Status: 200 OK</code></p>
+<pre><code class="language-json">[
+    {
+        "<span class="hljs-attribute">Server</span>":<span class="hljs-value"><span class="hljs-string">"win2003.epsms.eps.ua.es"</span></span>,
+        "<span class="hljs-attribute">Domain</span>":<span class="hljs-value"><span class="hljs-string">"EPS"</span></span>,
+        "<span class="hljs-attribute">Domain Role</span>":<span class="hljs-value"><span class="hljs-string">"Standalone Server"</span></span>,
+	"<span class="hljs-attribute">Part Of Domain</span>":<span class="hljs-value"><span class="hljs-string">"False"</span></span>
+    }
+]
+</code></pre>
+</body></html>

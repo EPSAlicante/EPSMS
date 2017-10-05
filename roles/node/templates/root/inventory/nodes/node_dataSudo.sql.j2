@@ -1,0 +1,68 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Sudo of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["sudoers"] is defined %}
+
+{% for default in hostvars[inventory_hostname]["sudoers"]["defaults"] -%}
+
+CHECK_SUDODEFAULT_{{ default["num"] }}: SELECT * FROM SudoDefault WHERE Server='{{ inventory_hostname }}' AND Num='{{ default["num"] }}' AND Rule='{{ default["rule"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SUDODEFAULT_{{ default["num"] }}: UPDATE SudoDefault SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Num='{{ default["num"] }}' AND Rule='{{ default["rule"] }}' AND Auto AND End IS NULL; 
+
+INSERT_SUDODEFAULT_{{ default["num"] }}: INSERT INTO SudoDefault (Num,Server,Rule,Init,Checked,Auto) VALUES ('{{ default["num"] }}', '{{ inventory_hostname }}', '{{ default["rule"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% for type in ['userAlias','runasAlias','hostAlias','cmndAlias'] -%}
+
+{% for alias in hostvars[inventory_hostname]["sudoers"][type] -%}
+
+CHECK_SUDOALIAS_{{ type }}_{{ alias["numAlias"] }}: SELECT * FROM SudoAlias WHERE Server='{{ inventory_hostname }}' AND TypeAlias='{{ type }}' AND NumAlias='{{ alias["numAlias"] }}' AND Rule='{{ alias["rule"] }}' AND Label='{{ alias["label"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SUDOALIAS_{{ type }}_{{ alias["numAlias"] }}: UPDATE SudoAlias SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND TypeAlias='{{ type }}' AND NumAlias='{{ alias["numAlias"] }}' AND Rule='{{ alias["rule"] }}' AND Label='{{ alias["label"] }}' AND Auto AND End IS NULL; 
+
+INSERT_SUDOALIAS_{{ type }}_{{ alias["numAlias"] }}: INSERT INTO SudoAlias (TypeAlias,NumAlias,Server,Rule,Label,Init,Checked,Auto) VALUES ('{{ type }}', '{{ alias["numAlias"] }}', '{{ inventory_hostname }}', '{{ alias["rule"] }}', '{{ alias["label"] }}', NOW(), NOW(), 1);
+
+{% for item in alias["items"] -%}
+
+CHECK_SUDOALIASITEM_{{ type }}_{{ alias["numAlias"] }}_{{ item["numItem"] }}: SELECT * FROM SudoAliasItem WHERE Server='{{ inventory_hostname }}' AND TypeAlias='{{ type }}' AND NumAlias='{{ alias["numAlias"] }}' AND NumItem='{{ item["numItem"] }}' AND Item='{{ item["item"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SUDOALIASITEM_{{ type }}_{{ alias["numAlias"] }}_{{ item["numItem"] }}: UPDATE SudoAliasItem SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND TypeAlias='{{ type }}' AND NumAlias='{{ alias["numAlias"] }}' AND NumItem='{{ item["numItem"] }}' AND Item='{{ item["item"] }}' AND Auto AND End IS NULL; 
+
+INSERT_SUDOALIASITEM_{{ type }}_{{ alias["numAlias"] }}_{{ item["numItem"] }}: INSERT INTO SudoAliasItem (TypeAlias,NumAlias,NumItem,Server,Item,Init,Checked,Auto) VALUES ('{{ type }}', '{{ alias["numAlias"] }}', '{{ item["numItem"] }}', '{{ inventory_hostname }}', '{{ item["item"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endfor %}
+
+{% endfor %}
+
+{% for spec in hostvars[inventory_hostname]["sudoers"]["userSpec"] -%}
+
+CHECK_SUDOUSERSPEC_{{ spec["num"] }}: SELECT * FROM SudoUserSpec WHERE Server='{{ inventory_hostname }}' AND Num='{{ spec["num"] }}' AND Rule='{{ spec["rule"] }}' AND UserItem='{{ spec["userItem"] }}' AND HostItem='{{ spec["hostItem"] }}' AND RunasItem='{{ spec["runasItem"] }}' AND CmndItem='{{ spec["cmndItem"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SUDOUSERSPEC_{{ spec["num"] }}: UPDATE SudoUserSpec SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Num='{{ spec["num"] }}' AND Rule='{{ spec["rule"] }}' AND UserItem='{{ spec["userItem"] }}' AND HostItem='{{ spec["hostItem"] }}' AND RunasItem='{{ spec["runasItem"] }}' AND CmndItem='{{ spec["cmndItem"] }}' AND Auto AND End IS NULL;
+
+INSERT_SUDOUSERSPEC_{{ spec["num"] }}: INSERT INTO SudoUserSpec (Num,Server,Rule,UserItem,HostItem,RunasItem,CmndItem,Init,Checked,Auto) VALUES ('{{ spec["num"] }}', '{{ inventory_hostname }}', '{{ spec["rule"] }}', '{{ spec["userItem"] }}', '{{ spec["hostItem"] }}', '{{ spec["runasItem"] }}', '{{ spec["cmndItem"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+END-CHECK_SUDODEFAULT: SELECT * from SudoDefault WHERE SudoDefault.Server='{{ inventory_hostname }}' AND SudoDefault.Auto AND SudoDefault.End IS NULL AND SudoDefault.Checked<'##checkedTime##';
+END-UPDATE_SUDODEFAULT: UPDATE SudoDefault SET End=NOW() WHERE SudoDefault.Server='{{ inventory_hostname }}' AND SudoDefault.Auto AND SudoDefault.End IS NULL AND SudoDefault.Checked<'##checkedTime##';
+
+END-CHECK_SUDOALIAS: SELECT * from SudoAlias WHERE SudoAlias.Server='{{ inventory_hostname }}' AND SudoAlias.Auto AND SudoAlias.End IS NULL AND SudoAlias.Checked<'##checkedTime##';
+END-UPDATE_SUDOALIAS: UPDATE SudoAlias SET End=NOW() WHERE SudoAlias.Server='{{ inventory_hostname }}' AND SudoAlias.Auto AND SudoAlias.End IS NULL AND SudoAlias.Checked<'##checkedTime##';
+
+END-CHECK_SUDOALIASITEM: SELECT * from SudoAliasItem WHERE SudoAliasItem.Server='{{ inventory_hostname }}' AND SudoAliasItem.Auto AND SudoAliasItem.End IS NULL AND SudoAliasItem.Checked<'##checkedTime##';
+END-UPDATE_SUDOALIASITEM: UPDATE SudoAliasItem SET End=NOW() WHERE SudoAliasItem.Server='{{ inventory_hostname }}' AND SudoAliasItem.Auto AND SudoAliasItem.End IS NULL AND SudoAliasItem.Checked<'##checkedTime##';
+
+END-CHECK_SUDOUSERSPEC: SELECT * from SudoUserSpec WHERE SudoUserSpec.Server='{{ inventory_hostname }}' AND SudoUserSpec.Auto AND SudoUserSpec.End IS NULL AND SudoUserSpec.Checked<'##checkedTime##';
+END-UPDATE_SUDOUSERSPEC: UPDATE SudoUserSpec SET End=NOW() WHERE SudoUserSpec.Server='{{ inventory_hostname }}' AND SudoUserSpec.Auto AND SudoUserSpec.End IS NULL AND SudoUserSpec.Checked<'##checkedTime##';

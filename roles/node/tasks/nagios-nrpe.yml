@@ -1,0 +1,396 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Nagios NRPE configuration 
+
+- name: Getting Path Data from node
+  action: path_facts
+  register: pathFacts
+  changed_when: False
+  ignore_errors: yes
+  when: path is not defined
+
+- name: Find service binary
+  shell: ((({{ path.service }} --version || {{ path.service }} --help || {{ path.service }}) >/dev/null && echo "True") || echo "False") 2>/dev/null
+  register: checkService
+  changed_when: False
+  ignore_errors: yes
+
+- name: Find systemctl binary
+  shell: ((({{ path.systemctl }} --version || {{ path.systemctl }} --help || {{ path.systemctl }}) >/dev/null && echo "True") || echo "False") 2>/dev/null
+  register: checkSystemctl
+  changed_when: False
+  ignore_errors: yes
+
+- name: Get typeOS
+  shell: '{{ path.uname }} -s 2>/dev/null'
+  register: typeOS
+  changed_when: False
+  ignore_errors: yes
+
+- name: Getting Base Data from nodes
+  action: base_facts
+  register: baseFactsNagiosNrpe
+  changed_when: False
+  ignore_errors: yes
+  when: packageManager is not defined
+
+- name: Base Data
+  debug: msg=""
+  with_items:
+    - "Package Manager: '{{ packageManager|default(\"\") }}'"
+    - "Packages List (Nagios-Nrpe): {{ packageNagiosNrpe|default(\"\") }}"
+    - "Configuration File (Nagios-Nrpe): '{{ confFileNagiosNrpe|default(\"\") }}'"
+    - "Daemon (Nagios-Nrpe): '{{ daemonNagiosNrpe|default(\"\") }}'"
+    - "Plugins Path (Nagios-Nrpe): '{{ pluginsPathNagiosNrpe|default(\"\") }}'"
+  ignore_errors: yes
+
+- name: Be sure nagios-nrpe is installed (apt)
+  shell: DEBIAN_FRONTEND=noninteractive {{ path['apt-get'] }} -y --force-yes install {{ item }}
+  with_items: "{{ packageNagiosNrpe }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "apt" and packageNagiosNrpe != [] 
+
+- name: Be sure nagios-nrpe is installed (conary)
+  shell: 'out=`{{ path.conary }} update --resolve {{ item }} 2>&1`; ret=$?; echo "$out"; [ $ret -eq 0 ] || echo "$out"|{{ path.grep }} -iq "no new troves were found" executable={{ path.bash }}'
+  with_items: "{{ packageNagiosNrpe }}"
+  register: conaryOutput
+  changed_when: conaryOutput.stdout != "no new troves were found"
+  ignore_errors: yes
+  when: packageManager|default("") == "conary" and packageNagiosNrpe != [] 
+
+- name: Be sure nagios-nrpe is installed (emerge)
+  shell: '({{ path.equery }} -q list {{ item }} >/dev/null 2>&1 && echo "Installed") || {{ path.emerge }} {{ item }} executable={{ path.bash }}' 
+  with_items: "{{ packageNagiosNrpe }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "emerge" and packageNagiosNrpe != [] 
+
+- name: Be sure nagios-nrpe is installed (freebsd_pkg)
+  #shell: 'out=`{{ path.pkg }} install {{ item }} 2>&1`; ret=$?; echo "$out"; [ $ret -eq 0 ] || echo "$out"|{{ path.grep }} -iq "already installed" executable={{ path.bash }}'
+  package: name="{{ item }}" state="present"
+  with_items: "{{ packageNagiosNrpe }}"
+  #register: freebsdOutput
+  #changed_when: freebsdOutput.stdout != "already installed"
+  ignore_errors: yes
+  when: packageManager|default("") == "freebsd_pkg" and packageNagiosNrpe != [] 
+
+- name: Be sure nagios-nrpe is installed (macports)
+  macports: name={{ item }} state=present
+  with_items: "{{ packageNagiosNrpe }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "macports" and packageNagiosNrpe != [] 
+
+- name: Be sure nagios-nrpe is installed (openbsd_pkg)
+  openbsd_pkg: name={{ item }} state=present
+  with_items: "{{ packageNagiosNrpe }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "openbsd_pkg" and packageNagiosNrpe != [] 
+
+- name: Be sure nagios-nrpe is installed (pacman)
+  pacman: name={{ item }} state=present update_cache=yes
+  with_items: "{{ packageNagiosNrpe }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "pacman" and packageNagiosNrpe != [] 
+
+- name: Be sure nagios-nrpe is installed (pkgutil)
+  pkgutil: name={{ item }} state=present
+  with_items: "{{ packageNagiosNrpe }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "pkgutil" and packageNagiosNrpe != []
+
+- name: Be sure nagios-nrpe is installed (slackpkg)
+  slackpkg: name={{ item }} state=present
+  with_items: "{{ packageNagiosNrpe }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "slackpkg" and packageNagiosNrpe != []
+
+- name: Be sure nagios-nrpe is installed (yum)
+  yum: pkg={{ item }} enablerepo={{ labelEpel|default("epel") }} state=installed
+  with_items: "{{ packageNagiosNrpe }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "yum" and packageNagiosNrpe != [] 
+
+- name: Be sure nagios-nrpe is installed (zypper)
+  zypper: name={{ item }} state=present
+  with_items: "{{ packageNagiosNrpe }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "zypper" and packageNagiosNrpe != [] 
+
+- name: Getting Base Data from nodes again to get Nagios-Nrpe configuration
+  action: base_facts
+  register: baseFactsNagiosNrpeAgain
+  ignore_errors: yes
+  when: packageManager|default("") != "" and packageNagiosNrpe != [] and base_facts|default("false") == "true" and confFileNagiosNrpe|default("") == ""
+
+- name: Base Data (again)
+  debug: msg=""
+  with_items:
+    - "Package Manager: '{{ packageManager|default(\"\") }}'"
+    - "Packages List (Nagios-Nrpe): {{ packageNagiosNrpe|default(\"\") }}"
+    - "Configuration File (Nagios-Nrpe): '{{ confFileNagiosNrpe|default(\"\") }}'"
+    - "Daemon (Nagios-Nrpe): '{{ daemonNagiosNrpe|default(\"\") }}'"
+    - "Plugins Path (Nagios-Nrpe): '{{ pluginsPathNagiosNrpe|default(\"\") }}'"
+  ignore_errors: yes
+  when: not baseFactsNagiosNrpeAgain|skipped
+
+- name: Check nrpe.cfg file
+  shell: test -w {{ confFileNagiosNrpe }}
+  register: checkNagiosNrpe
+  changed_when: False
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != ""
+
+- name: Get Facts in nagios master
+  setup:
+  delegate_to: "{{ hostnameNagios }}"
+  delegate_facts: True
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success
+
+- name: Configure /etc/rc.conf (BSD)
+  lineinfile: name=/etc/rc.conf state=present regexp="^nrpe2_enable=\"YES\"" line="nrpe2_enable=\"YES\""
+  register: rcConf
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and typeOS.stdout.endswith('BSD')
+
+- name: Get service nrpe in xinetd
+  shell: ({{ path.find }} -L /etc/xinetd.d -name '*nrpe*'|head -1) 2>/dev/null executable={{ path.bash }}
+  register: xinetdNagiosNrpe
+  changed_when: False
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and daemonNagiosNrpe|default("") == "xinetd"
+
+- name: Config nrpe in xinetd (user)
+  shell: (userName=$(cat /etc/passwd|cut -d':' -f1|{{ path.grep }} -e nrpe -e nagios|head -1) && [ -n "$userName" ] && ((({{ path.grep }} 'user' {{ xinetdNagiosNrpe.stdout }} |{{ path.grep }} $'^[ \t]*user'|{{ path.grep }} -v $userName >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@$({{ path.grep }} 'user' {{ xinetdNagiosNrpe.stdout }} |{{ path.grep }} $'^[ \t]*user'|{{ path.grep }} -v $userName|head -1)@$({{ path.grep }} 'user' {{ xinetdNagiosNrpe.stdout }}|{{ path.grep }} $'^[ \t]*user'|{{ path.grep }} -v $userName|head -1|cut -d'=' -f1)= $userName@g" {{ xinetdNagiosNrpe.stdout }})) || (! ({{ path.grep }} 'user' {{ xinetdNagiosNrpe.stdout }}|{{ path.grep }} $'^[ \t]*user' >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@}@\tuser \t\t= $userName\n}@" {{ xinetdNagiosNrpe.stdout }}))) && echo "Changed") || echo "No" executable={{ path.bash }}
+  register: userXinetdNagiosNrpe
+  changed_when: userXinetdNagiosNrpe.stdout == "Changed"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and daemonNagiosNrpe|default("") == "xinetd" and xinetdNagiosNrpe.stdout|default("") != ""
+
+- name: Config nrpe in xinetd (group)
+  shell: (groupName=$(cat /etc/group|cut -d':' -f1|{{ path.grep }} -e nrpe -e nagios|head -1) && [ -n "$groupName" ] && ((({{ path.grep }} 'group' {{ xinetdNagiosNrpe.stdout }} |{{ path.grep }} $'^[ \t]*group'|{{ path.grep }} -v $groupName >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@$({{ path.grep }} 'group' {{ xinetdNagiosNrpe.stdout }} |{{ path.grep }} $'^[ \t]*group'|{{ path.grep }} -v $groupName|head -1)@$({{ path.grep }} 'group' {{ xinetdNagiosNrpe.stdout }}|{{ path.grep }} $'^[ \t]*group'|{{ path.grep }} -v $groupName|head -1|cut -d'=' -f1)= $groupName@g" {{ xinetdNagiosNrpe.stdout }})) || (! ({{ path.grep }} 'group' {{ xinetdNagiosNrpe.stdout }}|{{ path.grep }} $'^[ \t]*group' >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@}@\tgroup \t\t= $groupName\n}@" {{ xinetdNagiosNrpe.stdout }}))) && echo "Changed") || echo "No" executable={{ path.bash }}
+  register: groupXinetdNagiosNrpe
+  changed_when: groupXinetdNagiosNrpe.stdout == "Changed"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and daemonNagiosNrpe|default("") == "xinetd" and xinetdNagiosNrpe.stdout|default("") != ""
+
+- name: Config nrpe in xinetd (only_from)
+  shell: (((({{ path.grep }} 'only_from' {{ xinetdNagiosNrpe.stdout }} |{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ item }} >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@$({{ path.grep }} 'only_from' {{ xinetdNagiosNrpe.stdout }}|{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ item }}|head -1)@$({{ path.grep }} 'only_from' {{ xinetdNagiosNrpe.stdout }}|{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ item }}|head -1) {{ item }}@g" {{ xinetdNagiosNrpe.stdout }})) || (! ({{ path.grep }} 'only_from' {{ xinetdNagiosNrpe.stdout }}|{{ path.grep }} $'^[ \t]*only_from' >/dev/null 2>/dev/null) && ({{ path.sed }} -i 's/}/\tonly_from \t\t= {{ item }}\n}/' {{ xinetdNagiosNrpe.stdout }}))) && echo "Changed") || echo "No" executable={{ path.bash }} 
+  with_items: "{{ hostvars[hostnameNagios]['ansible_all_ipv4_addresses'] }}"
+  register: onlyFromXinetdNagiosNrpe
+  changed_when: onlyFromXinetdNagiosNrpe.stdout == "Changed"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and daemonNagiosNrpe|default("") == "xinetd" and xinetdNagiosNrpe.stdout|default("") != ""
+
+- name: Check plugins path (create if necessary)
+  shell: test -d {{ pluginsPathNagiosNrpe }} || (mkdir -p {{ pluginsPathNagiosNrpe }} && echo "Changed")  executable={{ path.bash }} 
+  register: checkPluginsPath
+  changed_when: checkPluginsPath == "Changed"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and pluginsPathNagiosNrpe|default("") != ""
+
+- name: Enlazar /usr/lib/nagios -> /usr/lib64/nagios
+  file: path=/usr/lib/nagios state=link src=/usr/lib64/nagios force=yes
+  ignore_errors: yes
+  when: ansible_os_family|default("") == "RedHat" and ansible_architecture|default("") == "x86_64" and confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and pluginsPathNagiosNrpe|default("") != "" and pluginsPathNagiosNrpe.startswith('/usr/lib64/nagios') and checkPluginsPath|success
+
+- name: Copy check_listen_tcp_udp.sh to /usr/lib/nagios/plugins/check_listen_tcp_udp.sh
+  copy: src=usr/lib/nagios/plugins/check_listen_tcp_udp.sh dest={{ pluginsPathNagiosNrpe }}/check_listen_tcp_udp.sh owner=root group=0 mode=0755
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and pluginsPathNagiosNrpe|default("") != "" and checkPluginsPath|success 
+
+- name: Copy check_file_age2.pl to /usr/lib/nagios/plugins/check_file_age2.pl (hostAnsible)
+  copy: src=usr/lib/nagios/plugins/check_file_age2.pl dest={{ pluginsPathNagiosNrpe }}/check_file_age2.pl owner=root group=0 mode=0755
+  ignore_errors: yes
+  #when: "'ansible' in group_names"
+  when: inventory_hostname == hostnameAnsible and confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and pluginsPathNagiosNrpe|default("") != "" and checkPluginsPath|success 
+
+- name: Copy check_file_age2.pl to /usr/lib/nagios/plugins/check_file_age2.pl (hostMysql)
+  copy: src=usr/lib/nagios/plugins/check_file_age2.pl dest={{ pluginsPathNagiosNrpe }}/check_file_age2.pl owner=root group=0 mode=0755
+  ignore_errors: yes
+  #when: "'mysql' in group_names"
+  when: inventory_hostname == hostnameMysql and confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and pluginsPathNagiosNrpe|default("") != "" and checkPluginsPath|success 
+
+- name: Check /etc/hosts.allow file
+  shell: ( test -w /etc/hosts.allow && echo "OK" ) || echo ""
+  register: checkHostsAllow
+  changed_when: False
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success
+
+- name: Configure /etc/hosts.allow file
+  lineinfile: "name=/etc/hosts.allow state=present regexp='^nrpe: {{ item }}' line='nrpe: {{ item }}'"
+  with_items: "{{ hostvars[hostnameNagios]['ansible_all_ipv4_addresses'] }}"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and checkHostsAllow.stdout == "OK"
+
+- name: Add Nagios server to allowed_hosts in /etc/nagios/nrpe.cfg
+  shell: ((({{ path.grep }} '^allowed_hosts' {{ confFileNagiosNrpe }} | {{ path.grep }} "{{ item }}" -v >/dev/null 2>/dev/null && {{ path.sed }} -i "s@$({{ path.grep }} '^allowed_hosts' {{ confFileNagiosNrpe }} |head -1)@$({{ path.grep }} '^allowed_hosts' {{ confFileNagiosNrpe }} | head -1 | xargs),{{ item }}@g" {{ confFileNagiosNrpe }}) || (! ({{ path.grep }} '^allowed_hosts' {{ confFileNagiosNrpe }} >/dev/null 2>/dev/null) && echo "allowed_hosts={{ item }}" >> {{ confFileNagiosNrpe }})) && echo "Changed") || echo "No" executable={{ path.bash }}
+  with_items: "{{ hostvars[hostnameNagios]['ansible_all_ipv4_addresses'] }}"
+  register: allowedFile
+  changed_when: allowedFile.stdout == "Changed"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success
+
+- name: Create directory /etc/nagios/nrpe.d
+  file: path={{ confFileNagiosNrpe|dirname }}/nrpe.d state=directory follow=yes owner=root group=0 mode=0755
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success
+
+- name: Configure /etc/nagios/nrpe.cfg file with include_dir=/etc/nagios/nrpe.d/ 
+  lineinfile: name={{ confFileNagiosNrpe }} state=present regexp='^include_dir={{ confFileNagiosNrpe|dirname }}/nrpe.d/$' line='include_dir={{ confFileNagiosNrpe|dirname }}/nrpe.d/'
+  register: includeFile
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success
+
+- name: Copy ansible_errors_ansible.cfg to /etc/nagios/nrpe.d (hostAnsible)
+  copy: src=etc/nagios/nrpe.d/ansible_errors_ansible.cfg dest={{ confFileNagiosNrpe|dirname }}/nrpe.d/ansible_errors_ansible.cfg owner=root group=0 mode=0644
+  register: ansibleErrorsFile 
+  ignore_errors: yes
+  #when: "'ansible' in group_names"
+  when: inventory_hostname == hostnameAnsible and confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success
+
+- name: Copy mysql_errors_ansible.cfg to /etc/nagios/nrpe.d (hostMysql)
+  copy: src=etc/nagios/nrpe.d/mysql_errors_ansible.cfg dest={{ confFileNagiosNrpe|dirname }}/nrpe.d/mysql_errors_ansible.cfg owner=root group=0 mode=0644
+  register: mysqlErrorsFile
+  ignore_errors: yes
+  #when: "'mysql' in group_names"
+  when: inventory_hostname == hostnameMysql and confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success
+
+- name: Getting Service Name
+  shell: ( echo "{{ daemonNagiosNrpe }}"|{{ path.sed }} 's/.*\///' ) 2>/dev/null executable={{ path.bash }}
+  register: serviceName
+  changed_when: False
+  ignore_errors: yes
+  when: daemonNagiosNrpe|default("") != "" and not daemonNagiosNrpe.startswith('svc:')
+
+- name: Getting Open Port
+  shell: (((((echo {{ typeOS.stdout }}|grep -i 'BSD$') && ({{ path.netstat }} -an -p tcp|{{ path.grep }} tcp |{{ path.grep }} -v 'ESTABLISHED'|tr -s ' '|cut -d' ' -f4|{{ path.sed }} 's/^.*\\.//g'|{{ path.grep }} '5666')) || ((echo {{ typeOS.stdout }}|{{ path.grep }} -i '^SunOS$') && ({{ path.netstat }} -an -f inet -f inet6 -P tcp|tr '\t' ' '|tr -s ' '|{{ path.grep }} -i 'LISTEN'|{{ path.sed }} 's/^ *//g'|cut -d' ' -f1|{{ path.sed }} 's/^.*\\././g'|cut -d'.' -f2|cut -d' ' -f1|{{ path.grep }} '^[0-9]'|{{ path.grep }} '5666')) || ((echo {{ typeOS.stdout }}|{{ path.grep }} -iv 'BSD$'|{{ path.grep }} -iv '^SunOS$') && ({{ path.netstat }} -tln|{{ path.grep }} 'tcp'|{{ path.awk }} '{gsub(".*:","",$4);print $4}'|{{ path.grep }} '5666'))) >/dev/null && (echo 'open')) || (echo '')) 2>/dev/null executable={{ path.bash }}
+  register: portNagiosNrpe
+  changed_when: False
+  ignore_errors: yes
+  when: daemonNagiosNrpe|default("") != ""
+
+- name: Restart Nagios NRPE service
+  service: name={{ serviceName.stdout }} state=restarted enabled=yes
+  ignore_errors: yes
+  when: checkService.stdout == "True" and confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and serviceName.stdout|default("") != ""  and (not daemonNagiosNrpe.startswith('svc:')) and (allowedFile|changed or includeFile|changed or ansibleErrorsFile|changed or mysqlErrorsFile|changed or portNagiosNrpe.stdout|default("open") != "open" or (daemonNagiosNrpe|default("") == "xinetd" and (userXinetdNagiosNrpe|changed or groupXinetdNagiosNrpe|changed or onlyFromXinetdNagiosNrpe|changed))) 
+
+- name: Restart Nagios NRPE daemon with systemctl 
+  shell: '{{ path.systemctl }} restart {{ serviceName.stdout }}' 
+  ignore_errors: yes
+  when: checkSystemctl.stdout == "True" and confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and serviceName.stdout|default("") != ""  and (not daemonNagiosNrpe.startswith('svc:')) and (allowedFile|changed or includeFile|changed or ansibleErrorsFile|changed or mysqlErrorsFile|changed or portNagiosNrpe.stdout|default("open") != "open" or (daemonNagiosNrpe|default("") == "xinetd" and (userXinetdNagiosNrpe|changed or groupXinetdNagiosNrpe|changed or onlyFromXinetdNagiosNrpe|changed)))
+
+- name: Restart Nagios NRPE daemon
+  shell: '{{ daemonNagiosNrpe }} restart'
+  ignore_errors: yes
+  when: checkService.stdout != "True" and checkSystemctl.stdout != "True" and confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and daemonNagiosNrpe|default("") != "" and (not daemonNagiosNrpe.startswith('svc:')) and (allowedFile|changed or includeFile|changed or ansibleErrorsFile|changed or mysqlErrorsFile|changed or portNagiosNrpe.stdout|default("open") != "open" or (daemonNagiosNrpe|default("") == "xinetd" and (userXinetdNagiosNrpe|changed or groupXinetdNagiosNrpe|changed or onlyFromXinetdNagiosNrpe|changed)))
+
+- name: Restart Nagios NRPE daemon with SMF (Solaris)
+  shell: '{{ path.svcadm }} restart {{ daemonNagiosNrpe }}'
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and daemonNagiosNrpe.startswith('svc:') and (allowedFile|changed or includeFile|changed or ansibleErrorsFile|changed or mysqlErrorsFile|changed or portNagiosNrpe.stdout|default("open") != "open" or (daemonNagiosNrpe|default("") == "xinetd" and (userXinetdNagiosNrpe|changed or groupXinetdNagiosNrpe|changed or onlyFromXinetdNagiosNrpe|changed)))
+
+- name: Check TCP connection from Nagios Server to NRPE (TCP/5666)
+  shell: ((nmap -p 5666 {{ inventory_hostname }}|grep 5666|grep open) >/dev/null 2>/dev/null && echo "OK") || echo "no"
+  register: tcpconnNRPE
+  changed_when: False
+  ignore_errors: yes
+  delegate_to: "{{ hostnameNagios }}"
+
+- debug: 'msg="TCP connection: Nagios Server -> {{ inventory_hostname }}:5666 FAILED. Check port and firewall"'
+  when: tcpconnNRPE.stdout != "OK"
+
+- name: Check Connection to NRPE (with SSL or not)
+  shell: ((/usr/lib/nagios/plugins/check_nrpe -H {{ inventory_hostname }} || /usr/lib/nagios/plugins/check_nrpe -n -H {{ inventory_hostname }}) >/dev/null 2>/dev/null && echo "OK") || echo "no"
+  register: connNRPE
+  changed_when: False
+  ignore_errors: yes
+  delegate_to: "{{ hostnameNagios }}"
+  when: tcpconnNRPE.stdout == "OK"
+  
+- name: Error NRPE connection (Allow nrpe=ALL in /etc/hosts.allow)
+  lineinfile: "name=/etc/hosts.allow state=present regexp='^nrpe:ALL # EPSMS Check connection' line='nrpe:ALL # EPSMS Check connection'"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and checkHostsAllow.stdout == "OK" and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no"
+
+- name: Error NRPE connection (disable nrpe in xinetd)
+  shell: ((({{ path.grep }} 'disable' {{ xinetdNagiosNrpe.stdout }} |{{ path.grep }} $'^[ \t]*disable'|{{ path.grep }} -iv "yes" >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@$({{ path.grep }} 'disable' {{ xinetdNagiosNrpe.stdout }}|{{ path.grep }} $'^[ \t]*disable'|{{ path.grep }} -iv "yes")@\tdisable\t= yes@g" {{ xinetdNagiosNrpe.stdout }})) && echo "Changed") || echo "No" executable={{ path.bash }}
+  register: disableXinetdNagiosNrpe
+  changed_when: disableXinetdNagiosNrpe.stdout == "Changed"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and daemonNagiosNrpe|default("") == "xinetd" and xinetdNagiosNrpe.stdout|default("") != "" and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no"
+
+- name: Error NRPE connection (Check connection to NRPE)
+  shell: (/usr/lib/nagios/plugins/check_nrpe -H {{ inventory_hostname }} >/dev/null 2>/dev/null && echo "OK") || echo "no"
+  register: testNRPE
+  ignore_errors: yes
+  delegate_to: "{{ hostnameNagios }}"
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no"
+
+- name: Error NRPE connection (Watching logs for connection not allowed)
+  shell: "{{ path.grep }} -ih nrpe /var/log/*|{{ path.grep }} -i 'Host'|{{ path.grep }} -i 'is not allowed'|{{ path.grep }} -v 'grep'|{{ path.grep }} -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}'|sort|tail -1|{{ path.sed }} 's/.*Host //'|cut -d ' ' -f1 2>/dev/null executable={{ path.bash }}"
+  register: refusedIP
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no" and testNRPE is defined and testNRPE.stdout is defined and testNRPE.stdout == "no"
+
+- debug: msg="Found IP {{ refusedIP.stdout }} refused by Nagios-NRPE (probably Nagios server is doing NAT)"
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and checkHostsAllow.stdout == "OK" and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+- name: Error NRPE connection (enable nrpe in xinetd)
+  shell: ((({{ path.grep }} 'disable' {{ xinetdNagiosNrpe.stdout }} |{{ path.grep }} $'^[ \t]*disable'|{{ path.grep }} -iv "no" >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@$({{ path.grep }} 'disable' {{ xinetdNagiosNrpe.stdout }}|{{ path.grep }} $'^[ \t]*disable'|{{ path.grep }} -iv "no")@\tdisable\t= no@g" {{ xinetdNagiosNrpe.stdout }})) && echo "Changed") || echo "No" executable={{ path.bash }}
+  register: enableXinetdNagiosNrpe
+  changed_when: enableXinetdNagiosNrpe.stdout == "Changed"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and daemonNagiosNrpe|default("") == "xinetd" and xinetdNagiosNrpe.stdout|default("") != "" and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no" and disableXinetdNagiosNrpe is defined and disableXinetdNagiosNrpe.stdout == "Changed" 
+
+- name: Error NRPE connection (delete nrpe=ALL in /etc/hosts.allow)
+  lineinfile: "name=/etc/hosts.allow state=absent regexp='^nrpe:ALL # EPSMS Check connection'"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and checkHostsAllow.stdout == "OK" and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no"
+
+- name: Error NRPE connection (Configure /etc/hosts.allow file with refused IP)
+  lineinfile: "name=/etc/hosts.allow state=present regexp='^nrpe: {{ refusedIP.stdout }}' line='nrpe: {{ refusedIP.stdout }}'"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and checkHostsAllow.stdout == "OK" and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+- name: Error NRPE connection (Config nrpe in xinetd (only_from) with refused IP)
+  shell: (((({{ path.grep }} 'only_from' {{ xinetdNagiosNrpe.stdout }} |{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ refusedIP.stdout }} >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@$({{ path.grep }} 'only_from' {{ xinetdNagiosNrpe.stdout }}|{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ refusedIP.stdout }}|head -1)@$({{ path.grep }} 'only_from' {{ xinetdNagiosNrpe.stdout }}|{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ refusedIP.stdout }}|head -1) {{ refusedIP.stdout }}@g" {{ xinetdNagiosNrpe.stdout }})) || (! ({{ path.grep }} 'only_from' {{ xinetdNagiosNrpe.stdout }}|{{ path.grep }} $'^[ \t]*only_from' >/dev/null 2>/dev/null) && ({{ path.sed }} -i 's/}/\tonly_from \t\t= {{ refusedIP.stdout }}\n}/' {{ xinetdNagiosNrpe.stdout }}))) && echo "Changed") || echo "No" executable={{ path.bash }}
+  register: onlyFromXinetdNagiosNrpeRefused
+  changed_when: onlyFromXinetdNagiosNrpeRefused.stdout == "Changed"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and daemonNagiosNrpe|default("") == "xinetd" and xinetdNagiosNrpe.stdout|default("") != "" and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+- name: Error NRPE connection (Add refusedIP to allowed_hosts in /etc/nagios/nrpe.cfg)
+  shell: ((({{ path.grep }} '^allowed_hosts' {{ confFileNagiosNrpe }} | {{ path.grep }} "{{ refusedIP.stdout }}" -v >/dev/null 2>/dev/null && {{ path.sed }} -i "s@$({{ path.grep }} '^allowed_hosts' {{ confFileNagiosNrpe }} |head -1)@$({{ path.grep }} '^allowed_hosts' {{ confFileNagiosNrpe }} | head -1 | xargs),{{ refusedIP.stdout }}@g" {{ confFileNagiosNrpe }}) || (! ({{ path.grep }} '^allowed_hosts' {{ confFileNagiosNrpe }} >/dev/null 2>/dev/null) && echo "allowed_hosts={{ refusedIP.stdout }}" >> {{ confFileNagiosNrpe }})) && echo "Changed") || echo "No" executable={{ path.bash }}
+  register:  allowedFileRefused
+  changed_when: allowedFileRefused.stdout == "Changed"
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+- name: Error NRPE connection (Restart Nagios NRPE service)
+  service: name={{ serviceName.stdout }} state=restarted enabled=yes
+  ignore_errors: yes
+  when: checkService.stdout == "True" and confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and serviceName.stdout|default("") != ""  and (not daemonNagiosNrpe.startswith('svc:')) and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+- name: Error NRPE connection (Restart Nagios NRPE daemon with systemctl)
+  shell: '{{ path.systemctl }} restart {{ serviceName.stdout }}'
+  ignore_errors: yes
+  when: checkSystemctl.stdout == "True" and confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and serviceName.stdout|default("") != ""  and (not daemonNagiosNrpe.startswith('svc:')) and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+- name: Error NRPE connection (Restart Nagios NRPE daemon)
+  shell: '{{ daemonNagiosNrpe }} restart'
+  ignore_errors: yes
+  when: checkService.stdout != "True" and checkSystemctl.stdout != "True" and confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and daemonNagiosNrpe|default("") != "" and (not daemonNagiosNrpe.startswith('svc:')) and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+- name: Error NRPE connection (Restart Nagios NRPE daemon with SMF (Solaris))
+  shell: '{{ path.svcadm }} restart {{ daemonNagiosNrpe }}'
+  ignore_errors: yes
+  when: confFileNagiosNrpe|default("") != "" and checkNagiosNrpe|success and daemonNagiosNrpe.startswith('svc:') and connNRPE is defined and connNRPE.stdout is defined and connNRPE.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+

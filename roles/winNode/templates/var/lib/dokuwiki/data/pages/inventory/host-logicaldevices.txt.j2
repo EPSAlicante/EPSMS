@@ -1,0 +1,37 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Server {{ inventory_hostname }}: Logical Devices ====
+
+{% if hostvars[inventory_hostname]["LogicalDisk"] is defined -%}
+{% for device in hostvars[inventory_hostname]["LogicalDisk"]|sort -%}
+^  Device {{ device["deviceID"] }}  ^^ 
+^ Caption | {{ device["caption"] }} |
+^ Drive Type | {{ device["driveType"] }} | 
+^ File System | {{ device["fileSystem"] }} |
+^ Volume Name | {{ device["volumeName"] }} |
+^ Size | {{ "%s MB" % (device["size"]|int//1048576)|string if device["size"] != "" else "?" }} |
+^ Access | {{ device["access"] }} |
+^ Supports File Based Compression | {{ device["supportsFileBasedCompression"] }} |
+^ Compressed | {{ device["compressed"] }} |
+^ Supports Disk Quotas | {{ device["supportsDiskQuotas"] }} |
+^ Quotas Disabled | {{ device["quotasDisabled"] }} |
+^ Volume Serial Number | {{ device["volumeSerialNumber"] }} |
+^ Availability | {{ device["availability"] }} |
+^ Config Manager Error | {{ device["configManagerErrorCode"] }} |
+
+{% endfor %}
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

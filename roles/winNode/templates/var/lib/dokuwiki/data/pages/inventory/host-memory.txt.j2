@@ -1,0 +1,53 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Server {{ inventory_hostname }}: Memory ====
+
+^ Total Memory | {{ "%s MB" % (hostvars[inventory_hostname]["ComputerSystem"]["totalPhysicalMemory"]|int//1048576)|string if hostvars[inventory_hostname]["ComputerSystem"] is defined and hostvars[inventory_hostname]["ComputerSystem"]["totalPhysicalMemory"] != "" else "?" }} |
+
+{% if hostvars[inventory_hostname]["PhysicalMemoryArray"] is defined -%}
+{% for array in hostvars[inventory_hostname]["PhysicalMemoryArray"] -%}
+^  ARRAY: {{ array["tag"] }}  ^^
+^ Caption | {{ array["caption"] }} |
+^ Location | {{ array["location"] }} |
+^ Use | {{ array["use"] }} |
+^ Error Correction Type | {{ array["memoryErrorCorrection"] }} |
+^ Maximum Capacity | {{ "%s MB" % (array["maxCapacity"]|int//1024)|string if array["maxCapacity"] != "" else "?" }} |
+^ Number Of Devices | {{ array["memoryDevices"] }} |
+^ Hot Swappable | {{ array["hotSwappable"] }} |
+ 
+
+{% endfor %}
+{% endif %}
+
+
+{% if hostvars[inventory_hostname]["PhysicalMemory"] is defined -%}
+{% for slot in hostvars[inventory_hostname]["PhysicalMemory"] -%}
+^  SLOT: {{ slot["tag"] }}  ^^ 
+^ Caption | {{ slot["caption"] }} |
+^ Device Locator | {{ slot["deviceLocator"] }} |
+^ Position In Row | {{ slot["positionInRow"] }} |
+^ Form Factor | {{ slot["formFactor"] }} |
+^ Capacity | {{ "%s MB" % (slot["capacity"]|int//1048576)|string if slot["capacity"] != "" else "?" }} |
+^ Data Width | {{ "%s bits" % slot["dataWidth"] if slot["dataWidth"] != "" else "?" }} |
+^ Total Width | {{ "%s bits" % slot["totalWidth"] if slot["dataWidth"] != "" else "?" }} |
+^ Speed | {{ "%s ns" % slot["speed"] if slot["speed"] != "" else "?" }} |
+^ Type | {{ slot["memoryType"] }} |
+^ Manufacturer | {{ slot["manufacturer"] }} |
+^ Hot Swappable | {{ slot["hotSwappable"] }} |
+
+{% endfor %}
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

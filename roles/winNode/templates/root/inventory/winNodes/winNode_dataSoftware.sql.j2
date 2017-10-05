@@ -1,0 +1,293 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Software of {{ inventory_hostname }}
+
+
+{% if hostvars[inventory_hostname]["ComputerSystem"] is defined %}
+
+CHECK_SOFT_DOMAIN: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='WinDomain' AND Name='Domain' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["domain"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_DOMAIN: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='WinDomain' AND Name='Domain' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["domain"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_DOMAIN: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('WinDomain', 'Windows Domain', 1);
+
+INSERT_SOFT_DOMAIN: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'WinDomain', 'Domain', '{{ hostvars[inventory_hostname]["ComputerSystem"]["domain"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_PARTOFDOMAIN: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='WinDomain' AND Name='PartOfDomain' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["partOfDomain"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_PARTOFDOMAIN: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='WinDomain' AND Name='PartOfDomainr' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["partOfDomain"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_PARTOFDOMAIN: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('WinDomain', 'Windows Domain', 1);
+
+INSERT_SOFT_PARTOFDOMAIN: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'WinDomain', 'PartOfDomain', '{{ hostvars[inventory_hostname]["ComputerSystem"]["partOfDomain"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_WORKGROUP: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='WinDomain' AND Name='Workgroup' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["workgroup"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_WORKGROUP: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='WinDomain' AND Name='Workgroup' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["workgroup"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_WORKGROUP: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('WinDomain', 'Windows Domain', 1);
+
+INSERT_SOFT_WORKGROUP: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'WinDomain', 'Workgroup', '{{ hostvars[inventory_hostname]["ComputerSystem"]["workgroup"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_DOMAINROLE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='WinDomain' AND Name='DomainRole' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["domainRole"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_DOMAINROLE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='WinDomain' AND Name='DomainRole' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["domainRole"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_DOMAINROLE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('WinDomain', 'Windows Domain', 1);
+
+INSERT_SOFT_DOMAINROLE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'WinDomain', 'DomainRole', '{{ hostvars[inventory_hostname]["ComputerSystem"]["domainRole"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_CURRENTTIMEZONE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='TimeZone' AND Name='CurrentTimeZone' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["currentTimeZone"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_CURRENTTIMEZONE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='TimeZone' AND Name='CurrentTimeZone' AND Value='{{ hostvars[inventory_hostname]["ComputerSystem"]["currentTimeZone"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_CURRENTTIMEZONE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('TimeZone', 'Time Zone', 1);
+
+INSERT_SOFT_CURRENTTIMEZONE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'TimeZone', 'CurrentTimeZone', '{{ hostvars[inventory_hostname]["ComputerSystem"]["currentTimeZone"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+{% if hostvars[inventory_hostname]["OperatingSystem"] is defined %}
+
+CHECK_SOFT_OSNAME: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='OSName' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["name"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_OSNAME: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='OSName' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["name"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_OSNAME: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_OSNAME: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'OSName', '{{ hostvars[inventory_hostname]["OperatingSystem"]["name"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_OSDESCRIPTION: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='OSDescription' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["description"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_OSDESCRIPTION: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='OSDescription' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["description"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_OSDESCRIPTION: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_OSDESCRIPTION: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'OSDescription', '{{ hostvars[inventory_hostname]["OperatingSystem"]["description"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_BOOTDEVICE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='BootSystem' AND Name='BootDevice' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["bootDevice"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_BOOTDEVICE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='BootSystem' AND Name='BootDevice' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["bootDevice"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_BOOTDEVICE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('BootSystem', 'Boot System', 1);
+
+INSERT_SOFT_BOOTDEVICE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'BootSystem', 'BootDevice', '{{ hostvars[inventory_hostname]["OperatingSystem"]["bootDevice"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_SERVICEPACKVERSION: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='ServicePackVersion' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["servicePackMajorMinorVersion"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_SERVICEPACKVERSION: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='ServicePackVersion' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["servicePackMajorMinorVersion"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_SERVICEPACKVERSION: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_SERVICEPACKVERSION: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'ServicePackMajorMinorVersion', '{{ hostvars[inventory_hostname]["OperatingSystem"]["servicePackMajorMinorVersion"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_OSARCHITECTURE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Architecture' AND Name='OSArchitecture' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["OSArchitecture"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_OSARCHITECTURE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Architecture' AND Name='OSArchitecture' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["OSArchitecture"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_OSARCHITECTURE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Architecture', 'Architecture', 1);
+
+INSERT_SOFT_OSARCHITECTURE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'Architecture', 'OSArchitecture', '{{ hostvars[inventory_hostname]["OperatingSystem"]["OSArchitecture"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_OSTYPE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='OSType' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["OSType"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_OSTYPE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='OSType' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["OSType"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_OSTYPE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_OSTYPE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'OSType', '{{ hostvars[inventory_hostname]["OperatingSystem"]["OSType"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_PRODUCTTYPE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='ProductType' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["productType"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_PRODUCTTYPE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='ProductType' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["productType"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_PRODUCTTYPE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_PRODUCTTYPE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'ProductType', '{{ hostvars[inventory_hostname]["OperatingSystem"]["productType"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_VERSION: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='Version' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["version"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_VERSION: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='Version' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["version"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_VERSION: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_VERSION: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'Version', '{{ hostvars[inventory_hostname]["OperatingSystem"]["version"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_SERIALNUMBER: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='SerialNumber' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["serialNumber"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_SERIALNUMBER: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='SerialNumber' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["serialNumber"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_SERIALNUMBER: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_SERIALNUMBER: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'SerialNumber', '{{ hostvars[inventory_hostname]["OperatingSystem"]["serialNumber"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_COUNTRY: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='Country' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["countryCode"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_COUNTRY: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='Country' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["countryCode"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_COUNTRY: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_COUNTRY: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'Country', '{{ hostvars[inventory_hostname]["OperatingSystem"]["countryCode"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_LANGUAGE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='Language' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["OSLanguage"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_LANGUAGE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='Language' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["OSLanguage"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_LANGUAGE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_LANGUAGE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'Language', '{{ hostvars[inventory_hostname]["OperatingSystem"]["OSLanguage"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_PAEENABLED: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='PAEEnabled' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["PAEEnabled"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_PAEENABLED: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='PAEEnabled' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["PAEEnabled"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_PAEENABLED: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_PAEENABLED: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'PAEEnabled', '{{ hostvars[inventory_hostname]["OperatingSystem"]["PAEEnabled"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_MANUFACTURER: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='Manufacturer' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["manufacturer"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_MANUFACTURER: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='Manufacturer' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["manufacturer"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_MANUFACTURER: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_MANUFACTURER: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'Manufacturer', '{{ hostvars[inventory_hostname]["OperatingSystem"]["manufacturer"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_ENCRYPTIONLEVEL: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='EncryptionLevel' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["encryptionLevel"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_ENCRYPTIONLEVEL: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='EncryptionLevel' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["encryptionLevel"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_ENCRYPTIONLEVEL: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_ENCRYPTIONLEVEL: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'EncryptionLevel', '{{ hostvars[inventory_hostname]["OperatingSystem"]["encryptionLevel"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_NUMBEROFLICENSEDUSERS: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='NumberOfLicensedUsers' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["numberOfLicensedUsers"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_NUMBEROFLICENSEDUSERS: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='NumberOfLicensedUsers' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["numberOfLicensedUsers"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_NUMBEROFLICENSEDUSERS: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_NUMBEROFLICENSEDUSERS: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'NumberOfLicensedUsers', '{{ hostvars[inventory_hostname]["OperatingSystem"]["numberOfLicensedUsers"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_OPERATINGSYSTEMSKU: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='OperatingSystemSKU' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["operatingSystemSKU"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_OPERATINGSYSTEMSKU: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='OperatingSystemSKU' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["operatingSystemSKU"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_OPERATINGSYSTEMSKU: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_OPERATINGSYSTEMSKU: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'OperatingSystemSKU', '{{ hostvars[inventory_hostname]["OperatingSystem"]["operatingSystemSKU"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_ORGANIZATION: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='Organization' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["organization"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_ORGANIZATION: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='Organization' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["organization"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_ORGANIZATION: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_ORGANIZATION: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'Organization', '{{ hostvars[inventory_hostname]["OperatingSystem"]["organization"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_REGISTEREDUSER: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='RegisteredUser' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["registeredUser"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_REGISTEREDUSER: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='RegisteredUser' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["registeredUser"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_REGISTEREDUSER: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_REGISTEREDUSER: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'RegisteredUser', '{{ hostvars[inventory_hostname]["OperatingSystem"]["registeredUser"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_MAXNUMBEROFPROCESSES: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Processes' AND Name='MaxNumberOfProcesses' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["maxNumberOfProcesses"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_MAXNUMBEROFPROCESSES: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='MaxNumberOfProcesses' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["maxNumberOfProcesses"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_MAXNUMBEROFPROCESSES: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Processes', 'Processes', 1);
+
+INSERT_SOFT_MAXNUMBEROFPROCESSES: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'Processes', 'MaxNumberOfProcesses', '{{ hostvars[inventory_hostname]["OperatingSystem"]["maxNumberOfProcesses"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_MAXPROCESSMEMORYSIZE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Processes' AND Name='MaxProcessMemorySize' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["maxProcessMemorySize"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_MAXPROCESSMEMORYSIZE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Processes' AND Name='MaxProcessMemorySize' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["maxProcessMemorySize"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_MAXPROCESSMEMORYSIZE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Processes', 'Processes', 1);
+
+INSERT_SOFT_MAXPROCESSMEMORYSIZE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'Processes', 'MaxProcessMemorySize', '{{ hostvars[inventory_hostname]["OperatingSystem"]["maxProcessMemorySize"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_SYSTEMDEVICE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='SystemDevice' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["systemDevice"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_SYSTEMDEVICE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='SystemDevice' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["systemDevice"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_SYSTEMDEVICE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_SYSTEMDEVICE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'SystemDevice', '{{ hostvars[inventory_hostname]["OperatingSystem"]["systemDevice"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_SYSTEMDRIVE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='SystemDrive' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["systemDrive"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_SYSTEMDRIVE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='SystemDrive' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["systemDrive"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_SYSTEMDRIVE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_SYSTEMDRIVE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'SystemDrive', '{{ hostvars[inventory_hostname]["OperatingSystem"]["systemDrive"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_WINDOWSDIRECTORY: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='WindowsDirectory' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["windowsDirectory"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_WINDOWSDIRECTORY: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='WindowsDirectory' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["windowsDirectory"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_WINDOWSDIRECTORY: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_WINDOWSDIRECTORY: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'WindowsDirectory', '{{ hostvars[inventory_hostname]["OperatingSystem"]["windowsDirectory"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_SYSTEMDIRECTORY: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='SystemDirectory' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["systemDirectory"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_SYSTEMDIRECTORY: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='SystemDirectory' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["systemDirectory"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_SYSTEMDIRECTORY: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_SYSTEMDIRECTORY: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'SystemDirectory', '{{ hostvars[inventory_hostname]["OperatingSystem"]["systemDirectory"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_TOTALVISIBLEMEMORYSIZE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Memory' AND Name='TotalVisibleMemorySize' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["totalVisibleMemorySize"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_TOTALVISIBLEMEMORYSIZE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Memory' AND Name='TotalVisibleMemorySize' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["totalVisibleMemorySize"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_TOTALVISIBLEMEMORYSIZE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Memory', 'Memory', 1);
+
+INSERT_SOFT_TOTALVISIBLEMEMORYSIZE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'Memory', 'TotalVisibleMemorySize', '{{ hostvars[inventory_hostname]["OperatingSystem"]["totalVisibleMemorySize"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_TOTALSWAPSPACESIZE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Memory' AND Name='TotalSwapSpaceSize' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["totalSwapSpaceSize"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_TOTALSWAPSPACESIZE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Memory' AND Name='TotalSwapSpaceSize' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["totalSwapSpaceSize"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_TOTALSWAPSPACESIZE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Memory', 'Memory', 1);
+
+INSERT_SOFT_TOTALSWAPSPACESIZE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'Memory', 'TotalSwapSpaceSize', '{{ hostvars[inventory_hostname]["OperatingSystem"]["totalSwapSpaceSize"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_SIZESTOREDINPAGINGFILES: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Memory' AND Name='SizeStoredInPagingFiles' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["sizeStoredInPagingFiles"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_SIZESTOREDINPAGINGFILES: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Memory' AND Name='SizeStoredInPagingFiles' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["sizeStoredInPagingFiles"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_SIZESTOREDINPAGINGFILES: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Memory', 'Memory', 1);
+
+INSERT_SOFT_SIZESTOREDINPAGINGFILES: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'Memory', 'SizeStoredInPagingFiles', '{{ hostvars[inventory_hostname]["OperatingSystem"]["sizeStoredInPagingFiles"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_TOTALVIRTUALMEMORYSIZE: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='Memory' AND Name='TotalVirtualMemorySize' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["totalVirtualMemorySize"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_TOTALVIRTUALMEMORYSIZE: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='Memory' AND Name='TotalVirtualMemorySize' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["totalVirtualMemorySize"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_TOTALVIRTUALMEMORYSIZE: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('Memory', 'Memory', 1);
+
+INSERT_SOFT_TOTALVIRTUALMEMORYSIZE: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'Memory', 'TotalVirtualMemorySize', '{{ hostvars[inventory_hostname]["OperatingSystem"]["totalVirtualMemorySize"] }}', NOW(), NOW(), 1);
+
+CHECK_SOFT_DISTRIBUTED: SELECT * FROM Software WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='Distributed' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["distributed"] }}' AND Auto AND End IS NULL;
+
+UPDATE_SOFT_DISTRIBUTED: UPDATE Software SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND SoftType='OS' AND Name='Distributed' AND Value='{{ hostvars[inventory_hostname]["OperatingSystem"]["distributed"] }}' AND Auto AND End IS NULL;
+
+INSERT_SOFT_DISTRIBUTED: INSERT IGNORE INTO SoftwareType (Name, Descrip, Auto) VALUES ('OS', 'Operating System', 1);
+
+INSERT_SOFT_DISTRIBUTED: INSERT INTO Software (Server,SoftType,Name,Value,Init,Checked, Auto) VALUES ('{{ inventory_hostname }}', 'OS', 'Distributed', '{{ hostvars[inventory_hostname]["OperatingSystem"]["distributed"] }}', NOW(), NOW(), 1);
+
+{% endif %}
+
+
+END-CHECK_SOFTWARE: SELECT * from Software WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_SOFTWARE: UPDATE Software SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

@@ -1,0 +1,26 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Modules of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["module"] is defined %}
+
+{% for module in hostvars[inventory_hostname]["module"] -%}
+
+CHECK_MODULE_{{ module["name"] }}: SELECT * FROM Module WHERE Server='{{ inventory_hostname }}' AND Name='{{ module["name"] }}' AND FileName='{{ module["filename"] }}' AND Author='{{ module["author"] }}' AND Description='{{ module["description"] }}' AND License='{{ module["license"] }}' AND Version='{{ module["version"] }}' AND VerMagic='{{ module["vermagic"] }}' AND SrcVersion='{{ module["srcversion"] }}' AND Depends='{{ module["depends"]}}' AND Auto AND End IS NULL;
+
+UPDATE_MODULE_{{ module["name"] }}: UPDATE Module SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Name='{{ module["name"] }}' AND FileName='{{ module["filename"] }}' AND Author='{{ module["author"] }}' AND Description='{{ module["description"] }}' AND License='{{ module["license"] }}' AND Version='{{ module["version"] }}' AND VerMagic='{{ module["vermagic"] }}' AND SrcVersion='{{ module["srcversion"] }}' AND Depends='{{ module["depends"]}}' AND Auto AND End IS NULL;
+
+INSERT_MODULE_{{ module["name"] }}: INSERT INTO Module (Name,Server,FileName,Author,Description,License,Version,VerMagic,SrcVersion,Depends,Init,Checked,Auto) VALUES ('{{ module["name"] }}','{{ inventory_hostname }}', '{{ module["filename"] }}', '{{ module["author"] }}', '{{ module["description"] }}', '{{ module["license"] }}', '{{ module["version"] }}', '{{ module["vermagic"] }}', '{{ module["srcversion"] }}', '{{ module["depends"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_MODULE: SELECT * from Module WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_MODULE: UPDATE Module SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

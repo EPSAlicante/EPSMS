@@ -1,0 +1,122 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Install tools to get data from node
+
+- name: Getting Path Data from node
+  action: path_facts
+  register: pathFacts
+  changed_when: False
+  ignore_errors: yes
+  when: path is not defined
+
+- name: Get typeOS
+  shell: '{{ path.uname }} -s 2>/dev/null'
+  register: typeOS
+  changed_when: False
+  ignore_errors: yes
+
+- name: Getting Base Data from node
+  action: base_facts
+  register: baseFactsBase
+  changed_when: False
+  ignore_errors: yes
+  when: packageManager is not defined
+
+- name: Base Data
+  debug: msg=""
+  with_items:
+    - "Package Manager: '{{ packageManager|default(\"\") }}'"
+    - "Packages List (Base): {{ basePackages|default(\"\") }}"
+  ignore_errors: yes
+
+- name: Install required software to get Data (apt)
+  shell: DEBIAN_FRONTEND=noninteractive {{ path['apt-get'] }} -y --force-yes install {{ item }}
+  with_items: "{{ basePackages }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "apt" and basePackages != [] 
+
+- name: Install required software to get Data (conary) 
+  shell: 'out=`{{ path.conary }} update --resolve {{ item }} 2>&1`; ret=$?; echo "$out"; [ $ret -eq 0 ] || echo "$out"|{{ path.grep }} -iq "no new troves were found" executable={{ path.bash }}'
+  with_items: "{{ basePackages }}"
+  register: conaryOutput
+  changed_when: conaryOutput.stdout != "no new troves were found" 
+  ignore_errors: yes
+  when: packageManager|default("") == "conary" and basePackages != [] 
+
+- name: Install required software to get Data (emerge)
+  shell: '({{ path.equery }} -q list {{ item }} >/dev/null 2>&1 && echo "Installed") || {{ path.emerge }} {{ item }} executable={{ path.bash }}'
+  with_items: "{{ basePackages }}"
+  register: emergeOutput
+  changed_when: emergeOutput.stdout != "Installed"
+  ignore_errors: yes
+  when: packageManager|default("") == "emerge" and basePackages != [] 
+
+- name: Install required software to get Data (freebsd_pkg)
+  #shell: 'out=`{{ path.pkg }} install {{ item }} 2>&1`; ret=$?; echo "$out"; [ $ret -eq 0 ] || echo "$out"|{{ path.grep }} -iq "already installed" executable={{ path.bash }}'
+  package: name="{{ item }}" state="present"
+  with_items: "{{ basePackages }}"
+  #register: freebsdOutput
+  #changed_when: freebsdOutput.stdout != "already installed"
+  ignore_errors: yes
+  when: packageManager|default("") == "freebsd_pkg" and basePackages != [] 
+
+- name: Install required software to get Data (macports)
+  macports: name={{ item }} state=present
+  with_items: "{{ basePackages }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "macports" and basePackages != [] 
+
+- name: Install required software to get Data (openbsd_pkg)
+  openbsd_pkg: name={{ item }} state=present
+  with_items: "{{ basePackages }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "openbsd_pkg" and basePackages != [] 
+
+- name: Install required software to get Data (pacman)
+  pacman: name={{ item }} state=present update_cache=yes
+  with_items: "{{ basePackages }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "pacman" and basePackages != [] 
+
+- name: Install required software to get Data (pkgutil)
+  pkgutil: name={{ item }} state=present
+  with_items: "{{ basePackages }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "pkgutil" and basePackages != [] 
+
+- name: Install required software to get Data (slackpkg)
+  slackpkg: name={{ item }} state=present
+  with_items: "{{ basePackages }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "slackpkg" and basePackages != []
+
+- name: Install required software to get Data (pkgutil)
+  pkgutil: name={{ item }} state=present
+  with_items: "{{ basePackages }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "pkgutil" and basePackages != []
+
+- name: Install required software to get Data (yum)
+  yum: pkg={{ item }} state=installed
+  with_items: "{{ basePackages }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "yum" and basePackages != [] 
+
+- name: Install required software to get Data (zypper)
+  zypper: name={{ item }} state=present
+  with_items: "{{ basePackages }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "zypper" and basePackages != [] 
+
+- name: Getting Path Data from node Again
+  action: path_facts
+  register: pathFactsAgain
+  changed_when: False
+  ignore_errors: yes
+

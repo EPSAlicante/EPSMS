@@ -1,0 +1,64 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Server {{ inventory_hostname }}: Accounts ====
+
+{% if hostvars[inventory_hostname]["SystemAccount"] is defined -%}
+{% for account in hostvars[inventory_hostname]["SystemAccount"] -%}
+^  System Account {{ "%s\%s" % (account["domain"],account["name"]) }}  ^^ 
+^ Local Account | {{ account["localAccount"] }} |
+^ SID Type | {{ account["SIDType"] }} |
+^ SID | {{ account["SID"] }} |
+
+{% endfor %}
+{% endif %}
+
+{% if hostvars[inventory_hostname]["UserAccount"] is defined -%}
+{% for account in hostvars[inventory_hostname]["UserAccount"] -%}
+^  User Account {{ "%s\%s" % (account["domain"],account["name"]) }}  ^^
+^ Local Account | {{ account["localAccount"] }} |
+^ SID Type | {{ account["SIDType"] }} |
+^ SID | {{ account["SID"] }} |
+^ Account Type | {{ account["accountType"] }} |
+^ Disabled | {{ account["disabled"] }} |
+^ Lockout | {{ account["lockout"] }} |
+^ Full Name | {{ account["fullName"] }} |
+^ Password Changeable | {{ account["passwordChangeable"] }} |
+^ Password Expires | {{ account["passwordExpires"] }} |
+^ Password Required | {{ account["passwordRequired"] }} |
+
+{% endfor %}
+{% endif %}
+
+{% if hostvars[inventory_hostname]["Group"] is defined -%}
+{% for group in hostvars[inventory_hostname]["Group"] -%}
+^  Group {{ "%s\%s" % (group["domain"],group["name"]) }}  ^^
+^ Local Group | {{ group["localAccount"] }} |
+^ SID Type | {{ group["SIDType"] }} |
+^ SID | {{ group["SID"] }} |
+{% if hostvars[inventory_hostname]["GroupUser"] is defined -%}
+^  Accounts  ^^
+{% for groupuser in hostvars[inventory_hostname]["GroupUser"] -%}
+{% if groupuser["groupDomain"] == group["domain"] and groupuser["groupName"] == group["name"] -%}
+|  {{ "%s\%s" % (groupuser["userDomain"],groupuser["userName"]) }}  || 
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

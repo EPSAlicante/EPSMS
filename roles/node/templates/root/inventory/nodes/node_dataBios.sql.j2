@@ -1,0 +1,30 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Bios of {{ inventory_hostname }}
+
+{% if hostvars[inventory_hostname]["bios"] is defined %}
+
+{% if hostvars[inventory_hostname]["bios"]["Characteristics"] is defined %}
+
+{% for kbios, vbios in hostvars[inventory_hostname]["bios"]["Characteristics"].iteritems() -%}
+
+CHECK_BIOS_{{ loop.index }}: SELECT * FROM Bios WHERE Server='{{ inventory_hostname }}' AND Characteristic='{{ kbios|e }}' AND Value='{{ vbios|e }}' AND Auto AND End IS NULL;
+
+UPDATE_BIOS_{{ loop.index }}: UPDATE Bios SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Characteristic='{{ kbios|e }}' AND Value='{{ vbios|e }}' AND Auto AND End IS NULL; 
+
+INSERT_BIOS_{{ loop.index }}: INSERT INTO Bios (Characteristic,Server,Value,Init,Checked,Auto) VALUES ('{{ kbios|e }}','{{ inventory_hostname }}', '{{ vbios|e }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+{% endif %}
+
+
+END-CHECK_BIOS: SELECT * from Bios WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_BIOS: UPDATE Bios SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';

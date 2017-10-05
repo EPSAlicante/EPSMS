@@ -1,0 +1,87 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Update Wiki with data  
+
+- name: Getting Data servers (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="network" query="select Name as name, Domain as domain, IP, if(Node='0', 'outsider', if(Node='1', 'node', 'winNode')) as type from Server where End is null and Auto order by Name"
+  delegate_to: "{{ hostMysql }}"
+
+- name: Getting Last 100 changes in host (node or outsider) (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="{{ item.name }}-last" query="Select Init as Date, End, Checked, Node from Server where Binary Name='{{ item.name|lower }}' and Auto order by Init desc limit 100"
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostMysql }}"
+  when: network is defined
+
+- name: Getting Openvas Data (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="{{ item.name }}-openvas" query="Select StartScan as Date, CVSS, Severity, TotalHigh, TotalMedium, TotalLow, TotalLog, TotalFalsePositive, DATE_FORMAT(StartScan, '%y%m%d%H%i%s') as DateString from OpenvasHost where Binary Server='{{ item.name|lower }}' and Auto order by StartScan desc limit 100"
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostMysql }}"
+  when: network is defined
+
+- name: Getting historical servers (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="servers-hist" query="SELECT S.Name as name, S.Domain as domain, S.IP, IF(MAX(S.node) = '1', 'node', IF(MAX(S.node) = '2', 'winNode', 'outsider')) as type, MAX(S.End) as date, IFNULL(O.severity,'') as severity, IFNULL(O.CVSS,'') as CVSS, IFNULL(O.StartScan,'') as scanDate FROM Server as S left join OpenvasHost as O on S.Name=O.Server WHERE S.End is not null and S.Auto and S.Name NOT IN (Select Name from Server where End is null) and (O.StartScan is null or O.StartScan IN (Select MAX(StartScan) from OpenvasHost where Server=S.Name)) group by S.Name, S.Domain, S.IP order by S.Name"
+  delegate_to: "{{ hostMysql }}"
+
+- name: Getting Munin information about hosts (in Munin Server)
+  shell: ((grep -q "^\[{{ item.name }}\]$" /etc/munin/conf.d/* && grep -q ";{{ item.name }}:" /var/lib/munin/datafile && echo "{{ item.name }}") || echo "No") 2>/dev/null executable=/bin/bash
+  with_items: "{{ network }}"
+  register: muninName
+  ignore_errors: yes  
+  delegate_to: "{{ hostMunin }}"
+  when: network is defined
+
+- name: Getting Grafana dashsboards (in Grafana Server)
+  shell: '((curl -k -X GET https://admin:{{ passwdAdmin }}@localhost:3000/api/dashboards/db/eps-ms-{{ item.name|replace(".","-") }}|grep "\"slug\":\"eps-ms-{{ item.name|replace(".","-") }}\"") >/dev/null 2>/dev/null && echo "{{ item.name }}") || echo "" executable="/bin/bash"'
+  with_items: "{{ network }}"
+  register: grafanaName
+  ignore_errors: yes
+  delegate_to: "{{ hostGrafana }}"
+  when: network is defined
+
+- name: Copy servers pages (in Wiki Server)
+  template: src=var/lib/dokuwiki/data/pages/inventory/{{ item }}.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ item }}.txt.tmp owner=root group=root mode=0644
+  with_items:
+    - servers
+    - servers-nodes
+    - servers-winnodes
+    - servers-outsiders
+    - servers-hist
+  delegate_to: "{{ hostWeb }}"
+
+- name: Commit changes of servers pages & update (in Wiki Server)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ item }}.txt.tmp inventory:{{ item }}) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ item }}.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ item }}.* || true)
+  with_items:
+    - servers
+    - servers-nodes
+    - servers-winnodes
+    - servers-outsiders
+    - servers-hist
+  delegate_to: "{{ hostWeb }}"
+
+- name: Copy host-openvas.txt (in Wiki Master)
+  template: src=var/lib/dokuwiki/data/pages/inventory/host-openvas.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ item.name|lower }}-openvas.txt.tmp owner=root group=root mode=0644
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostWeb }}"
+  when: network is defined
+
+- name: Commit changes of host-openvas.txt & update (in Wiki Server)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ item.name|lower }}-openvas.txt.tmp inventory:{{ item.name|lower }}-openvas) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ item.name|lower }}-openvas.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ item.name|lower }}-openvas.* || true)
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostWeb }}"
+  when: network is defined
+
+- name: Get userApache in Web Server
+  shell: stat -c "%U" /var/lib/dokuwiki/data executable=/bin/bash
+  register: userApacheServer
+  delegate_to: "{{ hostWeb }}"
+
+- name: Change owner of /var/lib/dokuwiki/data to userApache
+  shell: chown -R {{ userApacheServer.stdout }} /var/lib/dokuwiki/data executable=/bin/bash
+  delegate_to: "{{ hostWeb }}"
+

@@ -1,0 +1,37 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Crontab Configuration (delete entries) 
+
+- name: Delete ansible.yml task from crontab file
+  cron: name="ansible.yml" state=absent 
+
+- name: Delete outsiders.yml task from crontab file
+  cron: name="outsiders.yml-dataDB" state=absent 
+
+- name: Delete openvas.yml task from crontab file
+  cron: name="openvas.yml-dataDB" state=absent
+
+- name: Delete openvas.yml (special Groups) task from crontab file
+  cron: name="openvas.yml-dataDB-special" state=absent
+
+- name: Delete openvas.yml (Database Update) task from crontab file
+  cron: name="openvas.yml-update" state=absent
+
+- name: Delete nodes.yml (dataDB) task from crontab file
+  cron: name="nodes.yml-dataDB" state=absent 
+
+- name: Delete nodes.yml (dataPackagesDB) task from crontab file
+  cron: name="nodes.yml-dataPackagesDB" state=absent
+
+- name: Delete nodes.yml (dataExesDB) task from crontab file
+  cron: name="nodes.yml-dataExesDB" state=absent
+
+- name: Delete winNodes.yml task from crontab file
+  cron: name="winNodes.yml" state=absent
+  when: winNodes == "y"

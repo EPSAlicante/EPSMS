@@ -1,0 +1,78 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Ansible server configuration 
+
+- name: Enlazar /[pathAnsibleLibrary]/path_facts -> /[pathAnsible]/scripts/path_facts.py
+  file: path={{ pathAnsibleLibrary }}/path_facts state=link src={{ pathAnsible }}/scripts/path_facts.py force=yes
+
+- name: Enlazar /[pathAnsibleLibrary]/base_facts -> /[pathAnsible]/scripts/base_facts.py
+  file: path={{ pathAnsibleLibrary }}/base_facts state=link src={{ pathAnsible }}/scripts/base_facts.py force=yes
+
+- name: Enlazar /[pathAnsibleLibrary]/site_facts -> /[pathAnsible]/scripts/site_facts.py
+  file: path={{ pathAnsibleLibrary }}/site_facts state=link src={{ pathAnsible }}/scripts/site_facts.py force=yes
+
+- name: Enlazar /[pathAnsibleLibrary]/site_factsPackages -> /[pathAnsible]/scripts/site_facts.packages.py
+  file: path={{ pathAnsibleLibrary }}/site_factsPackages state=link src={{ pathAnsible }}/scripts/site_facts.packages.py force=yes
+
+- name: Enlazar /[pathAnsibleLibrary]/site_factsExes -> /[pathAnsible]/scripts/site_facts.exes.py
+  file: path={{ pathAnsibleLibrary }}/site_factsExes state=link src={{ pathAnsible }}/scripts/site_facts.exes.py force=yes
+
+- name: Enlazar /[pathAnsibleLibrary]/win_facts -> /[pathAnsible]/scripts/win_facts.py
+  file: path={{ pathAnsibleLibrary }}/win_facts state=link src={{ pathAnsible }}/scripts/win_facts.py force=yes
+
+- name: Enlazar /[pathAnsibleLibrary]/net_facts -> /[pathAnsible]/scripts/net_facts.py
+  file: path={{ pathAnsibleLibrary }}/net_facts state=link src={{ pathAnsible }}/scripts/net_facts.py force=yes
+
+- name: Enlazar /[pathAnsibleLibrary]/openvas_facts -> /[pathAnsible]/scripts/openvas_facts.py
+  file: path={{ pathAnsibleLibrary }}/openvas_facts state=link src={{ pathAnsible }}/scripts/openvas_facts.py force=yes
+
+- name: Enlazar /[pathAnsibleLibrary]/db_facts -> /[pathAnsible]/scripts/db_facts.py
+  file: path={{ pathAnsibleLibrary }}/db_facts state=link src={{ pathAnsible }}/scripts/db_facts.py force=yes
+
+- name: Create directory /var/log/ansible
+  file: path=/var/log/ansible owner=root group=root mode=0755 state=directory
+
+- name: Config ansible.cfg (retry_files_enabled)
+  lineinfile: name={{ pathAnsible }}/ansible.cfg state=present regexp='^retry_files_enabled = False' insertafter='\[defaults\]' line='retry_files_enabled = False'
+
+- name: Config ansible.cfg (host_key_checking)
+  lineinfile: name={{ pathAnsible }}/ansible.cfg state=present regexp='^host_key_checking = False' insertbefore='host_key_checking' line='host_key_checking = False'
+
+- name: Config ansible.cfg (sudo_flags)
+  lineinfile: name={{ pathAnsible }}/ansible.cfg state=present regexp='^sudo_flags' insertbefore='sudo_flags' line='sudo_flags = -H'
+
+- name: Config ansible.cfg (scp_if_ssh)
+  lineinfile: name={{ pathAnsible }}/ansible.cfg state=present regexp='^scp_if_ssh = True' insertbefore='scp_if_ssh' line='scp_if_ssh = True'
+
+- name: Find mod_args.py file
+  shell: find /usr/lib/python*/site-packages/ansible/parsing/mod_args.py|head -1 executable=/bin/bash
+  register: fileModArgs
+  changed_when: False
+  ignore_errors: yes 
+
+- name: Add 'win_facts' in mod_args.py
+  lineinfile: name={{ fileModArgs.stdout }} state=present regexp='win_facts' insertafter='^RAW_PARAM_MODULES' line='    \'win_facts\','
+  when: fileModArgs.stdout|default("") != ""
+
+- name: Add 'db_facts' in mod_args.py
+  lineinfile: name={{ fileModArgs.stdout }} state=present regexp='db_facts' insertafter='^RAW_PARAM_MODULES' line='    \'db_facts\',' 
+  when: fileModArgs.stdout|default("") != ""
+
+- name: Find facts.py file
+  shell: find /usr/lib/python*/site-packages/ansible/module_utils/facts.py|head -1 executable=/bin/bash
+  register: fileFactsLib
+  changed_when: False
+  ignore_errors: yes
+
+- name: Change facts.py (uptime_seconds)
+  shell: "((grep \"self\\.facts\\['uptime_seconds'\\] = int(float(out\\.split('\\\\\\t')\\[1\\]\\.split(',')\\[0\\]))\" {{ fileFactsLib.stdout }} >/dev/null 2>/dev/null && echo 'OK') || (sed -i \"s/self\\.facts\\['uptime_seconds'\\] = int(float(out\\.split('\\\\\\t')\\[1\\]))/self\\.facts\\['uptime_seconds'\\] = int(float(out\\.split('\\\\\\t')\\[1\\]\\.split(',')\\[0\\]))/\" {{ fileFactsLib.stdout }} >/dev/null 2>/dev/null && echo 'Changed')) executable=/bin/bash" 
+  register: changeFacts
+  changed_when: changeFacts.stdout == "Changed"
+  when: fileFactsLib.stdout|default("") != ""
+

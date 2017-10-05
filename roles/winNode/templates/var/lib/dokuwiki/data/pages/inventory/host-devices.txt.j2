@@ -1,0 +1,69 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Server {{ inventory_hostname }}: Devices ====
+
+{% if hostvars[inventory_hostname]["DiskDrive"] is defined -%}
+{% for device in hostvars[inventory_hostname]["DiskDrive"]|sort -%}
+^  Device {{ device["deviceID"] }}  ^^ 
+^ Caption | {{ device["caption"] }} |
+^ Media Type | {{ device["mediaType"] }} | 
+^ Interface Type | {{ device["interfaceType"] }} |
+{% if device["interfaceType"] == "SCSI" -%}
+^ SCSI Bus | {{ device["SCSIBus"] }} |
+^ SCSI Port | {{ device["SCSIPort"] }} |
+^ SCSI Target ID | {{ device["SCSITargetID"] }} |
+^ SCSI Logical Unit | {{ device["SCSILogicalUnit"] }} |
+{% endif %}
+^ Model | {{ device["model"] }} |
+^ Size | {{ "%s MB" % (device["size"]|int//1048576)|string if device["size"] != "" else "?" }} |
+^ Total Heads | {{ device["totalHeads"] }} |
+^ Total Cylinders | {{ device["totalCylinders"] }} |
+^ Tracks Per Cylinder | {{ device["tracksPerCylinder"] }} |
+^ Total Tracks | {{ device["totalTracks"] }} |
+^ Sectors Per Track | {{ device["sectorsPerTrack"] }} |
+^ Total Sectors | {{ device["totalSectors"] }} |
+^ Bytes Per Sector | {{ device["bytesPerSector"] }} |
+^ Default Block Size | {{ device["defaultBlockSize"] }} |
+^ Serial Number | {{ device["serialNumber"] }} |
+^ Availability | {{ device["availability"] }} |
+^ Config Manager Error | {{ device["configManagerErrorCode"] }} |
+^ Partitions | {{ device["partitions"] }} |
+{% if hostvars[inventory_hostname]["DiskDriveToDiskPartition"] is defined -%}
+{% for drivePart in hostvars[inventory_hostname]["DiskDriveToDiskPartition"] -%}
+{% if hostvars[inventory_hostname]["DiskPartition"] is defined -%}
+{% for part in hostvars[inventory_hostname]["DiskPartition"] -%}
+{% if device["deviceID"] == drivePart["diskDeviceID"] and drivePart["partitionDeviceID"] == part["deviceID"] -%}
+
+^  Partition {{ part["deviceID"] }}  ^^
+^ Type | {{ part["type"] }} |
+^ Caption | {{ part["caption"] }} |
+^ Block Size | {{ part["blockSize"] }} |
+^ Number Of Blocks | {{ part["numberOfBlocks"] }} |
+^ Size | {{ "%s MB" % (part["size"]|int//1048576)|string if part["size"] != "" else "?" }} |
+^ Access | {{ part["access"] }} |
+^ Availability | {{ part["availability"] }} |
+^ Primary Partition | {{ part["primaryPartition"] }} |
+^ Bootable | {{ part["bootable"] }} |
+^ Boot Partition | {{ part["bootPartition"] }} |
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

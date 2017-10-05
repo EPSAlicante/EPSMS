@@ -1,0 +1,21 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Host {{ inventory_hostname }}: Packages ====
+
+^  Packages  ^^
+^ Package Manager | {{ "%s" % hostvars[inventory_hostname]["ansible_pkg_mgr"] if hostvars[inventory_hostname]["ansible_pkg_mgr"] is defined else "?" }} |
+^ Total List | [[{{ inventory_hostname }}-packagestotal | {{ "%s" % hostvars[inventory_hostname]["packages"]|count if hostvars[inventory_hostname]["packages"] is defined else "?" }} packages ]] |
+^ Last Installed (100) | [[ {{ inventory_hostname }}-packageslast | Last: {% for i in hostvars[inventory_hostname]["packageslast"] -%}{% if loop.first -%}{{ "%s (%s) %s" % (i.Name,i.Version,i.Date) }}{% endif -%}{% endfor -%} ]] |
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

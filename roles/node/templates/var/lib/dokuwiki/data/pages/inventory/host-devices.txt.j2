@@ -1,0 +1,34 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Host {{ inventory_hostname }}: Devices ====
+
+{% if hostvars[inventory_hostname]["ansible_devices"] is defined -%}
+{% for device in hostvars[inventory_hostname]["ansible_devices"]|sort -%}
+^  Device {{ device }}  ^^ 
+^ Model | {{ hostvars[inventory_hostname]['ansible_devices'][device]['model'] if hostvars[inventory_hostname]['ansible_devices'][device] is defined and hostvars[inventory_hostname]['ansible_devices'][device]['partitions'] is defined else "" }} |
+^ Host | {{ hostvars[inventory_hostname]['ansible_devices'][device]['host'] if hostvars[inventory_hostname]['ansible_devices'][device] is defined and hostvars[inventory_hostname]['ansible_devices'][device]['host'] is defined else "" }} |
+^ Scheduler | {{ hostvars[inventory_hostname]['ansible_devices'][device]['scheduler_mode'] if hostvars[inventory_hostname]['ansible_devices'][device] is defined and hostvars[inventory_hostname]['ansible_devices'][device]['scheduler_mode'] is defined else "" }} |
+^ Size | {{ hostvars[inventory_hostname]['ansible_devices'][device]['size'] if hostvars[inventory_hostname]['ansible_devices'][device] is defined and hostvars[inventory_hostname]['ansible_devices'][device]['size'] is defined else "" }} |
+^ Vendor | {{ hostvars[inventory_hostname]['ansible_devices'][device]['vendor'] if hostvars[inventory_hostname]['ansible_devices'][device] is defined and hostvars[inventory_hostname]['ansible_devices'][device]['vendor'] is defined else "" }} |
+{% if hostvars[inventory_hostname]['ansible_devices'][device] is defined and hostvars[inventory_hostname]["ansible_devices"][device]['partitions'] is defined -%}
+{% for partition in hostvars[inventory_hostname]['ansible_devices'][device]['partitions']|sort -%}
+^ {{ "Partitions" if loop.index==1 else ":::" }} | {{ partition }} ({{ hostvars[inventory_hostname]['ansible_devices'][device]['partitions'][partition]['size'] if hostvars[inventory_hostname]['ansible_devices'][device]['partitions'][partition]['size'] is defined else "" }}) |
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

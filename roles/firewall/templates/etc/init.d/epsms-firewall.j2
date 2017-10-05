@@ -1,0 +1,417 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          epsms-firewall 
+# Required-Start:    $all 
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start epsms-firewall
+### END INIT INFO
+
+# Made by EPS Monitoring System
+
+Error()
+{
+  echo "IPTables error"
+  #exit $1
+}
+
+IPTABLES=/sbin/iptables
+
+case "$1" in
+    start)
+	echo "Starting epsms-firewall (adding ipTables rules)..."
+        
+{% if inventory_hostname == hostnameWeb or inventory_hostname == hostnameMunin or inventory_hostname == hostnameNagios %}
+	### Apache HTTPS Allow ###
+	# Localhost
+        ($IPTABLES -A INPUT -p tcp -s 127.0.0.1 --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d 127.0.0.1 --sport 443 -j ACCEPT) || Error $?
+	# Ansible Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostAnsible }} --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostAnsible }} --sport 443 -j ACCEPT) || Error $?
+{%  if hostNagios != hostAnsible %}
+        # Nagios Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostNagios }} --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostNagios }} --sport 443 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if hostMunin != hostAnsible and hostMunin != hostNagios %}
+        # Munin Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostMunin }} --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostMunin }} --sport 443 -j ACCEPT) || Error $?
+{%  endif %}
+	# Admin user
+{%  if hostsAdmins|count > 0 %}
+{%   for host in hostsAdmins %} 
+	($IPTABLES -A INPUT -p tcp -s {{ host }} --dport 443 -j ACCEPT) || Error $? 
+	($IPTABLES -A OUTPUT -p tcp -d {{ host }} --sport 443 -j ACCEPT) || Error $? 
+{%   endfor %}
+{%  else %}
+        ($IPTABLES -A INPUT -p tcp --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp --sport 443 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if readUser != "" %}
+	# Read user
+{%   if hostsReadUser is defined and hostsReadUser|count > 0 %}
+{%    for host in hostsReadUser %}
+        ($IPTABLES -A INPUT -p tcp -s {{ host }} --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ host }} --sport 443 -j ACCEPT) || Error $?
+{%    endfor %}
+{%   else %}
+        ($IPTABLES -A INPUT -p tcp --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp --sport 443 -j ACCEPT) || Error $?
+{%   endif %}
+{%  endif %}
+	# Apache HTTPS Deny
+        ($IPTABLES -A INPUT -p tcp --dport 443 -j DROP) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp --sport 443 -j DROP) || Error $?
+{% endif %}
+
+{% if inventory_hostname == hostnameMysql %}
+        ### Mysql Allow ###
+	# Localhost
+        ($IPTABLES -A INPUT -p tcp -s 127.0.0.1 --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d 127.0.0.1 --sport 3306 -j ACCEPT) || Error $?
+        # Ansible Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostAnsible }} --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostAnsible }} --sport 3306 -j ACCEPT) || Error $?
+{%  if hostNagios != hostAnsible %}
+        # Nagios Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostNagios }} --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostNagios }} --sport 3306 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if hostMunin != hostAnsible and hostMunin != hostNagios %}
+        # Munin Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostMunin }} --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostMunin }} --sport 3306 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if hostnameMysql != hostnameWeb %}
+        # Web Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostWeb }} --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostWeb }} --sport 3306 -j ACCEPT) || Error $?
+{%  endif %}
+	# Admin user
+{%  if hostsAdmins|count > 0 %}
+{%   for host in hostsAdmins %}
+        ($IPTABLES -A INPUT -p tcp -s {{ host }} --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ host }} --sport 3306 -j ACCEPT) || Error $?
+{%   endfor %}
+{%  else %}
+        ($IPTABLES -A INPUT -p tcp --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp --sport 3306 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if readUser != "" %}
+        # Read user
+{%   if hostsReadUser is defined and hostsReadUser|count > 0 %}
+{%    for host in hostsReadUser %}
+        ($IPTABLES -A INPUT -p tcp -s {{ host }} --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ host }} --sport 3306 -j ACCEPT) || Error $?
+{%    endfor %}
+{%   else %}
+        ($IPTABLES -A INPUT -p tcp --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp --sport 3306 -j ACCEPT) || Error $?
+{%   endif %}
+{%  endif %}
+        # Mysql Deny 
+        ($IPTABLES -A INPUT -p tcp --dport 3306 -j DROP) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp --sport 3306 -j DROP) || Error $?
+{% endif %}
+
+{% if inventory_hostname == hostnameGrafana %}
+        ### Grafana & InfluxDB Allow ###
+	# Localhost
+        ($IPTABLES -A INPUT -p tcp -s 127.0.0.1 -m multiport --dport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d 127.0.0.1 -m multiport --sport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        # Ansible Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostAnsible }} -m multiport --dport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostAnsible }} -m multiport --sport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+{%  if hostNagios != hostAnsible %}
+        # Nagios Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostNagios }} -m multiport --dport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostNagios }} -m multiport --sport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if hostMunin != hostAnsible and hostMunin != hostNagios %}
+        # Munin Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostMunin }} -m multiport --dport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostMunin }} -m multiport --sport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+{%  endif %}
+	# Admin user
+{%  if hostsAdmins|count > 0 %}
+{%   for host in hostsAdmins %}
+        ($IPTABLES -A INPUT -p tcp -s {{ host }} -m multiport --dports 3000,8083,8086,8088 -j ACCEPT) || Error $? 
+        ($IPTABLES -A OUTPUT -p tcp -d {{ host }} -m multiport --sports 3000,8083,8086,8088 -j ACCEPT) || Error $?     
+{%   endfor %}
+{%  else %}
+        ($IPTABLES -A INPUT -p tcp -m multiport --dports 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -m multiport --sports 3000,8083,8086,8088 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if readUser != "" %}
+	# Read user
+{%   if hostsReadUser is defined and hostsReadUser|count > 0 %}
+{%    for host in hostsReadUser %}
+        ($IPTABLES -A INPUT -p tcp -s {{ host }} -m multiport --dports 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ host }} -m multiport --sports 3000,8083,8086,8088 -j ACCEPT) || Error $?
+{%    endfor %}
+{%   else %}
+        ($IPTABLES -A INPUT -p tcp -m multiport --dports 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -m multiport --sports 3000,8083,8086,8088 -j ACCEPT) || Error $?
+{%   endif %}
+{%  endif %}
+        # Grafana & InfluxDB Deny 
+        ($IPTABLES -A INPUT -p tcp -m multiport --dports 3000,8083,8086,8088 -j DROP) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -m multiport --sports 3000,8083,8086,8088 -j DROP) || Error $?
+{% endif %}
+
+{% if inventory_hostname == hostnameOpenvas %}
+        # Openvas Allow
+	# Localhost
+        ($IPTABLES -A INPUT -p tcp -s 127.0.0.1 -m multiport --dport 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d 127.0.0.1 -m multiport --sport 9390,9391,9392 -j ACCEPT) || Error $?
+        # Ansible Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostAnsible }} -m multiport --dport 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostAnsible }} -m multiport --sport 9390,9391,9392 -j ACCEPT) || Error $?
+{%  if hostNagios != hostAnsible %}
+        # Nagios Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostNagios }} -m multiport --dport 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostNagios }} -m multiport --sport 9390,9391,9392 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if hostMunin != hostAnsible and hostMunin != hostNagios %}
+        # Munin Server
+        ($IPTABLES -A INPUT -p tcp -s {{ hostMunin }} -m multiport --dport 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ hostMunin }} -m multiport --sport 9390,9391,9392 -j ACCEPT) || Error $?
+{%  endif %}
+	# Admin user
+{%  if hostsAdmins|count > 0 %}
+{%   for host in hostsAdmins %}
+        ($IPTABLES -A INPUT -p tcp -s {{ host }} -m multiport --dports 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ host }} -m multiport --sports 9390,9391,9392 -j ACCEPT) || Error $?
+{%   endfor %}
+{%  else %}
+        ($IPTABLES -A INPUT -p tcp -m multiport --dports 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -m multiport --sports 9390,9391,9392 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if readUser != "" %}
+        # Read user
+{%   if hostsReadUser is defined and hostsReadUser|count > 0 %}
+{%    for host in hostsReadUser %}
+        ($IPTABLES -A INPUT -p tcp -s {{ host }} -m multiport --dports 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -d {{ host }} -m multiport --sports 9390,9391,9392 -j ACCEPT) || Error $?
+{%    endfor %}
+{%   else %}
+        ($IPTABLES -A INPUT -p tcp -m multiport --dports 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -m multiport --sports 9390,9391,9392 -j ACCEPT) || Error $?
+{%   endif %}
+{%  endif %}
+        # Openvas Deny
+        ($IPTABLES -A INPUT -p tcp -m multiport --dports 9390,9391,9392 -j DROP) || Error $?
+        ($IPTABLES -A OUTPUT -p tcp -m multiport --sports 9390,9391,9392 -j DROP) || Error $?
+{% endif %}
+        ;;
+
+    stop)
+        echo "Stopping epsms-firewall (deleting ipTables rules)..." 
+
+{% if inventory_hostname == hostnameWeb or inventory_hostname == hostnameMunin or inventory_hostname == hostnameNagios %}
+	### Apache HTTPS Allow ###
+	# Localhost
+        ($IPTABLES -D INPUT -p tcp -s 127.0.0.1 --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d 127.0.0.1 --sport 443 -j ACCEPT) || Error $?
+        # Ansible Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostAnsible }} --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostAnsible }} --sport 443 -j ACCEPT) || Error $?
+{%  if hostNagios != hostAnsible %}
+        # Nagios Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostNagios }} --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostNagios }} --sport 443 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if hostMunin != hostAnsible and hostMunin != hostNagios %}
+        # Munin Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostMunin }} --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostMunin }} --sport 443 -j ACCEPT) || Error $?
+{%  endif %}
+	# Admin user
+{%  if hostsAdmins|count > 0 %}
+{%   for host in hostsAdmins %} 
+	($IPTABLES -D INPUT -p tcp -s {{ host }} --dport 443 -j ACCEPT) || Error $? 
+	($IPTABLES -D OUTPUT -p tcp -d {{ host }} --sport 443 -j ACCEPT) || Error $? 
+{%   endfor %}
+{%  else %}
+        ($IPTABLES -D INPUT -p tcp --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp --sport 443 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if readUser != "" %}
+	# Read user
+{%   if hostsReadUser is defined and hostsReadUser|count > 0 %}
+{%    for host in hostsReadUser %}
+        ($IPTABLES -D INPUT -p tcp -s {{ host }} --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ host }} --sport 443 -j ACCEPT) || Error $?
+{%    endfor %}
+{%   else %}
+        ($IPTABLES -D INPUT -p tcp --dport 443 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp --sport 443 -j ACCEPT) || Error $?
+{%   endif %}
+{%  endif %}
+	# Apache HTTPS Deny
+        ($IPTABLES -D INPUT -p tcp --dport 443 -j DROP) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp --sport 443 -j DROP) || Error $?
+{% endif %}
+
+{% if inventory_hostname == hostnameMysql %}
+        ### Mysql Allow ###
+	# Localhost
+        ($IPTABLES -D INPUT -p tcp -s 127.0.0.1 --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d 127.0.0.1 --sport 3306 -j ACCEPT) || Error $?
+        # Ansible Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostAnsible }} --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostAnsible }} --sport 3306 -j ACCEPT) || Error $?
+{%  if hostNagios != hostAnsible %}
+        # Nagios Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostNagios }} --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostNagios }} --sport 3306 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if hostMunin != hostAnsible and hostMunin != hostNagios %}
+        # Munin Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostMunin }} --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostMunin }} --sport 3306 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if hostnameMysql != hostnameWeb %}
+        # Web Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostWeb }} --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostWeb }} --sport 3306 -j ACCEPT) || Error $?
+{%  endif %}
+	# Admin user
+{%  if hostsAdmins|count > 0 %}
+{%   for host in hostsAdmins %}
+        ($IPTABLES -D INPUT -p tcp -s {{ host }} --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ host }} --sport 3306 -j ACCEPT) || Error $?
+{%   endfor %}
+{%  else %}
+        ($IPTABLES -D INPUT -p tcp --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp --sport 3306 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if readUser != "" %}
+        # Read user
+{%   if hostsReadUser is defined and hostsReadUser|count > 0 %}
+{%    for host in hostsReadUser %}
+        ($IPTABLES -D INPUT -p tcp -s {{ host }} --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ host }} --sport 3306 -j ACCEPT) || Error $?
+{%    endfor %}
+{%   else %}
+        ($IPTABLES -D INPUT -p tcp --dport 3306 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp --sport 3306 -j ACCEPT) || Error $?
+{%   endif %}
+{%  endif %}
+        # Mysql Deny 
+        ($IPTABLES -D INPUT -p tcp --dport 3306 -j DROP) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp --sport 3306 -j DROP) || Error $?
+{% endif %}
+
+{% if inventory_hostname == hostnameGrafana %}
+        ### Grafana & InfluxDB Allow ###
+	# Localhost
+        ($IPTABLES -D INPUT -p tcp -s 127.0.0.1 -m multiport --dport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d 127.0.0.1 -m multiport --sport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        # Ansible Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostAnsible }} -m multiport --dport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostAnsible }} -m multiport --sport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+{%  if hostNagios != hostAnsible %}
+        # Nagios Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostNagios }} -m multiport --dport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostNagios }} -m multiport --sport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if hostMunin != hostAnsible and hostMunin != hostNagios %}
+        # Munin Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostMunin }} -m multiport --dport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostMunin }} -m multiport --sport 3000,8083,8086,8088 -j ACCEPT) || Error $?
+{%  endif %}
+	# Admin user
+{%  if hostsAdmins|count > 0 %}
+{%   for host in hostsAdmins %}
+        ($IPTABLES -D INPUT -p tcp -s {{ host }} -m multiport --dports 3000,8083,8086,8088 -j ACCEPT) || Error $? 
+        ($IPTABLES -D OUTPUT -p tcp -d {{ host }} -m multiport --sports 3000,8083,8086,8088 -j ACCEPT) || Error $?     
+{%   endfor %}
+{%  else %}
+        ($IPTABLES -D INPUT -p tcp -m multiport --dports 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -m multiport --sports 3000,8083,8086,8088 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if readUser != "" %}
+	# Read user
+{%   if hostsReadUser is defined and hostsReadUser|count > 0 %}
+{%    for host in hostsReadUser %}
+        ($IPTABLES -D INPUT -p tcp -s {{ host }} -m multiport --dports 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ host }} -m multiport --sports 3000,8083,8086,8088 -j ACCEPT) || Error $?
+{%    endfor %}
+{%   else %}
+        ($IPTABLES -D INPUT -p tcp -m multiport --dports 3000,8083,8086,8088 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -m multiport --sports 3000,8083,8086,8088 -j ACCEPT) || Error $?
+{%   endif %}
+{%  endif %}
+        # Grafana & InfluxDB Deny 
+        ($IPTABLES -D INPUT -p tcp -m multiport --dports 3000,8083,8086,8088 -j DROP) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -m multiport --sports 3000,8083,8086,8088 -j DROP) || Error $?
+{% endif %}
+
+{% if inventory_hostname == hostnameOpenvas %}
+        # Openvas Allow
+	# Localhost
+        ($IPTABLES -D INPUT -p tcp -s 127.0.0.1 -m multiport --dport 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d 127.0.0.1 -m multiport --sport 9390,9391,9392 -j ACCEPT) || Error $?
+        # Ansible Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostAnsible }} -m multiport --dport 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostAnsible }} -m multiport --sport 9390,9391,9392 -j ACCEPT) || Error $?
+{%  if hostNagios != hostAnsible %}
+        # Nagios Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostNagios }} -m multiport --dport 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostNagios }} -m multiport --sport 9390,9391,9392 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if hostMunin != hostAnsible and hostMunin != hostNagios %}
+        # Munin Server
+        ($IPTABLES -D INPUT -p tcp -s {{ hostMunin }} -m multiport --dport 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ hostMunin }} -m multiport --sport 9390,9391,9392 -j ACCEPT) || Error $?
+{%  endif %}
+	# Admin user
+{%  if hostsAdmins|count > 0 %}
+{%   for host in hostsAdmins %}
+        ($IPTABLES -D INPUT -p tcp -s {{ host }} -m multiport --dports 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ host }} -m multiport --sports 9390,9391,9392 -j ACCEPT) || Error $?
+{%   endfor %}
+{%  else %}
+        ($IPTABLES -D INPUT -p tcp -m multiport --dports 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -m multiport --sports 9390,9391,9392 -j ACCEPT) || Error $?
+{%  endif %}
+{%  if readUser != "" %}
+        # Read user
+{%   if hostsReadUser is defined and hostsReadUser|count > 0 %}
+{%    for host in hostsReadUser %}
+        ($IPTABLES -D INPUT -p tcp -s {{ host }} -m multiport --dports 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -d {{ host }} -m multiport --sports 9390,9391,9392 -j ACCEPT) || Error $?
+{%    endfor %}
+{%   else %}
+        ($IPTABLES -D INPUT -p tcp -m multiport --dports 9390,9391,9392 -j ACCEPT) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -m multiport --sports 9390,9391,9392 -j ACCEPT) || Error $?
+{%  endif %}
+{% endif %}
+        # Openvas Deny
+        ($IPTABLES -D INPUT -p tcp -m multiport --dports 9390,9391,9392 -j DROP) || Error $?
+        ($IPTABLES -D OUTPUT -p tcp -m multiport --sports 9390,9391,9392 -j DROP) || Error $?
+{% endif %}
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    *)
+        echo "Uso: /etc/init.d/epsms-firewall {start|stop|restart}" 
+        exit 1
+        ;;
+esac
+
+exit 0

@@ -1,0 +1,31 @@
+---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# EPSMS Firewall (IPTables) Configuration
+
+- name: Copy epsms-firewall to /etc/init.d/.epsms-firewall
+  template: src=etc/init.d/epsms-firewall.j2 dest=/etc/init.d/epsms-firewall owner=root group=root mode=0755
+  register: configFirewall 
+  when: ansible_pkg_mgr == "yum"
+
+- name: Active epsms-firewall in chkconfig
+  shell: (chkconfig epsms-firewall on) > /dev/null 2> /dev/null executable="/bin/bash"
+  when: configFirewall|changed
+
+- name: Stop epsms-firewall (old version)
+  shell: ([ -f /etc/init.d/.epsms-firewall.old ] && /etc/init.d/.epsms-firewall.old stop 2>/dev/null) || echo "No firewall" executable=/bin/bash 
+  when: configFirewall|changed
+
+- name: Start epsms-firewall (new version)
+  shell: /etc/init.d/epsms-firewall start executable=/bin/bash
+  when: configFirewall|changed
+
+- name: Backup epsms-firewall
+  shell: cp -f /etc/init.d/epsms-firewall /etc/init.d/.epsms-firewall.old
+  when: configFirewall|changed
+

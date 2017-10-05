@@ -1,0 +1,32 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Host {{ inventory_hostname }}: Bios ====
+
+{% if hostvars[inventory_hostname]["bios"] is defined -%}
+^ Vendor | {{ "%s" % hostvars[inventory_hostname]["bios"]["Vendor"] if hostvars[inventory_hostname]["bios"]["Vendor"] is defined else " " }} | 
+^ Release Date | {{ "%s" % hostvars[inventory_hostname]["bios"]["Release Date"] if hostvars[inventory_hostname]["bios"]["Release Date"] is defined else " " }} |
+^ Version | {{ "%s" % hostvars[inventory_hostname]["bios"]["Version"] if hostvars[inventory_hostname]["bios"]["Version"] is defined else " " }} |
+^ ROM Size | {{ "%s" % hostvars[inventory_hostname]["bios"]["ROM Size"] if hostvars[inventory_hostname]["bios"]["ROM Size"] is defined else " " }} |
+^ Runtime Size | {{ "%s" % hostvars[inventory_hostname]["bios"]["Runtime Size"] if hostvars[inventory_hostname]["bios"]["Runtime Size"] is defined else " " }} |
+
+{% if hostvars[inventory_hostname]["bios"]["Characteristics"] is defined -%}
+^  Characteristics  ^^
+{% for char, value in hostvars[inventory_hostname]["bios"]["Characteristics"].iteritems() -%}
+^ {{ char|e }} | {{ value|e }} |
+{% endfor %}
+{% endif %}
+{% endif %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+

@@ -1,0 +1,27 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Processors of {{ inventory_hostname }}
+
+
+{% if hostvars[inventory_hostname]["Processor"] is defined %}
+
+{% for proc in hostvars[inventory_hostname]["Processor"] -%}
+
+CHECK_PROCESSOR_{{ loop.index }}: SELECT * FROM WinProcessor WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ proc["deviceID"] }}' AND Name='{{ proc["name"] }}' AND Caption='{{ proc["caption"] }}' AND ConfigManagerErrorCode='{{ proc["configManagerErrorCode"] }}' AND CPUStatus='{{ proc["CPUStatus"] }}' AND CurrentClockSpeed='{{ proc["currentClockSpeed"] }}' AND DataWidth='{{ proc["dataWidth"] }}' AND Family='{{ proc["family"] }}' AND L2CacheSize='{{ proc["L2CacheSize"] }}' AND L2CacheSpeed='{{ proc["L2CacheSpeed"] }}' AND L3CacheSize='{{ proc["L3CacheSize"] }}' AND L3CacheSpeed='{{ proc["L3CacheSpeed"] }}' AND Manufacturer='{{ proc["manufacturer"] }}' AND MaxClockSpeed='{{ proc["maxClockSpeed"] }}' AND NumberOfCores='{{ proc["numberOfCores"] }}' AND NumberOfLogicalProcessors='{{ proc["numberOfLogicalProcessors"] }}' AND ProcessorID='{{ proc["processorID"] }}' AND ProcessorType='{{ proc["processorType"] }}' AND Auto AND End IS NULL;
+
+UPDATE_PROCESSOR_{{ loop.index }}: UPDATE WinProcessor SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND DeviceID='{{ proc["deviceID"] }}' AND Name='{{ proc["name"] }}' AND Caption='{{ proc["caption"] }}' AND ConfigManagerErrorCode='{{ proc["configManagerErrorCode"] }}' AND CPUStatus='{{ proc["CPUStatus"] }}' AND CurrentClockSpeed='{{ proc["currentClockSpeed"] }}' AND DataWidth='{{ proc["dataWidth"] }}' AND Family='{{ proc["family"] }}' AND L2CacheSize='{{ proc["L2CacheSize"] }}' AND L2CacheSpeed='{{ proc["L2CacheSpeed"] }}' AND L3CacheSize='{{ proc["L3CacheSize"] }}' AND L3CacheSpeed='{{ proc["L3CacheSpeed"] }}' AND Manufacturer='{{ proc["manufacturer"] }}' AND MaxClockSpeed='{{ proc["maxClockSpeed"] }}' AND NumberOfCores='{{ proc["numberOfCores"] }}' AND NumberOfLogicalProcessors='{{ proc["numberOfLogicalProcessors"] }}' AND ProcessorID='{{ proc["processorID"] }}' AND ProcessorType='{{ proc["processorType"] }}' AND Auto AND End IS NULL; 
+
+INSERT_PROCESSOR_{{ loop.index }}: INSERT INTO WinProcessor (DeviceID,Server,Name,Caption,ConfigManagerErrorCode,CPUStatus,CurrentClockSpeed,DataWidth,Family,L2CacheSize,L2CacheSpeed,L3CacheSize,L3CacheSpeed,Manufacturer,MaxClockSpeed,NumberOfCores,NumberOfLogicalProcessors,ProcessorID,ProcessorType,Init,Checked,Auto) VALUES ('{{ proc["deviceID"] }}','{{ inventory_hostname }}', '{{ proc["name"] }}', '{{ proc["caption"] }}', '{{ proc["configManagerErrorCode"] }}', '{{ proc["CPUStatus"] }}', '{{ proc["currentClockSpeed"] }}', '{{ proc["dataWidth"] }}', '{{ proc["family"] }}', '{{ proc["L2CacheSize"] }}', '{{ proc["L2CacheSpeed"] }}', '{{ proc["L3CacheSize"] }}', '{{ proc["L3CacheSpeed"] }}', '{{ proc["manufacturer"] }}', '{{ proc["maxClockSpeed"] }}', '{{ proc["numberOfCores"] }}', '{{ proc["numberOfLogicalProcessors"] }}', '{{ proc["processorID"] }}', '{{ proc["processorType"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_PROCESSOR: SELECT * from WinProcessor WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_PROCESSOR: UPDATE WinProcessor SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
