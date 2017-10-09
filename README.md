@@ -3,10 +3,10 @@
 ## Table of contents
 - [Introduction](#introduction)
 - [Infrastructure provided](#infrastructure-provided)
-- [Installation & configuration](#installation-configuration)
+- [Installation & configuration](#installation-and-configuration)
 - [Internal Working](#internal-working)
 - [Information collected](#information-collected)
-- [Copyright & License](#copyright-license)
+- [Copyright & License](#copyright-and-license)
 
 
 ## Introduction
@@ -34,10 +34,12 @@ Basically, 'EPS MS' **provide us**:
  - A [**PhpMyAdmin**](https://www.phpmyadmin.net) server to manage graphically data stored in Mysql database.
  - Some **Web applications** (made with [**PHP**](https://php.net) and [**angularjs**](https://angularjs.org)) to analize information in a customized way.
  - A [**Rest**](https://en.wikipedia.org/wiki/Representational_state_transfer) API to access data (used by angularjs application)
+ - An [**InfluxDB**](https://www.influxdata.com) database to store time-series data from munin and nagios.
+ -  A full-featured interactive dashboard ([**Grafana**](http://grafana.org)) to analyze influxdb information. 
  - A security monitoring system as [**Openvas**](http://www.openvas.org) to scan host's vulnerabilites.
 
  
-## Installation & configuration
+## Installation and configuration
 
 OK, I want to try this software. But, how much time do I have to spend? Just a few minutes. These are the steps to **install and configure**:
 
@@ -51,13 +53,13 @@ OK, I want to try this software. But, how much time do I have to spend? Just a f
 
 	- User to connect to Linux/Unix hosts (connection by SSH without password, using public keys and sudo)
 	- User/password to connect to Windows hosts (connection by WMI 'Windows Management Instrumentation')
-	- IP addresses of Nagios, Munin, Mysql, Web (Dokuwiki, PhpMyAdmin and web Apps) and Openvas servers to install software (they have to be CentOS 6)
+	- IP addresses of Nagios, Munin, Mysql, Web (Dokuwiki, PhpMyAdmin and web Apps), Grafana and Openvas servers to install software (they have to be CentOS 6)
 	- Networks to monitor, collecting information of hosts inside them
-	- Admin password of Servers: Nagios, Munin, Mysql, Web (Dokuwiki, PhpMyAdmin and web Apps) and Openvas
+	- Admin password of Servers: Nagios, Munin, Mysql, Web (Dokuwiki, PhpMyAdmin and web Apps), Grafana and Openvas
 	- IP addresses of administrators hosts (access permission to servers)
 	- Frequencies to check servers (server's software installation and a correct configuration) and hosts (client's software installation, correct configuration and data collecting of hardware, software and security information from them)
 
-5. After infrastructure's deployment , 'EPS MS' starts **collecting information** from hosts indefinitely. Results can be analyzed from 'https://hostnameWebServer' with links to Nagios, Munin, Wiki, Mysql (phpMyAdmin), web (PHP & AngularJS) Apps, InfluxDB, Grafana , Openvas and Help.
+5. After infrastructure's deployment , 'EPS MS' starts **collecting information** from hosts indefinitely. Results can be analyzed from 'https://hostnameWebServer' with links to Nagios, Munin, Wiki, Mysql (phpMyAdmin), web (PHP & AngularJS) Apps, InfluxDB, Grafana, Openvas and Help.
 
 
 ## Internal working
@@ -95,7 +97,7 @@ What kind of **information** do we'll get?
 | **Security (Windows)** | **Servers**: Name, IP, Node.	**TCP/UDP Ports (inside Scan)**: Protocol, Port, IP4, Bind IP4, IP6, Bind IP6, Process.	**TCP Ports (outside scan)**: Protocol, Port.	**Users**: Domain, Name, System Account, Caption, Account Type, Disabled, Full Name, Local Account, Lockout, Password Changeable, Password Expires, Password RequiredSID, SID Type.	**Groups**: Name, GID, Users.	**For Every User**: User.	**Drivers**: Name, Caption, Error Control, Path Name, Service Type, Start Mode, State, Tag ID.	**Services**: Name, Caption, Error Control, Path Name, Process ID, Start Mode, State, Tag ID.	**Shares**: Name, Caption, Path Share, Type Share.	**Openvas**: IP, Start Scan, CVSS, Total High, Total Medium, Total Low, Total Log, Total False Positive. |
 
 
-## Copyright & License
+## Copyright and License
 
 The source code packaged with this file is Free Software, Copyright (C) 2016 by Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: `<`epsms at eps.ua.es`>`.
 It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. You can get copies of the licenses here: http://www.affero.org/oagpl.html AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
