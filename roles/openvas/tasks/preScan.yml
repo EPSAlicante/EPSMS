@@ -30,7 +30,7 @@
   ignore_errors: yes
   changed_when: False
   delegate_to: "{{ hostAnsible }}"
-  when: (item.Name not in excludeServersListOpenvas and (specialGroupOpenvas == "n" or item.Name not in specialServersListOpenvas)) or (serversListDefined is defined and serversListDefined.stdout == "Yes")
+  when: (item.Name not in excludeServersListOpenvas and (specialGroupOpenvas == "n" or item.Name not in specialServersListOpenvas)) or (serversListDefined is defined and serversListDefined.stdout is defined and serversListDefined.stdout == "Yes")
 
 - name: Check omp (OpenVas Management Protocol)
   shell: (omp -u admin -w {{ passwdAdmin }} -g > /dev/null && echo "OK") || echo "No" executable=/bin/bash
