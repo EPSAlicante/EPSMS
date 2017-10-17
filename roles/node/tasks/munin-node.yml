@@ -109,7 +109,7 @@
   when: packageManager|default("") == "slackpkg" and packageMuninNode != []
 
 - name: Be sure munin-node is installed (yum)
-  yum: pkg={{ item }} enablerepo={{ labelEpel }} state=installed
+  yum: pkg={{ item }} enablerepo={{ labelEpel|default("epel") }} state=installed
   with_items: "{{ packageMuninNode }}"
   ignore_errors: yes
   when: packageManager|default("") == "yum" and packageMuninNode != [] 
