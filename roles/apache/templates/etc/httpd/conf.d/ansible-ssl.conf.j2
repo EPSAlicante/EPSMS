@@ -16,7 +16,7 @@ SSLCipherSuite HIGH:!ADH:!RC4:!3DES
 SSLCertificateFile /etc/ssl/ansible/ansible-server.crt
 SSLCertificateKeyFile /etc/ssl/ansible/ansible-server.key
 
-ServerAdmin root@{{ ansible_domain }}
+ServerAdmin root@{{ ansible_domain|default("localdomain") }}
 ServerSignature Off
 
 TraceEnable Off

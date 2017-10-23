@@ -6,6 +6,6 @@
  */
 
 $conf['usernameregex'] = '.+';
-$conf['emaildomain']   = '{{ ansible_domain }}';
+$conf['emaildomain']   = '{{ ansible_domain|default("localdomain") }}';
 $conf['specialusers']  = 'admin';
 $conf['specialgroup']  = 'admin';

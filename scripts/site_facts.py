@@ -1911,69 +1911,74 @@ def show_interfaces():
 	  active = subprocess.Popen("(%s address show dev %s|%s -v '^\t'|%s -v '^ '|%s -v '^$'|%s -v FS='(<|>)' '{print $2}'|%s ',UP,'|%s 's/^.*,UP,.*$/UP/g') 2>%s" % (path('ip'), device, grep, grep, grep, awk, grep, sed, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
 
 	# Looking for aliases
+	totalAliases = 0
 	if typeOS() != "SunOS" and not typeOS().endswith("BSD"):
-	  totalAliases = subprocess.Popen("(%s address show dev %s|%s 'inet '|%s ' secondary '|%s 's/^.* secondary //'|wc -l) 2>%s" % (path('ip'), device, grep, grep, sed, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()	
+	  try:
+	    totalAliases = int(subprocess.Popen("(%s address show dev %s|%s 'inet '|%s ' secondary '|%s 's/^.* secondary //'|wc -l) 2>%s" % (path('ip'), device, grep, grep, sed, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip())
+	  except:
+	    totalAliases = 0
 
-	  if totalAliases > 0:
-	    dataAliases = subprocess.Popen("(%s address show dev %s|%s 'inet '|%s ' secondary '|%s 's/^.* secondary //') 2>%s" % (path('ip'), device, grep, grep, sed, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
-
-	    countAliases = 1
-      	    for lineAlias in dataAliases.stdout.readlines():
-	      alias = lineAlias.strip()
-	      addressAlias = subprocess.Popen("(%s address show dev %s|%s 'inet '|%s ' secondary %s'|%s 's/^.*inet //'|cut -d' ' -f1|cut -d'/' -f1) 2>%s" % (path('ip'), device, grep, grep, alias, sed, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
-              cidrAlias = subprocess.Popen("(%s address show dev %s|%s 'inet '|%s ' secondary %s'|%s 's/^.*inet //'|cut -d' ' -f1|cut -d'/' -f2) 2>%s" % (path('ip'), device, grep, grep, alias, sed, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
-              if cidrAlias != "":
-                netmaskAlias = cidr2netmask(cidrAlias)
-              else:
-                netmaskAlias = ""
-
-              # If netmask in Hex, convert to decimal
-              if isHex(netmaskAlias):
-                if netmaskAlias.startswith('0x'):
-                  netmaskAliasHex = netmaskAlias.replace('0x','')
-                else:
-                  netmaskAliasHex = netmaskAlias
-
-                netmaskAliasBytes = ["".join(x) for x in zip(*[iter(netmaskAliasHex)]*2)]
-                netmaskAliasBytes = [int(x, 16) for x in netmaskAliasBytes]
-                netmaskAlias = ".".join(str(x) for x in netmaskAliasBytes)
-
-              if addressAlias != "" and netmaskAlias != "":
-                addressAliasArray = addressAlias.split('.')
-                netmaskAliasArray = netmaskAlias.split('.')
-                networkAliasArray = [str(int(addressAliasArray[x]) & int(netmaskAliasArray[x])) for x in range(0,4)]
-                networkAlias = '.'.join(networkAliasArray)
-
-              else:
-          	networkAlias = ""
-
-
-              print "      {"
-              print "        \"device\": \"%s\"," % (alias)
-              print "        \"address\": \"%s\"," % (addressAlias)
-              print "        \"namedns\": \"%s\"," % (("",socket.getfqdn(addressAlias).lower()) [ addressAlias != "" ])
-              print "        \"netmask\": \"%s\"," % (netmaskAlias)
-              print "        \"network\": \"%s\"," % (networkAlias)
-              print "        \"macaddress\": \"%s\"," % (macaddress)
-              print "        \"mtu\": \"%s\"," % (("0",mtu) [ mtu != "" ])
-              print "        \"type\": \"%s\"," % (type)
-              print "        \"active\": %s" % (("false","true") [ active == "RUNNING" or active == "UP" ])
-              print "      }%s" % (("",",") [ countData < totalInterfaces ])
-              countAliases += 1
-
-
-	# Print device
+        # Print device
         print "      {"
         print "        \"device\": \"%s\"," % (device)
         print "        \"address\": \"%s\"," % (address)
         print "        \"namedns\": \"%s\"," % (("",socket.getfqdn(address).lower()) [ address != "" ])
-	print "        \"netmask\": \"%s\"," % (netmask)
+        print "        \"netmask\": \"%s\"," % (netmask)
         print "        \"network\": \"%s\"," % (network)
-	print "        \"macaddress\": \"%s\"," % (macaddress)
-	print "        \"mtu\": \"%s\"," % (("0",mtu) [ mtu != "" ])
-	print "        \"type\": \"%s\"," % (type)
+        print "        \"macaddress\": \"%s\"," % (macaddress)
+        print "        \"mtu\": \"%s\"," % (("0",mtu) [ mtu != "" ])
+        print "        \"type\": \"%s\"," % (type)
         print "        \"active\": %s" % (("false","true") [ active == "RUNNING" or active == "UP" ])
-	print "      }%s" % (("",",") [ countData < totalInterfaces ])
+        print "      }%s" % (("",",") [ (countData < totalInterfaces) or (totalAliases > 0) ])
+
+
+	if totalAliases > 0:
+	  dataAliases = subprocess.Popen("(%s address show dev %s|%s 'inet '|%s ' secondary '|%s 's/^.* secondary //') 2>%s" % (path('ip'), device, grep, grep, sed, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
+
+	  countAliases = 1
+      	  for lineAlias in dataAliases.stdout.readlines():
+	    alias = lineAlias.strip()
+	    addressAlias = subprocess.Popen("(%s address show dev %s|%s 'inet '|%s ' secondary %s'|%s 's/^.*inet //'|cut -d' ' -f1|cut -d'/' -f1) 2>%s" % (path('ip'), device, grep, grep, alias, sed, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+            cidrAlias = subprocess.Popen("(%s address show dev %s|%s 'inet '|%s ' secondary %s'|%s 's/^.*inet //'|cut -d' ' -f1|cut -d'/' -f2) 2>%s" % (path('ip'), device, grep, grep, alias, sed, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+            if cidrAlias != "":
+              netmaskAlias = cidr2netmask(cidrAlias)
+            else:
+              netmaskAlias = ""
+
+            # If netmask in Hex, convert to decimal
+            if isHex(netmaskAlias):
+              if netmaskAlias.startswith('0x'):
+                netmaskAliasHex = netmaskAlias.replace('0x','')
+              else:
+                netmaskAliasHex = netmaskAlias
+
+              netmaskAliasBytes = ["".join(x) for x in zip(*[iter(netmaskAliasHex)]*2)]
+              netmaskAliasBytes = [int(x, 16) for x in netmaskAliasBytes]
+              netmaskAlias = ".".join(str(x) for x in netmaskAliasBytes)
+
+            if addressAlias != "" and netmaskAlias != "":
+              addressAliasArray = addressAlias.split('.')
+              netmaskAliasArray = netmaskAlias.split('.')
+              networkAliasArray = [str(int(addressAliasArray[x]) & int(netmaskAliasArray[x])) for x in range(0,4)]
+              networkAlias = '.'.join(networkAliasArray)
+
+            else:
+              networkAlias = ""
+
+
+            print "      {"
+            print "        \"device\": \"%s\"," % (alias)
+            print "        \"address\": \"%s\"," % (addressAlias)
+            print "        \"namedns\": \"%s\"," % (("",socket.getfqdn(addressAlias).lower()) [ addressAlias != "" ])
+            print "        \"netmask\": \"%s\"," % (netmaskAlias)
+            print "        \"network\": \"%s\"," % (networkAlias)
+            print "        \"macaddress\": \"%s\"," % (macaddress)
+            print "        \"mtu\": \"%s\"," % (("0",mtu) [ mtu != "" ])
+            print "        \"type\": \"%s\"," % (type)
+            print "        \"active\": %s" % (("false","true") [ active == "RUNNING" or active == "UP" ])
+	    print "      }%s" % (("",",") [ (countData < totalInterfaces) or (countAliases < totalAliases) ])
+            countAliases += 1
+
 	countData += 1
 
       print "    ],"
@@ -2169,7 +2174,7 @@ def show_sudoers():
 	label = lineUserAlias.strip().split('=',1)[0].strip()
 	usersList = lineUserAlias.strip().split('=',1)[1].strip().split(',')
 	print "          \"numAlias\": \"%s\"," % (countUserAlias)
-	print "          \"rule\": \"%s\"," % (rule)
+	print "          \"rule\": \"%s\"," % (formatCad(rule))
         print "          \"label\": \"%s\"," % (label)
 	print "          \"items\": ["
         countUsers = 1
@@ -2198,7 +2203,7 @@ def show_sudoers():
         label = lineRunasAlias.strip().split('=',1)[0].strip()
         runasList = lineRunasAlias.strip().split('=',1)[1].strip().split(',')
 	print "          \"numAlias\": \"%s\"," % (countRunasAlias)
-        print "          \"rule\": \"%s\"," % (rule)
+        print "          \"rule\": \"%s\"," % (formatCad(rule))
         print "          \"label\": \"%s\"," % (label)
         print "          \"items\": ["
         countRunas = 1
@@ -2227,7 +2232,7 @@ def show_sudoers():
         label = lineHostAlias.strip().split('=',1)[0].strip()
         hostsList = lineHostAlias.strip().split('=',1)[1].strip().split(',')
 	print "          \"numAlias\": \"%s\"," % (countHostAlias)
-        print "          \"rule\": \"%s\"," % (rule)
+        print "          \"rule\": \"%s\"," % (formatCad(rule))
         print "          \"label\": \"%s\"," % (label)
         print "          \"items\": ["
         countHosts = 1
@@ -2256,7 +2261,7 @@ def show_sudoers():
         label = lineCmndAlias.strip().split('=',1)[0].strip()
         cmndsList = lineCmndAlias.strip().split('=',1)[1].strip().split(',')
 	print "          \"numAlias\": \"%s\"," % (countCmndAlias)
-	print "          \"rule\": \"%s\"," % (rule)
+	print "          \"rule\": \"%s\"," % (formatCad(rule))
 	print "          \"label\": \"%s\"," % (label)
         print "          \"items\": ["
         countCmnds = 1
@@ -2292,11 +2297,11 @@ def show_sudoers():
 	  cmnd = lineUserSpec.strip().split('=',1)[1].strip()
 
 	print "          \"num\": \"%s\"," % (countUserSpec)
-        print "          \"rule\": \"%s\"," % (rule)
-	print "          \"userItem\": \"%s\"," % user
-	print "          \"hostItem\": \"%s\"," % host 
-        print "          \"runasItem\": \"%s\"," % runas 
-        print "          \"cmndItem\": \"%s\"" % cmnd 
+        print "          \"rule\": \"%s\"," % (formatCad(rule))
+	print "          \"userItem\": \"%s\"," % (user)
+	print "          \"hostItem\": \"%s\"," % (host) 
+        print "          \"runasItem\": \"%s\"," % (runas) 
+        print "          \"cmndItem\": \"%s\"" % (cmnd) 
         print "        }%s" % (("",",") [ countUserSpec < totalUserSpec ])
         countUserSpec += 1
 
@@ -2353,15 +2358,15 @@ def show_hosts():
 	print "      {"
         ipHost = lineHost.split(' ',1)[0].strip()
 	print "        \"num\": \"%s\"," % (countHosts)
-        print "        \"ip\": \"%s\"," % (ipHost)
-	print "        \"rule\": \"%s\"," % (lineHost.strip())
+        print "        \"ip\": \"%s\"," % (formatCad(ipHost))
+	print "        \"rule\": \"%s\"," % (formatCad(lineHost.strip()))
 	print "        \"aliases\": ["
         aliasHost = lineHost.split(' ',1)[1].split(' ')
 	countAlias = 1
         for alias in aliasHost:
 	  print "          {"
 	  print "            \"num\": \"%s\"," % (countAlias) 
-          print "            \"name\": \"%s\"" % (alias.strip())
+          print "            \"name\": \"%s\"" % (formatCad(alias.strip()))
 	  print "          }%s" % (("",",") [ countAlias < len(aliasHost) ])
 	  countAlias += 1
 	
@@ -2383,7 +2388,7 @@ def show_iptables():
       for lineTable in tables.stdout.readlines():
 	print "       {"
 	table = lineTable.strip() 
-	print "         \"table\": \"%s\"," % (table)
+	print "         \"table\": \"%s\"," % (formatCad(table))
 	numPolicies = subprocess.Popen("(%s -t %s|%s '^:'|wc -l) 2>%s" % (path('iptables-save'), table, grep, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
 	totalPolicies = int(numPolicies.stdout.read()) 
 	if totalPolicies > 0:
@@ -2394,8 +2399,8 @@ def show_iptables():
 	    print "           {"
 	    chain = linePolicy.split(' ',1)[0].strip()
 	    policy = linePolicy.split(' ',1)[1].strip()
-	    print "             \"chain\": \"%s\"," % (chain)		
-	    print "             \"policy\": \"%s\"," % (policy)
+	    print "             \"chain\": \"%s\"," % (formatCad(chain))		
+	    print "             \"policy\": \"%s\"," % (formatCad(policy))
 	    print "             \"rules\": ["
 
 	    numRules = subprocess.Popen("(%s -t %s|%s '\-A %s '|%s -v '^:'|wc -l) 2>%s" % (path('iptables-save'), table, grep, chain, grep, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
@@ -2407,7 +2412,7 @@ def show_iptables():
 		print "               {"	
 		rule = lineRule.strip()
 		print "                 \"num\": \"%s\"," % (countRules)
-		print "                 \"rule\": \"%s\"," % (rule)	
+		print "                 \"rule\": \"%s\"," % (formatCad(rule))	
 		# Getting parameters
 		listRules = rule.split(' ')
 		srcValue = dstValue = inValue = outValue = protocolValue = "" 
@@ -2435,15 +2440,15 @@ def show_iptables():
 		      jumpValue = arg 
 
 		# Printing parameters
-		print "                 \"in\": \"%s\"," % (inValue)
-		print "                 \"out\": \"%s\"," % (outValue)
-		print "                 \"src\": \"%s\"," % (srcValue)
-		print "                 \"dst\": \"%s\"," % (dstValue)
-		print "                 \"protocol\": \"%s\"," % (protocolValue)
-		print "                 \"sport\": \"%s\"," % (sportValue)
-		print "                 \"dport\": \"%s\"," % (dportValue)
-		print "                 \"state\": \"%s\"," % (stateValue)
-		print "                 \"jump\": \"%s\"" % (jumpValue)
+		print "                 \"in\": \"%s\"," % (formatCad(inValue))
+		print "                 \"out\": \"%s\"," % (formatCad(outValue))
+		print "                 \"src\": \"%s\"," % (formatCad(srcValue))
+		print "                 \"dst\": \"%s\"," % (formatCad(dstValue))
+		print "                 \"protocol\": \"%s\"," % (formatCad(protocolValue))
+		print "                 \"sport\": \"%s\"," % (formatCad(sportValue))
+		print "                 \"dport\": \"%s\"," % (formatCad(dportValue))
+		print "                 \"state\": \"%s\"," % (formatCad(stateValue))
+		print "                 \"jump\": \"%s\"" % (formatCad(jumpValue))
 
 		print "               }%s" % (("",",") [ countRules < totalRules ])
 		countRules += 1
@@ -2487,7 +2492,7 @@ def show_tcpWrappers():
         for lineTWAllow in TWAllow.stdout.readlines():
 	  print "        {" 
           serviceTWAllow = lineTWAllow.strip()
-          print "          \"service\": \"%s\"," % (serviceTWAllow)
+          print "          \"service\": \"%s\"," % (formatCad(serviceTWAllow))
 	  if typeOS().endswith("BSD"):
             totalHostsTWAllow = int(subprocess.Popen("(cat /etc/hosts.allow |%s 's/#.*//g'|%s 'BEGIN {RS=\"\"}{gsub(/\\\\\\n/,\" \",$0); print $0}'|%s ':'|%s 'allow *$'|%s '^%s\|, *%s'|%s -e :1 -e 's/\\(\\[.*\\):\\(.*\\]\\)/\\1#\\2/;t1'|cut -d':' -f2|tr '#' ':'|tr '\t' ' '|tr -s ' '|%s '/ EXCEPT /Ib; s/ /\\n/g'|%s -v '^ *$'|sort|uniq|wc -l) 2>%s" % (sed, awk, grep, grep, grep, serviceTWAllow, serviceTWAllow, sed, sed, grep, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip())
 	    hostsTWAllow = subprocess.Popen("(cat /etc/hosts.allow |%s 's/#.*//g'|%s 'BEGIN {RS=\"\"}{gsub(/\\\\\\n/,\" \",$0); print $0}'|%s ':'|%s 'allow *$'|%s '^%s\|, *%s'|%s -e :1 -e 's/\\(\\[.*\\):\\(.*\\]\\)/\\1#\\2/;t1'|cut -d':' -f2|tr '#' ':'|tr '\t' ' '|tr -s ' '|%s '/ EXCEPT /Ib; s/ /\\n/g'|%s -v '^ *$'|sort|uniq) 2>%s" % (sed, awk, grep, grep, grep, serviceTWAllow, serviceTWAllow, sed, sed, grep, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
@@ -2524,7 +2529,7 @@ def show_tcpWrappers():
         for lineTWDeny in TWDeny.stdout.readlines():
           print "        {"
           serviceTWDeny = lineTWDeny.strip()
-          print "          \"service\": \"%s\"," % (serviceTWDeny)
+          print "          \"service\": \"%s\"," % (formatCad(serviceTWDeny))
 	  if typeOS().endswith("BSD"):
             totalHostsTWDeny = int(subprocess.Popen("(cat /etc/hosts.allow |%s 's/#.*//g'|%s 'BEGIN {RS=\"\"}{gsub(/\\\\\\n/,\" \",$0); print $0}'|%s ':'|%s 'deny *$'|%s '^%s\|, *%s'|%s -e :1 -e 's/\\(\\[.*\\):\(.*\\]\\)/\\1#\\2/;t1'|cut -d':' -f2|tr '#' ':'|tr '\t' ' '|tr -s ' '|%s '/ EXCEPT /Ib; s/ /\\n/g'|%s -v '^ *$'|sort|uniq|wc -l) 2>%s" % (sed, awk, grep, grep, grep, serviceTWDeny, serviceTWDeny, sed, sed, grep, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip())
 	    hostsTWDeny = subprocess.Popen("(cat /etc/hosts.allow |%s 's/#.*//g'|%s 'BEGIN {RS=\"\"}{gsub(/\\\\\\n/,\" \",$0); print $0}'|%s ':'|%s 'deny *$'|%s '^%s\|, *%s'|%s -e :1 -e 's/\\(\\[.*\\):\\(.*\\]\\)/\\1#\\2/;t1'|cut -d':' -f2|tr '#' ':'|tr '\t' ' '|tr -s ' '|%s '/ EXCEPT /Ib; s/ /\\n/g'|%s -v '^ *$'|sort|uniq) 2>%s" % (sed, awk, grep, grep, grep, serviceTWDeny, serviceTWDeny, sed, sed, grep, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
@@ -2536,7 +2541,7 @@ def show_tcpWrappers():
           print "          \"hosts\": ["
           countHostsTWDeny = 1
           for lineHostsTWDeny in hostsTWDeny.stdout.readlines():
-            print "            \"%s\"%s" % (lineHostsTWDeny.strip(), ("",",") [ countHostsTWDeny < totalHostsTWDeny ])
+            print "            \"%s\"%s" % (formatCad(lineHostsTWDeny.strip()), ("",",") [ countHostsTWDeny < totalHostsTWDeny ])
             countHostsTWDeny += 1
 
           print "          ]"
@@ -2569,7 +2574,7 @@ def show_pamAccess():
 
       countModules = 1
       for lineModules in modulesData.stdout.readlines():
-	print "        \"%s\"%s" % (lineModules.strip(), ("",",") [ countModules < totalModules ])
+	print "        \"%s\"%s" % (formatCad(lineModules.strip()), ("",",") [ countModules < totalModules ])
 	countModules += 1
 
       print "      ],"
@@ -2597,18 +2602,18 @@ def show_pamAccess():
 	usersData = rule.split(':')[1].strip()
 	originsData = rule.split(':',2)[2].strip()
 	print "          \"num\": \"%s\"," % (countRules)
-	print "          \"rule\": \"%s\"," % (rule)	
-	print "          \"type\": \"%s\"," % (type)
+	print "          \"rule\": \"%s\"," % (formatCad(rule))	
+	print "          \"type\": \"%s\"," % (formatCad(type))
 	
 	# Getting users
 	print "          \"users\": ["
 	if "EXCEPT" in usersData.upper():
-          print "            \"%s\"" % (usersData)
+          print "            \"%s\"" % (formatCad(usersData))
 	else:
 	  usersList = usersData.split(' ')
 	  countUsers = 1
 	  for user in usersList:
-	    print "            \"%s\"%s" % (user, ("",",") [ countUsers < len(usersList) ])
+	    print "            \"%s\"%s" % (formatCad(user), ("",",") [ countUsers < len(usersList) ])
 	    countUsers += 1
 
 	print "          ],"
@@ -2621,7 +2626,7 @@ def show_pamAccess():
           originsList = originsData.split(' ')
           countOrigins = 1
           for origin in originsList:
-            print "            \"%s\"%s" % (origin, ("",",") [ countOrigins < len(originsList) ])
+            print "            \"%s\"%s" % (formatCad(origin), ("",",") [ countOrigins < len(originsList) ])
 	    countOrigins += 1
 
         print "          ]"
@@ -2660,7 +2665,7 @@ def show_crontabs():
       ruleCommand = lineRules.strip().split(' ',6)[6] 
       print "      {"
       print "        \"num\": \"%s\"," % (countRules)
-      print "        \"user\": \"%s\"," % (ruleUser)
+      print "        \"user\": \"%s\"," % (formatCad(ruleUser))
       print "        \"minute\": \"%s\"," % (ruleMinute)
       print "        \"hour\": \"%s\"," % (ruleHour)
       print "        \"day\": \"%s\"," % (ruleDay)
