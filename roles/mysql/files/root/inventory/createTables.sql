@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS Software (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
    
 CREATE TABLE IF NOT EXISTS Interface (
-  Name varchar(30) NOT NULL,
+  Name varchar(100) NOT NULL,
   Server varchar(100) NOT NULL,
   Address varchar(15),
   NameDNS varchar(100),
@@ -740,7 +740,7 @@ CREATE TABLE IF NOT EXISTS IPTablesPolicy (
 
 CREATE TABLE IF NOT EXISTS IPTables (
   Num int(5) NOT NULL,
-  Rule varchar(190) NOT NULL,
+  Rule varchar(255) NOT NULL,
   IPTable varchar(20) NOT NULL,
   Chain varchar(100) NOT NULL,
   Server varchar(100) NOT NULL,

@@ -131,7 +131,7 @@
   delegate_to: "{{ hostWeb }}"
 
 - name: Change owner of /var/lib/dokuwiki/data to userApache
-  shell: chown -R {{ userApacheServer.stdout }} /var/lib/dokuwiki/data executable=/bin/bash
+  shell: "find /var/lib/dokuwiki/data ! -user {{ userApacheServer.stdout }} -exec chown {{ userApacheServer.stdout }} {} \\; executable=/bin/bash"
   delegate_to: "{{ hostWeb }}"
 
 - name: Copy host-portsext.txt (in Wiki Master)

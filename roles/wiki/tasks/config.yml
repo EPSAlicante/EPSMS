@@ -25,7 +25,7 @@
   file: path=/var/lib/dokuwiki/data/pages/inventory owner={{ userApache }} group=root state=directory
 
 - name: Change owner of /var/lib/dokuwiki/data to userApache
-  shell: chown -R {{ userApache }} /var/lib/dokuwiki/data
+  shell: "find /var/lib/dokuwiki/data ! -user {{ userApache }} -exec chown {{ userApache }} {} \\; executable=/bin/bash" 
 
 - name: Create sortablejs directory (sortablejs plugin)
   file: path={{ pathPluginsWiki }}/sortablejs owner=root group=root state=directory 
