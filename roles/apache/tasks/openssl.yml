@@ -1,60 +1,22 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
-
 # Openssl Installation and SSL Cert Generation 
 
 - name: Be sure openssl is installed (yum)
   yum: pkg={{ packageOpenssl }} state=installed
   when: ansible_pkg_mgr == "yum"
 
-- name: Create directory ssl (CA)
-  file: path=/etc/ssl/ansible state=directory owner=root group=root mode=0750
-  delegate_to: "{{ hostAnsible }}"
-
-- name: Create self-signed Cert (CA)
-  shell: '([ -f /etc/ssl/ansible/ca.crt ] && echo "no") || (openssl req -new -sha512 -x509 -passin pass:epsms -passout pass:epsms -extensions v3_ca -keyout /etc/ssl/ansible/ca.key -out /etc/ssl/ansible/ca.crt -days 3650 -subj "/O=EPSMS/OU=IT/CN={{ hostnameAnsible }} CA (EPSMS)" && echo "01" > /etc/ssl/ansible/ca.srl) executable=/bin/bash' 
-  register: createCA
-  changed_when: createCA.stdout != "no"
-  delegate_to: "{{ hostAnsible }}"
-
-- name: Config certs permissions (CA)
-  file: path=/etc/ssl/ansible/{{ item.file }} owner=root group=root mode={{ item.perm }}
-  with_items:
-    - { file: "ca.key", perm: "0640" }
-    - { file: "ca.crt", perm: "0640" }
-    - { file: "ca.srl", perm: "0640" }
-  delegate_to: "{{ hostAnsible }}"
-
-- name: Create server Cert 
-  shell: '([ -f /etc/ssl/ansible/{{ ansible_fqdn }}.crt ] && echo "no") || (openssl genrsa -out /etc/ssl/ansible/{{ ansible_fqdn }}.key 2048 && openssl req -new -sha512 -key /etc/ssl/ansible/{{ ansible_fqdn }}.key -out /etc/ssl/ansible/{{ ansible_fqdn }}.csr -subj "/O=EPSMS/OU=IT/CN={{ ansible_fqdn }}" && openssl x509 -sha512 -req -passin pass:epsms -days 3650 -in /etc/ssl/ansible/{{ ansible_fqdn }}.csr -CA /etc/ssl/ansible/ca.crt -CAkey /etc/ssl/ansible/ca.key -out /etc/ssl/ansible/{{ ansible_fqdn }}.crt && cat /etc/ssl/ansible/{{ ansible_fqdn }}.crt /etc/ssl/ansible/{{ ansible_fqdn }}.key > /etc/ssl/ansible/{{ ansible_fqdn }}.pem) executable=/bin/bash'
-  register: createCert 
-  changed_when: createCert.stdout != "no"
-  delegate_to: "{{ hostAnsible }}"
-
-- name: Config certs permissions
-  file: path=/etc/ssl/ansible/{{ ansible_fqdn }}.{{ item.file }} owner=root group=root mode={{ item.perm }}
-  with_items:
-    - { file: "key", perm: "0640" }
-    - { file: "crt", perm: "0640" }
-    - { file: "pem", perm: "0640" }
-    - { file: "csr", perm: "0640" }
-  delegate_to: "{{ hostAnsible }}"
-
-#- name: Create self-signed Cert
-#  shell: openssl req -new -nodes -x509 -subj "/C=ES/ST=Alicante/L=Alicante/O=IT/CN={{ ansible_fqdn }}" -days 3650 -keyout /etc/ssl/ansible/ansible-server.key -out /etc/ssl/ansible/ansible-server.crt -extensions v3_ca creates=/etc/ssl/ansible/ansible-server.crt && cat /etc/ssl/ansible/ansible-server.crt /etc/ssl/ansible/ansible-server.key > /etc/ssl/ansible/ansible-server.pem
+#- name: Be sure apache is installed (apt)
+#  apt: pkg={{ packageOpenssl }} state=installed update_cache=yes force=yes
+#  when: ansible_pkg_mgr == "apt"
 
 - name: Create directory ssl
-  file: path=/etc/ssl/ansible state=directory owner=root group=root mode=0750
+  file: path={{ pathApache }}/ssl state=directory owner=root group=root mode=0755
 
-- name: Copy certs 
-  copy: src=/etc/ssl/ansible/{{ ansible_fqdn }}.{{ item.file }} dest=/etc/ssl/ansible/ansible-server.{{ item.file }} owner=root group=root mode={{ item.perm }}
+- name: Create self-signed Cert 
+  shell: openssl req -new -nodes -x509 -subj "/C=ES/ST=Alicante/L=Alicante/O=IT/CN={{ ansible_fqdn }}" -days 3650 -keyout {{ pathApache }}/ssl/ansible-server.key -out {{ pathApache }}/ssl/ansible-server.crt -extensions v3_ca creates={{ pathApache }}/ssl/ansible-server.crt
+
+- name: Config certs permissions
+  file: path={{ pathApache }}/ssl/{{ item }} owner=root group=root mode=0640
   with_items:
-    - { file: "key", perm: "0640" }
-    - { file: "crt", perm: "0640" }
-    - { file: "pem", perm: "0640" }
-
+    - ansible-server.key
+    - ansible-server.crt 

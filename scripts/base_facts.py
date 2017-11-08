@@ -1,10 +1,4 @@
 #!/usr/bin/python
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
 
 import subprocess
 import sys
@@ -24,17 +18,16 @@ errorLog = "/dev/null"
 
 # Base Packages List by Package Manager 
 basePackages = {}
-basePackages['apt'] = ['bash', 'coreutils', 'grep', 'sed', 'gawk', 'net-tools', 'iproute', 'findutils', 'dmidecode', 'util-linux']
-basePackages['conary'] = ['bash', 'coreutils', 'grep', 'sed', 'gawk', 'net-tools', 'iproute', 'findutils', 'dmidecode', 'util-linux']
-basePackages['emerge'] = ['bash', 'coreutils', 'grep', 'sed', 'gawk', 'net-tools', 'iproute', 'findutils', 'dmidecode', 'util-linux'] 
+basePackages['apt'] = ['bash', 'coreutils', 'grep', 'sed', 'gawk', 'net-tools', 'findutils', 'dmidecode', 'util-linux']
+basePackages['conary'] = ['bash', 'coreutils', 'grep', 'sed', 'gawk', 'net-tools', 'findutils', 'dmidecode', 'util-linux']
+basePackages['emerge'] = ['bash', 'coreutils', 'grep', 'sed', 'gawk', 'net-tools', 'findutils', 'dmidecode', 'util-linux'] 
 basePackages['freebsd_pkg'] = ['bash', 'gsed', 'gawk', 'findutils', 'dmidecode']
-basePackages['macports'] = ['bash', 'coreutils', 'grep', 'gsed', 'gawk', 'iproute', 'findutils', 'util-linux']
+basePackages['macports'] = ['bash', 'coreutils', 'grep', 'gsed', 'gawk', 'findutils', 'util-linux']
 basePackages['openbsd_pkg'] = ['bash', 'gsed', 'gawk', 'findutils', 'dmidecode']
-basePackages['pacman'] = ['bash', 'grep', 'sed', 'gawk', 'net-tools', 'iproute2', 'findutils', 'dmidecode', 'util-linux', 'xinetd']
+basePackages['pacman'] = ['bashdb', 'grep', 'sed', 'gawk', 'net-tools', 'findutils', 'dmidecode', 'util-linux', 'xinetd']
 basePackages['pkgutil'] = ['bash', 'coreutils', 'ggrep', 'gsed', 'gawk', 'findutils'] 
-basePackages['slackpkg'] = ['bash', 'coreutils', 'grep', 'sed', 'gawk', 'net-tools', 'iproute2', 'findutils', 'dmidecode', 'util-linux']
-basePackages['yum'] = ['bash', 'coreutils', 'grep', 'sed', 'gawk', 'net-tools', 'iproute', 'findutils', 'dmidecode', 'util-linux-ng']
-basePackages['zypper'] = ['bash', 'coreutils', 'grep', 'sed', 'gawk', 'net-tools', 'iproute2', 'findutils', 'dmidecode', 'util-linux', 'python-xml']
+basePackages['yum'] = ['bash', 'coreutils', 'grep', 'sed', 'gawk', 'net-tools', 'findutils', 'dmidecode', 'util-linux-ng']
+basePackages['zypper'] = ['bash', 'coreutils', 'grep', 'sed', 'gawk', 'net-tools', 'findutils', 'dmidecode', 'util-linux']
 
 # Munin Packages by Package Manager 
 muninNodePackages = {}
@@ -44,18 +37,16 @@ muninNodePackages['openbsd_pkg'] = ['munin-node']
 muninNodePackages['pacman'] = ['munin-node']
 muninNodePackages['pkgutil'] = ['CSWmunin-common', 'CSWmunin-node']
 muninNodePackages['yum'] = ['munin-node']
-muninNodePackages['zypper'] = ['munin-node']
 
 # Nagios NRPE by Package Manager
 nagiosNrpePackages = {}
 nagiosNrpePackages['apt'] = ['nagios-nrpe-server']
 nagiosNrpePackages['emerge'] = ['nrpe']
-nagiosNrpePackages['freebsd_pkg'] = ['nrpe-ssl', 'nagios-plugins']
 nagiosNrpePackages['macports'] = ['nrpe', 'nagios-plugins']
 nagiosNrpePackages['pacman'] = ['nrpe', 'nagios-plugins']
 nagiosNrpePackages['pkgutil'] = ['CSWnrpe', 'CSWnagios-plugins']
 nagiosNrpePackages['yum'] = ['nagios-nrpe', 'nagios-plugins-dhcp', 'nagios-plugins-disk', 'nagios-plugins-dns', 'nagios-plugins-http', 'nagios-plugins-file_age', 'nagios-plugins-ldap', 'nagios-plugins-load', 'nagios-plugins-log', 'nagios-plugins-mysql', 'nagios-plugins-ntp', 'nagios-plugins-oracle', 'nagios-plugins-perl', 'nagios-plugins-pgsql', 'nagios-plugins-ping', 'nagios-plugins-procs', 'nagios-plugins-rpc', 'nagios-plugins-smtp', 'nagios-plugins-snmp', 'nagios-plugins-ssh', 'nagios-plugins-swap', 'nagios-plugins-users']
-#nagiosNrpePackages['zypper'] = ['nrpe', 'nagios-plugins-nrpe']
+nagiosNrpePackages['zypper'] = ['nrpe', 'nagios-plugins-nrpe']
 
 
 
@@ -80,7 +71,7 @@ def path(command1, command2=''):
 
 def getPackageManager():
     # Getting Package Manager
-    packageManager = subprocess.Popen("((%s --version >/dev/null && echo 'yum') || (%s --version >/dev/null && echo 'apt') || (%s --version >/dev/null && echo 'conary') || (%s --version >/dev/null && echo 'zypper') || (%s --version >/dev/null && echo 'pacman') || (%s --version >/dev/null && echo 'emerge') || ([ `%s -s` == 'FreeBSD' ] && echo 'freebsd_pkg') || ([ `%s -s` == 'OpenBSD' ] && echo 'openbsd_pkg') || (%s help >/dev/null && echo 'macports') || (%s >/dev/null && [ `%s -s` == 'SunOS' ] && echo 'pkgutil') || (%s >/dev/null && echo 'slackpkg') || (%s >/dev/null && echo 'installpkg') || echo 'unknown') 2>%s" % (path('yum'), path('apt-get'), path('conary'), path('zypper'), path('pacman'), path('emerge'), path('uname'), path('uname'), path('port'), path('pkgutil'), path('uname'), path('slackpkg'), path('installpkg'), errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+    packageManager = subprocess.Popen("((%s --version >/dev/null && echo 'yum') || (%s --version >/dev/null && echo 'apt') || (%s --version >/dev/null && echo 'conary') || (%s --version >/dev/null && echo 'zypper') || (%s --version >/dev/null && echo 'pacman') || (%s --version >/dev/null && echo 'emerge') || (%s >/dev/null && [ `%s -s` == 'FreeBSD' ] && echo 'freebsd_pkg') || (%s >/dev/null && [ `%s -s` == 'OpenBSD' ] && echo 'openbsd_pkg') || (%s help >/dev/null && echo 'macports') || (%s >/dev/null && [ `%s -s` == 'SunOS' ] && echo 'pkgutil') || (%s >/dev/null && echo 'installpkg') ||  echo 'unknown') 2>%s" % (path('yum'), path('apt-get'), path('conary'), path('zypper'), path('pacman'), path('emerge'), path('pkg_info'), path('uname'), path('pkg_info'), path('uname'), path('port'), path('pkgutil'), path('uname'), path('installpkg'), errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
 
     return packageManager
 
@@ -147,6 +138,7 @@ def show_muninNode():
 	# Looking for in /etc/xinetd.d
 	xinetd = subprocess.Popen("(%s -L /etc/xinetd.d -name '*munin*node*'|head -1|%s 's/.*\///') 2>%s" % (find, sed, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
 	if xinetd != "":
+	  #daemon = subprocess.Popen("(%s -L /etc/init.d -name 'xinetd'|head -1) 2>%s" % (find, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
 	  daemon = "xinetd"
 
       if daemon == "":
@@ -206,6 +198,7 @@ def show_nagiosNrpe():
 	# Looking for in /etc/xinetd
 	xinetd = subprocess.Popen("(%s -L /etc/xinetd.d -name '*nrpe*'|head -1|%s 's/.*\///') 2>%s" % (find, sed, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
 	if xinetd != "":
+          #daemon = subprocess.Popen("(%s -L /etc/init.d -name '*xinet*'|head -1) 2>%s" % (find, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
 	  daemon = "xinetd"
 
       if daemon == "":
@@ -220,6 +213,7 @@ def show_nagiosNrpe():
 	# Looking for in /etc/inetd.conf
         inetd = subprocess.Popen("(%s -i '^nrpe*' /etc/inetd.conf | head -1) 2>%s" % (grep, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
         if inetd != "":
+          #daemon = subprocess.Popen("(%s -L /etc/init.d -name 'inetd'|head -1) 2>%s" % (find, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
 	  daemon = "inetd"
 
       if daemon == "":

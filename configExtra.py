@@ -1,10 +1,4 @@
 #!/usr/bin/python
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
 
 import subprocess
 import socket
@@ -28,9 +22,6 @@ productionFileTmp = "%s.tmp" % (productionFile)
 
 # Config Scan Openvas
 configScanOpenvasOptions = [ "Discovery", "Host Discovery", "System Discovery", "Full and fast", "Full and fast ultimate", "Full and very deep", "Full and very deep ultimate" ]
-
-# Frequency Range
-frequencyRangeMinutes = "5 6 10 12 15 20 30 60"
 
 # Max Errors
 maxErrors = 3
@@ -89,16 +80,7 @@ def isInt(cad):
     except ValueError:
         return False
 
-
-def inRange(value,min,max):
-    try:
-	if isInt(value) and isInt(min) and isInt(max) and (int(min) <= int(value) <= int(max)): 
-            return True
-	else:
-	    return False
-    except:
-        return False
-
+    
 
 def raw_input_def(prompt, default):
     def pre_input_hook():
@@ -112,83 +94,9 @@ def raw_input_def(prompt, default):
       readline.set_pre_input_hook(None)
 
 
-def checkFrequency(value,range):
-    # Checking frequency
-    rangeList = range.split(' ')
-    if value in rangeList:
-        return True
-    else:
-        return False
-
-
-def checkIP(IP,localhost=""):
-    print "Checking IP (%s) syntax..." % (IP)
-    if localhost != "localhost" and IP == "127.0.0.1":
-      print >> sys.stderr, "Loopback address not valid. Please check '/etc/hosts' and '/etc/sysconfig/network' files and reboot"
-      return False
-    try:
-      socket.inet_aton(IP)
-      return True
-    except:
-      return False
-
-
-def checkCronField(cad,type):
-    try:
-	# Max and Min values
-	if type == "minute":
-	    minVal=0
-	    maxVal=59
-	elif type == "hour":
-            minVal=0
-            maxVal=23
-        elif type == "day":
-            minVal=1
-            maxVal=31
-        elif type == "month":
-            minVal=1
-            maxVal=12
-        elif type == "weekday":
-            minVal=1
-            maxVal=7
-	else:
-	    return False
-
-	# Checking field
-    	if cad == "*":
-            return True
-    	elif inRange(cad,minVal,maxVal):
-	    return True
-    	elif cad.startswith("*/"):
-	    if inRange(cad.split('/',1)[1],minVal,maxVal):
-	    	return True
-	    else:
-		return False
-    	elif "," in cad:
-	    arrValues = cad.split(',')
-	    for val in arrValues:
-	    	if not (isInt(val) and inRange(val,minVal,maxVal)):
-		    return False
-	    return True
-	elif "-" in cad:
-	    arrValues = cad.split('-',1)
-	    if not inRange(arrValues[0],minVal,maxVal):
-		return False
-            if not inRange(arrValues[1],minVal,maxVal):
-                return False
-	    return True
-    	else:
-	    return False
-
-    except:
-	return False
-
-
 
 
 def main():
-
-  try:
 
     # Clear screen
     os.system("clear")
@@ -206,102 +114,10 @@ def main():
     reload = False
 
     # System configuration
-    print "########################################"
-    print "      Extra variables Configuration     "
-    print "########################################"
+    print "###############################"
+    print " Extra variables Configuration "
+    print "###############################"
     print
-
-    ###### Read Only User ######
-    print
-    print "----------------------------------------------------"
-    print "A read only user can be created to access all server"
-    print "Leave empty to not create"
-    print "----------------------------------------------------"
-    print
-
-    var_readUser = getValueFromFile(configExtra, 'readUser:', ':')
-    def_readUser = var_readUser
-    if not var_readUser:
-      var_readUser = ""
-
-    inputValue = raw_input_def('Read Only User to access all servers (leave empty to not create): ', var_readUser)
-    var_readUser = inputValue.strip()
-    print
-
-
-    ##### Password Read Only User #####
-    if var_readUser != "":
-      var_passwdReadUser = getValueFromFile(configExtra, 'passwdReadUser:', ':')
-      def_passwdReadUser = var_passwdReadUser
-      if not var_passwdReadUser:
-        var_passwdReadUser = var_readUser 
-
-      correct = False
-      count = 0
-      print
-      print "--------------------------"
-      print "Password of read only user"
-      print "--------------------------"
-      print
-      while not correct:
-        inputValue = raw_input_def('Password Read Only User: ', var_passwdReadUser)
-        if inputValue:
-          correct = True
-          var_passwdReadUser = inputValue
-          print
-          continue
-        else:
-          print >> sys.stderr, "ERROR: No value"
-          print >> sys.stderr
-
-        count += 1
-        if count > maxErrors:
-          print >> sys.stderr, "Too many Errors. Exiting..."
-          sys.exit(2)
-
-
-      ###### Hosts Read User ######
-      var_hostsReadUser = getValueFromFile(configExtra, 'hostsReadUser:', ':')
-      if var_hostsReadUser == "''":
-        var_hostsReadUser = ""
-      def_hostsReadUser = var_hostsReadUser
-
-      correct = False
-      count = 0
-      print
-      print "-----------------------------------------------------"
-      print "Read Only User Hosts (allowed to acccess all Servers)"
-      print "Leave empty to permit access from everywhere"
-      print "-----------------------------------------------------"
-      print
-      while not correct:
-        inputValue = raw_input_def('Hosts Read Only User (IP addresses separated by white spaces): ', var_hostsReadUser)
-        if inputValue.strip():
-          # Splitting in IPs
-          arr = inputValue.split(' ')
-          correct = True
-          for IP in arr:
-            # Checking syntax IP
-            if not checkIP(IP):
-              correct = False
-              print >> sys.stderr, "ERROR: IP address %s Syntax error!!!" % (IP)
-              print >> sys.stderr
-        else:
-          correct = True
-          print "Access from everywhere"
-
-        if correct:
-          var_hostsReadUser = inputValue.strip()
-          print "Everything is OK"
-          print
-
-
-        if not correct:
-          count += 1
-          if count > maxErrors:
-            print >> sys.stderr, "Too many Errors. Exiting..."
-            sys.exit(3)
-
 
     ###### Path Inventory Directory ######
     var_pathInventoryDirectory = getValueFromFile(configExtra, 'pathInventoryDirectory:', ':')
@@ -310,12 +126,6 @@ def main():
 
     correct = False
     count = 0
-    print
-    print "--------------------------------------------------------------------------------"
-    print "Mysql Server stores SQL files (with data collected) on a temporal directory, to "
-    print "execute them and insert or update data on database"
-    print "--------------------------------------------------------------------------------"
-    print
     while not correct:
       inputValue = raw_input_def('Path Inventory Directory (directory to generate and execute SQL files): ', var_pathInventoryDirectory)
       if inputValue.strip():
@@ -329,7 +139,7 @@ def main():
       count += 1
       if count > maxErrors:
         print >> sys.stderr, "Too many Errors. Exiting..."
-        sys.exit(4)
+        sys.exit(2)
 
 
     ###### Path Executables List ######
@@ -339,12 +149,6 @@ def main():
 
     correct = False
     count = 0
-    print
-    print "--------------------------------------------------------------------------------"
-    print "Ansible Server gets information from executable files. We can define a list of "
-    print "paths to search them"
-    print "--------------------------------------------------------------------------------"
-    print
     while not correct:
       inputValue = raw_input_def('Directories to search exes (separated by white spaces): ', var_pathExes)
       if inputValue.strip():
@@ -359,7 +163,7 @@ def main():
       count += 1
       if count > maxErrors:
         print >> sys.stderr, "Too many Errors. Exiting..."
-        sys.exit(5)
+        sys.exit(3)
 
 
     ###### Path No Executables List ######
@@ -367,11 +171,6 @@ def main():
     if not var_pathNoExes:
       var_pathNoExes = ""
 
-    print
-    print "------------------------------------------------------------"
-    print "We can define a list of paths NOT to search executable files"
-    print "------------------------------------------------------------"
-    print
     inputValue = raw_input_def('Directories not to search exes (separated by white spaces): ', var_pathNoExes)
     var_pathNoExes = inputValue.strip()
     print
@@ -384,13 +183,6 @@ def main():
 
     correct = False
     count = 0
-    print
-    print "--------------------------------------------------------------------------------"
-    print "Openvas Scan Configuration. Available options: 'Discovery', 'Host Discovery', "
-    print "'System Discovery', 'Full and fast', 'Full and fast ultimate', 'Full and very "
-    print "deep' and 'Full and very deep ultimate'"
-    print "--------------------------------------------------------------------------------"
-    print
     while not correct:
       inputValue = raw_input_def('Config Scan Openvas (%s): ' % (configScanOpenvasOptions), var_configScanOpenvas)
       if inputValue.strip():
@@ -410,7 +202,7 @@ def main():
         count += 1
         if count > maxErrors:
           print >> sys.stderr, "Too many Errors. Exiting..."
-          sys.exit(6)
+          sys.exit(4)
 
 
     ###### Set Openvas Crontab ######
@@ -427,14 +219,6 @@ def main():
 
     correct = False
     count = 0
-    print
-    print "--------------------------------------------------------------------------------"
-    print "Set crontab: minutes, hours, day and weekday (month is defined in option 1 of "
-    print "menu: 'Configure System') for Openvas checking vulnerabilities"
-    print "--------------------------------------------------------------------------------"
-    print
-    print "Month: %s" % (getValueFromFile(productionFile, 'cronOpenvas:', ':'))
-    print
     while not correct:
       inputValue = raw_input_def('Openvas Crontab (minute hour day weekday): ', var_cadCronOpenvas)
       if inputValue.strip():
@@ -442,13 +226,13 @@ def main():
         arr = inputValue.split(' ')
 	if len(arr) == 4:
 	  # Checking minute
-	  if checkCronField(arr[0],"minute"):
+	  if arr[0] == "*" or (isInt(arr[0]) and (0 <= int(arr[0]) <= 59)):
 	    # Checking hour
-     	    if checkCronField(arr[1],"hour"):
+     	    if arr[1] == "*" or (isInt(arr[1]) and (0 <= int(arr[1]) <= 23)):
 	      # Checking day of month
-	      if checkCronField(arr[2],"day"): 
+	      if arr[2] == "*" or (isInt(arr[2]) and (1 <= int(arr[2]) <= 31)): 
 		# Checking day of week
-		if checkCronField(arr[3],"weekday"):
+		if arr[3] == "*" or (isInt(arr[3]) and (0 <= int(arr[3]) <= 7)):
 		  correct = True
 		  print
 
@@ -468,7 +252,7 @@ def main():
         count += 1
         if count > maxErrors:
           print >> sys.stderr, "Too many Errors. Exiting..."
-          sys.exit(7)
+          sys.exit(5)
 
 
     ###### Set Database Update Openvas Crontab ######
@@ -487,12 +271,6 @@ def main():
 
     correct = False
     count = 0
-    print
-    print "--------------------------------------------------------------------------------"
-    print "Openvas synchronizes its database with new NVT (Network Vulnerability Tests)"
-    print "Set crontab: minutes, hours, day, month and weekday for Openvas Database update"
-    print "--------------------------------------------------------------------------------"
-    print
     while not correct:
       inputValue = raw_input_def('Database Update Openvas Crontab (minute hour day month weekday): ', var_cadUpdateCronOpenvas)
       if inputValue.strip():
@@ -500,15 +278,15 @@ def main():
         arr = inputValue.split(' ')
         if len(arr) == 5:
           # Checking minute
-	  if checkCronField(arr[0],"minute"):
+          if arr[0] == "*" or (isInt(arr[0]) and (0 <= int(arr[0]) <= 59)):
             # Checking hour
-	    if checkCronField(arr[1],"hour"):
+            if arr[1] == "*" or (isInt(arr[1]) and (0 <= int(arr[1]) <= 23)):
               # Checking day of month
-	      if checkCronField(arr[2],"day"):
+              if arr[2] == "*" or (isInt(arr[2]) and (1 <= int(arr[2]) <= 31)):
                 # Checking month
-		if checkCronField(arr[3],"month"):
+                if arr[3] == "*" or (isInt(arr[3]) and (1 <= int(arr[3]) <= 12)):
                   # Checking day of week
-		  if checkCronField(arr[4],"weekday"):
+                  if arr[4] == "*" or (isInt(arr[4]) and (0 <= int(arr[4]) <= 7)):
                     correct = True
                     print
 
@@ -529,21 +307,16 @@ def main():
         count += 1
         if count > maxErrors:
           print >> sys.stderr, "Too many Errors. Exiting..."
-          sys.exit(8)
+          sys.exit(6)
 
 
-    ###### Exclude Openvas Hosts List ######
+    ###### Exclude Openvas Servers List ######
     var_excludeServersListOpenvas = getValueFromFile(configExtra, 'excludeServersListOpenvas:', ':')
     def_excludeServersListOpenvas = var_excludeServersListOpenvas
     if not var_excludeServersListOpenvas:
       var_excludeServersListOpenvas = ""
 
-    print
-    print "------------------------------------------"
-    print "List of hosts NOT to check vulnerabilities"
-    print "------------------------------------------"
-    print
-    inputValue = raw_input_def('Exclude Openvas Hosts List (separated by white spaces): ', var_excludeServersListOpenvas)
+    inputValue = raw_input_def('Exclude Openvas Servers List (separated by white spaces): ', var_excludeServersListOpenvas)
     var_excludeServersListOpenvas = inputValue.strip()
     print
 
@@ -554,21 +327,12 @@ def main():
     if var_specialGroupOpenvas != "y" and var_specialGroupOpenvas != "n":
       var_specialGroupOpenvas = "n"
 
-    print
-    print "--------------------------------------------------------------------------------"
-    print "A Openvas Special Group of hosts could be defined to check vulnerabilities with "
-    print "a different frequency than the rest"
-    print "--------------------------------------------------------------------------------"
-    print
     inputValue = question("Do you want to create Openvas Special Group?", var_specialGroupOpenvas, 3) 
     if inputValue:
       var_specialGroupOpenvas = inputValue
 
-      if var_specialGroupOpenvas != def_specialGroupOpenvas:
-        reload = True
 
-
-    ###### Openvas Special Hosts List ######
+    ###### Openvas Special Servers List ######
     var_specialServersListOpenvas = getValueFromFile(configExtra, 'specialServersListOpenvas:', ':')
     def_specialServersListOpenvas = var_specialServersListOpenvas
     if not var_specialServersListOpenvas:
@@ -577,21 +341,12 @@ def main():
     if var_specialGroupOpenvas == "y":
       correct = False
       count = 0
-      print
-      print "------------------------------------------------"
-      print "List of hosts belonging to Openvas Special Group"
-      print "------------------------------------------------"
-      print
       while not correct:
-        inputValue = raw_input_def('Openvas Special Hosts List (separated by white spaces): ', var_specialServersListOpenvas)
+        inputValue = raw_input_def('Openvas Special Servers List (separated by white spaces): ', var_specialServersListOpenvas)
         if inputValue.strip():
           correct = True
           var_specialServersListOpenvas = inputValue.strip()
           print
-
-          if var_specialServersListOpenvas != def_specialServersListOpenvas:
-            reload = True
-
           continue
         else:
           print >> sys.stderr, "ERROR: No value"
@@ -600,7 +355,7 @@ def main():
         count += 1
         if count > maxErrors:
           print >> sys.stderr, "Too many Errors. Exiting..."
-          sys.exit(9)
+          sys.exit(7)
 
 
     ###### Set Openvas Special Group Crontab ######
@@ -620,12 +375,6 @@ def main():
 
       correct = False
       count = 0
-      print
-      print "--------------------------------------------------------------------------------"
-      print "Set crontab: minutes, hours, day, month and weekday for checking vulnerabilities"
-      print " of Openvas Special Group" 
-      print "--------------------------------------------------------------------------------"
-      print
       while not correct:
         inputValue = raw_input_def('Openvas Special Group Crontab (minute hour day month weekday): ', var_cadSpecialCronOpenvas)
         if inputValue.strip():
@@ -633,15 +382,15 @@ def main():
           arr = inputValue.split(' ')
           if len(arr) == 5:
             # Checking minute
-            if checkCronField(arr[0],"minute"):
+            if arr[0] == "*" or (isInt(arr[0]) and (0 <= int(arr[0]) <= 59)):
               # Checking hour
-              if checkCronField(arr[1],"hour"):
+              if arr[1] == "*" or (isInt(arr[1]) and (0 <= int(arr[1]) <= 23)):
                 # Checking day of month
-                if checkCronField(arr[2],"day"):
-                  # Checking month
-                  if checkCronField(arr[3],"month"):
+                if arr[2] == "*" or (isInt(arr[2]) and (1 <= int(arr[2]) <= 31)):
+		  # Checking month
+		  if arr[3] == "*" or (isInt(arr[3]) and (1 <= int(arr[3]) <= 12)):
                     # Checking day of week
-                    if checkCronField(arr[4],"weekday"):
+                    if arr[4] == "*" or (isInt(arr[4]) and (0 <= int(arr[4]) <= 7)):
                       correct = True
                       print
 
@@ -662,42 +411,8 @@ def main():
           count += 1
           if count > maxErrors:
             print >> sys.stderr, "Too many Errors. Exiting..."
-            sys.exit(10)
+            sys.exit(8)
 
-
-    ###### Set Munin-InfluxDB frequency (minutes) exporting data ######
-    var_minutesCronMuninInfluxDB = getValueFromFile(configExtra, 'minutesCronMuninInfluxDB:', ':')
-    def_minutesCronMuninInfluxDB = var_minutesCronMuninInfluxDB
-    if not var_minutesCronMuninInfluxDB:
-      var_minutesCronMuninInfluxDB = "5"
-
-    correct = False
-    count = 0
-    print
-    print "-------------------------------------------------------------"
-    print "Set frequency (minutes) exporting data from Munin to InfluxDB"
-    print "-------------------------------------------------------------"
-    print
-    while not correct:
-      inputValue = raw_input_def('Frequency to export data from Munin to InfluxDB in minutes (%s minutes): ' % (frequencyRangeMinutes), var_minutesCronMuninInfluxDB)
-      if inputValue.strip():
-        # Checking frequency 
-	if checkFrequency(inputValue.strip(),frequencyRangeMinutes):	
-	  correct = True
-	  var_minutesCronMuninInfluxDB = inputValue.strip()
-	  print
-	else:
-          print >> sys.stderr, "ERROR: Incorrect value. Range (%s minutes)" % (frequencyRangeMinutes)
-          print >> sys.stderr
-
-      else:
-        print >> sys.stderr, "ERROR: No value"
-        print >> sys.stderr
-
-      count += 1
-      if count > maxErrors:
-        print >> sys.stderr, "Too many Errors. Exiting..."
-        sys.exit(11)
 
 
 
@@ -706,10 +421,6 @@ def main():
     print "---------------------------------------"
     print "          Extra Configuration          "
     print "---------------------------------------"
-    print "Read Only User: %s" % (var_readUser)
-    if var_readUser != "":
-      print "Password Read Only User: %s" % (var_passwdReadUser)
-      print "Hosts Read Only User: %s" % (var_hostsReadUser if var_hostsReadUser != "" else "ALL")
     print "Path Inventory Directory: %s" % (var_pathInventoryDirectory)
     print "Directories to Search Executables: %s" % (var_pathExes)
     print "Directories not to Search Executables (exclude): %s" % (var_pathNoExes)
@@ -721,7 +432,6 @@ def main():
     if var_specialGroupOpenvas == "y":
       print "Openvas Special Servers List: %s" % (var_specialServersListOpenvas)
       print "Openvas Special Group Crontab: %s" % (var_cadSpecialCronOpenvas)
-    print "Frequency exporting data from Munin to InfluxDB: %s" % (var_minutesCronMuninInfluxDB)
     print "---------------------------------------"
     print
 
@@ -736,7 +446,7 @@ def main():
         f.write("### FILE GENERATED BY ANSIBLE. DON'T TOUCH ###\n")
         f.write("\n") 
         for line in mainFile.readlines():
-	  if line.startswith("subnets:") or line.startswith("exclude:") or (line.startswith("hostsAdmins:") and not line.startswith("hostsAdmins: ''")):
+	  if line.startswith("subnets:") or line.startswith("exclude:") or line.startswith("hostsAdmins:"):
 	    arrLine = line.split(':', 1) 
 	    f.write("%s:\n" % (arrLine[0]))
 	    arrData = arrLine[1].strip().split(' ')
@@ -749,22 +459,6 @@ def main():
 	f.write("\n")
         f.write("### Extra variables ###\n")
 	f.write("\n")
-	f.write("# Read Only User\n")
-	f.write("readUser: %s\n" % (var_readUser if var_readUser != "" else "''"))
-	f.write("\n")
-	if var_readUser != "":
-          f.write("# Password Read Only User\n")
-          f.write("passwdReadUser: %s\n" % (var_passwdReadUser if var_readUser != "" else "''"))
-          f.write("\n")
-          f.write("# Hosts Read Only User\n")
-          if var_hostsReadUser != "":
-            f.write("hostsReadUser:\n")
-            arr = var_hostsReadUser.split(' ')
-            for x in arr:
-              f.write("- %s\n" % (x))
-          else:
-            f.write("hostsReadUser: ''\n")
-          f.write("\n")
         f.write("# Path Inventory Directory\n")
         f.write("pathInventoryDirectory: %s\n" % (var_pathInventoryDirectory))
 	f.write("\n")
@@ -828,9 +522,6 @@ def main():
         f.write("# Database Update Cron Openvas (month)\n")
         f.write("monthUpdateCronOpenvas: %s\n" % (var_monthUpdateCronOpenvas if '*' not in var_monthUpdateCronOpenvas else "'" + var_monthUpdateCronOpenvas + "'"))
         f.write("\n")
-        f.write("# Frequency MuninInfluxDB (minutes)\n")
-        f.write("minutesCronMuninInfluxDB: %s\n" % (var_minutesCronMuninInfluxDB))
-        f.write("\n")
 
 	f.close()
         print "Generated."
@@ -838,47 +529,28 @@ def main():
 
       except:
         print >> sys.stderr, "Error opening file: %s" % (productionFileTmp)
-        sys.exit(12)
+        sys.exit(9)
 
       print "Updating Production File..."
       try:
         # Backup Production file
         print "Backup of Production file as '.back'" 
         shutil.copy(productionFile, "%s.back" % (productionFile))
-	os.chmod("%s.back" % (productionFile), 0600)
         # Move Temp file to Production file
         print "Moving from Temp to Production..."
         shutil.move(productionFileTmp, productionFile)
-	os.chmod(productionFile, 0600)
         print "Done."
         print
       except:
         print >> sys.stderr, "Error updating Production file."
-        sys.exit(13)      
+        sys.exit(10)      
   
       print "Updating Extra file..."
       try:
-
-        # Backup Config Extra 
-        shutil.copy(configExtra, "%s.back" % (configExtra))
-        print "Saved Old Config Extra as '.back'"
-        os.chmod("%s.back" % (configExtra), 0600)
-        os.chmod(configExtra, 0600)
-
         f = open(configExtra, 'w')
 
         f.write("### Extra variables ###\n")
         f.write("\n")
-        f.write("# Read Only User\n")
-        f.write("readUser: %s\n" % (var_readUser if var_readUser != "" else "''"))
-        f.write("\n")
-	if var_readUser != "":
-          f.write("# Password Read Only User\n")
-          f.write("passwdReadUser: %s\n" % (var_passwdReadUser if var_readUser != "" else "''"))
-          f.write("\n")
-          f.write("# Hosts Read Only User\n")
-          f.write("hostsReadUser: %s\n" % (var_hostsReadUser if var_hostsReadUser != "" else "''"))
-          f.write("\n")
         f.write("# Path Inventory Directory\n")
         f.write("pathInventoryDirectory: %s\n" % (var_pathInventoryDirectory))
         f.write("\n")
@@ -942,9 +614,6 @@ def main():
         f.write("# Database Update Cron Openvas (month)\n")
         f.write("monthUpdateCronOpenvas: %s\n" % (var_monthUpdateCronOpenvas if '*' not in var_monthUpdateCronOpenvas else "'" + var_monthUpdateCronOpenvas + "'"))
         f.write("\n")
-        f.write("# Frequency MuninInfluxDB (minutes)\n")
-        f.write("minutesCronMuninInfluxDB: %s\n" % (var_minutesCronMuninInfluxDB))
-        f.write("\n")
 
         f.close()
         print "Done."
@@ -959,48 +628,16 @@ def main():
         # Deleting Ansible crontab entries 
         print "Reloading (Deleting and Creating Ansible crontab entries)..."
         print 
-	subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); (ansible-playbook %s/ansible.yml -t cronStop -u %s -s; ansible-playbook %s/ansible.yml -t cronStart -u %s -s) 2>&1|tee /var/log/ansible/.configExtra-cronRestart.$timestamp.log.tmp; [ $? -gt 0 ] && ((echo; echo \"### ERRORS System Restart (extra configuration) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.configExtra-cronRestart.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.configExtra-cronRestart.$timestamp.log.tmp; echo \"### System Restart (extra configuration) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log;" % (pathAnsible,var_sshUserNodes,pathAnsible,var_sshUserNodes), shell=True)
+        subprocess.call("ansible-playbook %s/ansible.yml -t cronStop -u %s -s; ansible-playbook %s/ansible.yml -t cronStart -u %s -s" % (pathAnsible,var_sshUserNodes,pathAnsible,var_sshUserNodes), shell=True) 
         print 
         print "Done."
         print 
 
-      if var_minutesCronMuninInfluxDB != def_minutesCronMuninInfluxDB:
-	print "Reconfiguring MuninInfluxDB to modify exporting frequency..."
-	print
-	subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/grafana.yml -t munininfluxdb -u %s -s 2>&1|tee /var/log/ansible/.configExtra-munininfluxdb.$timestamp.log.tmp; [ $? -gt 0 ] && ((echo; echo \"### ERRORS MuninInfluxDB (extra configuration) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.configExtra-munininfluxdb.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.configExtra-munininfluxdb.$timestamp.log.tmp; echo \"### MuninInfluxDB (extra configuration) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log;" % (pathAnsible,var_sshUserNodes), shell=True)
-        print
-        print "Done."
-        print
-      
-      if var_readUser != def_readUser or (var_readUser != "" and (var_passwdReadUser != def_passwdReadUser or var_hostsReadUser != def_hostsReadUser)):
-	if var_readUser != "":
-          print "Reconfiguring system to allow read access to user '%s'..." % (var_readUser)
-	if def_readUser != "" and var_readUser != def_readUser:
-	  print "Reconfiguring system to deny read access to user '%s'..." % (def_readUser)
-        print
-	subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/mysql.yml -t config,createDB,firewall --extra-vars \"readUserOld=%s\" -u %s -s 2>&1|tee /var/log/ansible/.configExtra-mysql.$timestamp.log.tmp; [ $? -gt 0 ] && ((echo; echo \"### ERRORS Mysql Firewall (extra configuration) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.configExtra-mysql.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.configExtra-mysql.$timestamp.log.tmp; echo \"### Mysql Firewall (extra configuration) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log;" % (pathAnsible,def_readUser if def_readUser != "" else "''",var_sshUserNodes), shell=True)
-        print
-	subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/web.yml -t config,phpMyAdmin,firewall --extra-vars \"readUserOld=%s\" -u %s -s 2>&1|tee /var/log/ansible/.configExtra-web.$timestamp.log.tmp; [ $? -gt 0 ] && ((echo; echo \"### ERRORS Web Firewall (extra configuration) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.configExtra-web.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.configExtra-web.$timestamp.log.tmp; echo \"### Web Firewall (extra configuration) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log;" % (pathAnsible,def_readUser if def_readUser != ""  else "''",var_sshUserNodes), shell=True)
-        print
-	subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/nagios.yml -t config,firewall --extra-vars \"readUserOld=%s\" -u %s -s 2>&1|tee /var/log/ansible/.configExtra-nagios.$timestamp.log.tmp; [ $? -gt 0 ] && ((echo; echo \"### ERRORS Nagios Firewall (extra configuration) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.configExtra-nagios.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.configExtra-nagios.$timestamp.log.tmp; echo \"### Nagios Firewall (extra configuration) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log;" % (pathAnsible,def_readUser if def_readUser != ""  else "''",var_sshUserNodes), shell=True)
-        print
-	subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/munin.yml -t config,firewall --extra-vars \"readUserOld=%s\" -u %s -s 2>&1|tee /var/log/ansible/.configExtra-munin.$timestamp.log.tmp; [ $? -gt 0 ] && ((echo; echo \"### ERRORS Munin Firewall (extra configuration) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.configExtra-munin.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.configExtra-munin.$timestamp.log.tmp; echo \"### Munin Firewall (extra configuration) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log;" % (pathAnsible,def_readUser if def_readUser != ""  else "''",var_sshUserNodes), shell=True)
-	print
-	subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/grafana.yml -t config,influxdb,firewall --extra-vars \"readUserOld=%s\" -u %s -s 2>&1|tee /var/log/ansible/.configExtra-grafana.$timestamp.log.tmp; [ $? -gt 0 ] && ((echo; echo \"### ERRORS Grafana Firewall (extra configuration) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.configExtra-grafana.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.configExtra-grafana.$timestamp.log.tmp; echo \"### Grafana Firewall (extra configuration) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log;" % (pathAnsible,def_readUser if def_readUser != ""  else "''",var_sshUserNodes), shell=True)
-	print
-	subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/openvas.yml -t config,readUser,firewall --skip-tags dataDB --extra-vars \"readUserOld=%s\" -u %s -s 2>&1|tee /var/log/ansible/.configExtra-openvas.$timestamp.log.tmp; [ $? -gt 0 ] && ((echo; echo \"### ERRORS Openvas Firewall (extra configuration) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.configExtra-openvas.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.configExtra-openvas.$timestamp.log.tmp; echo \"### Openvas Firewall (extra configuration) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log;" % (pathAnsible,def_readUser if def_readUser != ""  else "''",var_sshUserNodes), shell=True)
-        print
-        print "Done."
-        print
 
     else:
       print "Cancelled."
       print
 
-  except KeyboardInterrupt:
-    print
-    print "Extra Configuration interrumped"
-    print
 
 
 if __name__ == '__main__':

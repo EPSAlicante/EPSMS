@@ -1,21 +1,14 @@
-{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
-{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
-{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
-{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
-{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
-{#                                                                              #}
-{#                                                                              #}
 # Generating SQL for Baseboards of {{ inventory_hostname }}
 
 {% if hostvars[inventory_hostname]["baseboard"] is defined %}
 
 {% for board in hostvars[inventory_hostname]["baseboard"] -%}
 
-CHECK_BASEBOARD_{{ loop.index }}: SELECT * FROM Baseboard WHERE Server='{{ inventory_hostname }}' AND Handle='{{ board["Handle"] }}' AND Manufacturer='{{ board["Manufacturer"]|default("") }}' AND ProductName='{{ board["Product Name"]|default("") }}' AND Version='{{ board["Version"]|default("") }}' AND SerialNumber='{{ board["Serial Number"]|default("") }}' AND Auto AND End IS NULL;
+CHECK_BASEBOARD_{{ loop.index }}: SELECT * FROM Baseboard WHERE Server='{{ inventory_hostname }}' AND Handle='{{ board["Handle"] }}' AND Manufacturer='{{ board["Manufacturer"] }}' AND ProductName='{{ board["Product Name"] }}' AND Version='{{ board["Version"] }}' AND SerialNumber='{{ board["Serial Number"] }}' AND Auto AND End IS NULL;
 
-UPDATE_BASEBOARD_{{ loop.index }}: UPDATE Baseboard SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ board["Handle"] }}' AND Manufacturer='{{ board["Manufacturer"]|default("") }}' AND ProductName='{{ board["Product Name"]|default("") }}' AND Version='{{ board["Version"]|default("") }}' AND SerialNumber='{{ board["Serial Number"]|default("") }}' AND Auto AND End IS NULL; 
+UPDATE_BASEBOARD_{{ loop.index }}: UPDATE Baseboard SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ board["Handle"] }}' AND Manufacturer='{{ board["Manufacturer"] }}' AND ProductName='{{ board["Product Name"] }}' AND Version='{{ board["Version"] }}' AND SerialNumber='{{ board["Serial Number"] }}' AND Auto AND End IS NULL; 
 
-INSERT_BASEBOARD_{{ loop.index }}: INSERT INTO Baseboard (Handle,Server,Manufacturer,ProductName,Version,SerialNumber,Init,Checked,Auto) VALUES ('{{ board["Handle"] }}','{{ inventory_hostname }}', '{{ board["Manufacturer"]|default("") }}', '{{ board["Product Name"]|default("") }}', '{{ board["Version"]|default("") }}', '{{ board["Serial Number"]|default("") }}', NOW(), NOW(), 1);
+INSERT_BASEBOARD_{{ loop.index }}: INSERT INTO Baseboard (Handle,Server,Manufacturer,ProductName,Version,SerialNumber,Init,Checked,Auto) VALUES ('{{ board["Handle"] }}','{{ inventory_hostname }}', '{{ board["Manufacturer"] }}', '{{ board["Product Name"] }}', '{{ board["Version"] }}', '{{ board["Serial Number"] }}', NOW(), NOW(), 1);
 
 {% endfor %}
 

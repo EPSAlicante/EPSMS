@@ -1,14 +1,7 @@
-{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
-{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
-{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
-{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
-{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
-{#                                                                              #}
-{#                                                                              #}
 [[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
 
 
-==== Host {{ inventory_hostname }}: Processor ====
+==== Server {{ inventory_hostname }}: Processor ====
 
 ^ Processor type | {{ "%s" % hostvars[inventory_hostname]["ansible_processor"][0] if hostvars[inventory_hostname]["ansible_processor"][0] is defined else "?" }} | 
 ^ Processor count | {{ "%s" % hostvars[inventory_hostname]["ansible_processor_count"] if hostvars[inventory_hostname]["ansible_processor_count"] is defined else "?" }} |
@@ -19,22 +12,22 @@
 {% if hostvars[inventory_hostname]["processor"] is defined -%}
 {% for proc in hostvars[inventory_hostname]["processor"]|sort -%}
 ^  Socket Designation: {{ "%s" % proc["Socket Designation"] if proc["Socket Designation"] is defined else "?" }}  ^^ 
-^ Type | {{ proc["Type"]|default("") }} |
-^ Family | {{ proc["Family"]|default("") }} |
-^ Vendor | {{ proc["Vendor"]|default("") }} |
-^ Signature | {{ proc["Signature"]|default("") }} |
-^ ID | {{ proc["ID"]|default("") }} |
-^ Version | {{ proc["Version"]|default("") }} |
-^ Voltage | {{ proc["Voltage"]|default("") }} |
-^ External Clock | {{ proc["External Clock"]|default("") }} |
-^ Max Speed | {{ proc["Max Speed"]|default("") }} |
-^ Current Speed | {{ proc["Current Speed"]|default("") }} |
-^ Status | {{ proc["Status"]|default("") }} |
-^ Upgrade | {{ proc["Upgrade"]|default("") }} |
-^ L1 Cache Handle | {{ "[[ %s-caches | %s ]]" % (inventory_hostname,proc["L1 Cache Handle"]|default("")) }} |
-^ L2 Cache Handle | {{ "[[ %s-caches | %s ]]" % (inventory_hostname,proc["L2 Cache Handle"]|default("")) }} |
-^ L3 Cache Handle | {{ "[[ %s-caches | %s ]]" % (inventory_hostname,proc["L3 Cache Handle"]|default("")) }} |
-^ Serial Number | {{ proc["Serial Number"]|default("") }} |
+^ Type | {{ proc["Type"] }} |
+^ Family | {{ proc["Family"] }} |
+^ Vendor | {{ proc["Vendor"] }} |
+^ Signature | {{ proc["Signature"] }} |
+^ ID | {{ proc["ID"] }} |
+^ Version | {{ proc["Version"] }} |
+^ Voltage | {{ proc["Voltage"] }} |
+^ External Clock | {{ proc["External Clock"] }} |
+^ Max Speed | {{ proc["Max Speed"] }} |
+^ Current Speed | {{ proc["Current Speed"] }} |
+^ Status | {{ proc["Status"] }} |
+^ Upgrade | {{ proc["Upgrade"] }} |
+^ L1 Cache Handle | {{ "[[ %s-caches | %s ]]" % (inventory_hostname,proc["L1 Cache Handle"]) }} |
+^ L2 Cache Handle | {{ "[[ %s-caches | %s ]]" % (inventory_hostname,proc["L2 Cache Handle"]) }} |
+^ L3 Cache Handle | {{ "[[ %s-caches | %s ]]" % (inventory_hostname,proc["L3 Cache Handle"]) }} |
+^ Serial Number | {{ proc["Serial Number"] }} |
 {% if proc["Flags"] is defined -%}
 ^  Characteristics  ^^
 {% for char, value in proc["Flags"].iteritems() -%}

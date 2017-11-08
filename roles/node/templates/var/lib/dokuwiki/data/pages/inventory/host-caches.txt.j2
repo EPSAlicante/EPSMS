@@ -1,25 +1,18 @@
-{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
-{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
-{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
-{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
-{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
-{#                                                                              #}
-{#                                                                              #}
 [[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
 
 
-==== Host {{ inventory_hostname }}: Cache memories ====
+==== Server {{ inventory_hostname }}: Cache memories ====
 
 {% if hostvars[inventory_hostname]["cache"] is defined -%}
 {% for cache in hostvars[inventory_hostname]["cache"]|sort -%}
-^  {{ cache["Socket Designation"]|default("") }}  ^^ 
+^  {{ cache["Socket Designation"] }}  ^^ 
 ^ Handle | {{ cache["Handle"] }} |
-^ Level | {{ cache["Level"]|default("") }} |
-^ Enabled | {{ cache["Enabled"]|default("") }} |
-^ Operational Mode | {{ cache["Operational Mode"]|default("") }} |
-^ Location | {{ cache["Location"]|default("") }} |
-^ Installed Size | {{ cache["Installed Size"]|default("") }} |
-^ Maximum Size | {{ cache["Maximum Size"]|default("") }} |
+^ Level | {{ cache["Level"] }} |
+^ Enabled | {{ cache["Enabled"] }} |
+^ Operational Mode | {{ cache["Operational Mode"] }} |
+^ Location | {{ cache["Location"] }} |
+^ Installed Size | {{ cache["Installed Size"] }} |
+^ Maximum Size | {{ cache["Maximum Size"] }} |
 
 {% endfor %}
 {% endif %}

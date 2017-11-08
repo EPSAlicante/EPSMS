@@ -1,10 +1,4 @@
 #!/usr/bin/python
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
 
 import subprocess
 import socket
@@ -38,11 +32,11 @@ def checkIP(IP):
 
 def IPtoName(IP):
     try:
-      nameDNS = socket.getfqdn(IP)
+      nameDNS = socket.gethostbyaddr(IP)
     except:
       return IP 
 
-    return nameDNS.lower()
+    return nameDNS[0].lower()
 
 
 def getValueFromFile(file, label, separator):
@@ -111,7 +105,7 @@ def main():
       print "Host '%s' is accesible by ansible with user '%s'." % (node,user) 
       sys.exit(0)
     else:
-      print >> sys.stderr, "Error: host '%s' is not accesible by ansible with user '%s'." % (node,user) 
+      print "Error: host '%s' is not accesible by ansible with user '%s'." % (node,user) 
       sys.exit(2)
 
     

@@ -1,16 +1,15 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
-
-# Web Server installation (Php)
+# Instalación del servidor Web II (Php)
 
 - name: Be sure php is installed (yum)
   yum: pkg={{ item }} state=installed
   with_items: "{{ packagePhp }}"
   notify: restart apache
   when: ansible_pkg_mgr == "yum"
+
+#- name: Be sure php is installed (apt)
+#  apt: pkg={{ item }} state=installed update_cache=yes force=yes
+#  with_items: "{{ packagePhp }}"
+#  notify: restart apache
+#  when: ansible_pkg_mgr == "apt"
 

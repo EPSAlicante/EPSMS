@@ -1,63 +1,51 @@
-<html>
-<head>
-<title>Configuration</title>
-</head>
-<body style="background:#A4BBC7">
-<div align="center">
-<table width="80%">
-<tr><td>
-<center><h1>Extra Configuration</h1></center>
-<p>&nbsp;</p>
-<p>We can configure extra parameters executing '/etc/ansible/configExtra.py' python script, or from menu <strong>'/etc/ansible/menu.py'</strong> choice <strong>'option 2. Configure Extra Variables'</strong>.</p>
-<p>Configuration start with several questions about extra parameters of system.</p>
-<p>These are extra parameters:</p>
-<h2>Read Only User</h2>
-<p>User allowed to access all servers in read only mode (leave empty to not create user).</p>
-<p>&nbsp;</p>
-<h2>Password of Read Only User</h2>
-<p>Password to access all server as read only user.</p>
-<p>&nbsp;</p>
-<h2>Hosts Read Only User</h2>
-<p>IP addresses allowed to access Mysql databases and web services as read only user (leave empty to allow access from everywhere).</p>
-<p>&nbsp;</p>
-<h2>Path Inventory Directory</h2>
-<p>Directory in Mysql server where system will put SQL generated files to execute connecting to localhost Mysql service.</p>
-<p>&nbsp;</p>
-<h2>Directories to search exes</h2>
-<p>List of Directories in nodes (separated by white spaces) where system will search executable files</p>
-<p>&nbsp;</p>
-<h2>Directories not to search exes</h2>
-<p>List of Directories in nodes (separated by white spaces) to exclude from previous list. System will not search executable files inside.</p>
-<p>&nbsp;</p>
-<h2>Config Scan Openvas</h2>
-<p>Predefined scan configuration of Openvas checks. Available options are: 'Discovery', 'Host Discovery', 'System Discovery', 'Full and fast', 'Full and fast ultimate', 'Full and very deep' and 'Full and very deep ultimate'.</p>
-<p>&nbsp;</p>
-<h2>Openvas Crontab</h2>
-<p>Crontab settings to define Openvas frequency checks. 'Month' was defined as a required parameter in Configuration System, so here we have to define: minutes, hours, day and weekday.</p>
-<p>&nbsp;</p>
-<h2>Database Update Openvas Crontab</h2>
-<p>Crontab settings to define Openvas database Updates frequency checks. We have to define: minutes, hours, day, month and weekday.</p>
-<p>&nbsp;</p>
-<h2>Exclude Openvas Servers List</h2>
-<p>List of hosts (separated by white spaces) to exclude of Openvas checks.</p>
-<p>&nbsp;</p>
-<h2>Do you want to create Openvas Special Group?</h2>
-<p>Script ask to create a special group of hosts with a different Openvas frequency check (could be bigger or smaller than the general frequency).</p>
-<p>&nbsp;</p>
-<h2>Openvas Special Servers List</h2>
-<p>List of host (separated by white spaces) that belongs to Openvas Special Group.</p>
-<p>&nbsp;</p>
-<h2>Openvas Special Group Crontab</h2>
-<p>Crontab settings to define Openvas Special Group frequency checks. We have to define: minutes, hours, day, month and weekday.</p>
-<p>&nbsp;</p>
-<h2>Frequency to export data from Munin to InfluxDB</h2>
-<p>How often (in minutes) MuninInfluxDB exports data from Munin to InfluxDB.</p>
-<p>&nbsp;</p>
-<p>After questions, answers will be shown in a summary screen and ask to continue or cancel the script.</p>
-<p>If continue answer has been selected, script will modify System Configuration and reload crontab setting if we have modified any crontab parameter, or reconfigure munininfluxdb if MuninInfluxDB frequency has been modified.</p>
-<p>&nbsp;</p>
-</td></tr>
-</table>
-</div>
-</body>
-</html>
+######################################################
+              Extra Configuration Guide 
+######################################################
+
+
+We can configure extra parameters executing '/etc/ansible/configExtra.py' python script, or from menu '/etc/ansible/menu.py' choice 'option 2. Configure Extra Variables'.
+
+Configuration start with several questions about extra parameters of system.
+
+  
+These are extra parameters:
+
+
+* 'Path Inventory Directory' -> Directory in Mysql server where system will put SQL generated files to execute connecting to localhost Mysql service.
+
+
+* 'Directories to search exes' -> List of Directories in nodes (separated by white spaces) where system will search executable files
+
+
+* 'Directories not to search exes' -> List of Directories in nodes (separated by white spaces) to exclude from previous list. System will not search executable files inside.
+
+
+* 'Config Scan Openvas' -> Predefined scan configuration of Openvas checks. Available options are: 'Discovery', 'Host Discovery', 'System Discovery', 'Full and fast', 'Full and fast ultimate', 'Full and very deep' and 'Full and very deep ultimate'.
+
+
+* 'Openvas Crontab' -> Crontab settings to define Openvas frequency checks. 'Month' was defined as a required parameter in Configuration System, so here we have to define: minutes, hours, day and weekday.
+
+
+* 'Database Update Openvas Crontab' -> Crontab settings to define Openvas database Updates frequency checks. We have to define: minutes, hours, day, month and weekday.
+
+
+* 'Exclude Openvas Servers List' -> List of hosts (separated by white spaces) to exclude of Openvas checks.
+
+
+* 'Do you want to create Openvas Special Group?' -> Script ask to create a special group of hosts with a different Openvas frequency checks (could be bigger or smaller than the general frequency).
+
+
+* 'Openvas Special Servers List' -> List of host (separated by white spaces) that belongs to Openvas Special Group.
+
+
+* 'Openvas Special Group Crontab' -> Crontab settings to defeinde Openvas Special Group frequency checks. We have to define: minutes, hours, day, month and weekday.
+
+
+After questions, answers will be shown in a summary screen and ask to continue or cancel the script.
+
+
+If continue answer has been selected, script will modify System Configuration and reload crontab setting if we have modified any crontab parameter.
+
+
+
+######################################################

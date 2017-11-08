@@ -1,26 +1,20 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+# Instalación del servidor Ansible 
 
-
-# Ansible server installation 
-
-- name: Be sure less, nmap, rsync, bind-utils, coreutils, sshpass, python-pip and libselinux-python will be installed (yum)
+- name: Be sure less, nmap, rsync, bind-utils, coreutils, sshpass & python-pip are installed (yum)
   yum: pkg={{ item }} enablerepo={{ labelEpel }} state=installed
   with_items: "{{ packageAnsible }}"
   when: ansible_pkg_mgr == "yum"
+
+#- name: Be sure less,nmap,rsync & bind9-host are installed (apt)
+#  apt: pkg={{ item }} state=installed update_cache=yes force=yes
+#  with_items: "{{ packageAnsible }}"
+#  when: ansible_pkg_mgr == "apt"
 
 - name: Upgrade paramiko python package to >=1.15
   shell: ver=`pip freeze|grep paramiko|sed 's/^.*==//g'|cut -d'.' -f2`; [ "$ver" -lt 15 ] && (pip install ecdsa; pip install paramiko --upgrade) || echo "Updated" 
   register: updateParamiko 
   changed_when: updateParamiko.stdout != "Updated"
-  ignore_errors: yes
-
-- name: Install html2text python module
-  pip: name=html2text
   ignore_errors: yes
 
 - name: Getting Path Data
@@ -50,11 +44,11 @@
   when: winNodes == "y" and wmicInstalled.stdout|default("No") != "Yes"
 
 - name: Copy wmic (rpm) 
-  copy: src=root/wmic/wmic-40.x86_64.rpm dest=/root/wmic/wmic-40.x86_64.rpm owner=root group=root mode=0640 
+  copy: src=root/wmic/wmic-40.{{ architecture.stdout|default("x86_64") }}.rpm dest=/root/wmic/wmic-40.{{ architecture.stdout|default("x86_64") }}.rpm owner=root group=root mode=0640 
   ignore_errors: yes
   when: winNodes == "y" and wmicInstalled.stdout|default("No") != "Yes"
 
 - name: Install wmic (rpm)
-  shell: (wmic --version > /dev/null || rpm -fi /root/wmic/wmic-40.x86_64.rpm) 2>/dev/null executable=/bin/bash
+  shell: (wmic --version > /dev/null || rpm -fi /root/wmic/wmic-40.{{ architecture.stdout|default("x86_64") }}.rpm) 2>/dev/null executable=/bin/bash
   ignore_errors: yes
   when: winNodes == "y" and wmicInstalled.stdout|default("No") != "Yes"

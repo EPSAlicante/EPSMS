@@ -148,7 +148,7 @@ $resultServer = mysql_query($sqlServer);
 $nrowsServer = mysql_num_rows($resultServer);
 
 echo "<table border='1' cellpadding='5' style='background:#75B9E4'>
-<caption><H2>Host</H2></caption>
+<caption><H2>Server</H2></caption>
 <tr style='background:#2D7297; color:white'>
 <th>Name</th>
 <th>IP</th>

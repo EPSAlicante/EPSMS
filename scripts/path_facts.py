@@ -1,10 +1,4 @@
 #!/usr/bin/python
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
 
 import subprocess
 
@@ -53,14 +47,12 @@ def show_paths():
     print "      \"netstat\": \"%s\"," % (path('netstat'))
     print "      \"pacman\": \"%s\"," % (path('pacman'))
     print "      \"passwd\": \"%s\"," % (path('passwd'))
-    print "      \"pkg\": \"%s\"," % (path('pkg'))
     print "      \"pkg_add\": \"%s\"," % (path('pkg_add'))
     print "      \"pkg_info\": \"%s\"," % (path('pkg_info'))
     print "      \"pkgutil\": \"%s\"," % (path('pkgutil'))
     print "      \"port\": \"%s\"," % (path('port'))
     print "      \"sed\": \"%s\"," % (path('gsed','sed'))
     print "      \"service\": \"%s\"," % (path('service'))
-    print "      \"slackpkg\": \"%s\"," % (path('slackpkg'))
     print "      \"ssh-keygen\": \"%s\"," % (path('ssh-keygen'))
     print "      \"svcadm\": \"%s\"," % (path('svcadm'))
     print "      \"svcs\": \"%s\"," % (path('svcs'))

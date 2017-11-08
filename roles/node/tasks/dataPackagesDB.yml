@@ -1,16 +1,7 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
-
 # Getting packages data from node
 
 - name: Getting Path Data from nodes
-  environment:
-    PATH: "{{ ansible_env.PATH }}:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/gnu/bin:/usr/gnu/sbin:/opt/csw/bin:/opt/csw/sbin"
   action: path_facts
   register: pathFacts
   changed_when: False
@@ -23,9 +14,13 @@
   changed_when: False
   ignore_errors: yes
 
-- name: Getting packages data from nodes
-  environment:
-    PATH: "{{ ansible_env.PATH }}:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/gnu/bin:/usr/gnu/sbin:/opt/csw/bin:/opt/csw/sbin"
+#- name: Enlazar /usr/bin/python
+#  shell: ( [ -f /usr/bin/python ] || ( [ `which python|wc -l` -gt 0 ] && ln -s `which python` /usr/bin/python &&  echo "link" ) ) 2>/dev/null executable={{ path.bash }}
+#  register: linkPython
+#  changed_when: linkPython.stdout == "link"
+#  ignore_errors: yes
+
+- name: Getting data from nodes
   action: site_factsPackages
   register: siteFactsPackages 
   changed_when: False
@@ -38,19 +33,19 @@
   ignore_errors: yes
 
 - name: Create nodes directory (inside inventory)
-  file: path={{ pathInventoryDirectory|default('/root/inventory') }}/nodes owner=root group=0 state=directory
+  file: path={{ pathInventoryDirectory|default('/root/inventory') }}/nodes owner=root group=root state=directory
   delegate_to: "{{ hostMysql }}"
   ignore_errors: yes
   when: siteFactsPackages|success
 
 - name: Generate sql file for packages (in Mysql Server)
-  template: src=root/inventory/nodes/node_dataPackages.sql.j2 dest={{ pathInventoryDirectory|default('/root/inventory') }}/nodes/{{ inventory_hostname }}_dataPackages.{{ PID.stdout }}.sql owner=root group=0 mode=0640
+  template: src=root/inventory/nodes/node_dataPackages.sql.j2 dest={{ pathInventoryDirectory|default('/root/inventory') }}/nodes/{{ inventory_hostname }}_dataPackages.{{ PID.stdout }}.sql owner=root group=root mode=0640
   delegate_to: "{{ hostMysql }}"
   ignore_errors: yes
   when: siteFactsPackages|success
 
 - name: Generate script node.py (in Mysql Server)
-  template: src=root/inventory/nodes/{{ item }}.j2 dest={{ pathInventoryDirectory|default('/root/inventory') }}/nodes/{{ item }} owner=root group=0 mode=0750 
+  template: src=root/inventory/nodes/{{ item }}.j2 dest={{ pathInventoryDirectory|default('/root/inventory') }}/nodes/{{ item }} owner=root group=root mode=0750 
   with_items:
     - node.py
   delegate_to: "{{ hostMysql }}"
@@ -65,7 +60,7 @@
   when: siteFactsPackages|success
 
 - name: Copy host-packages.txt (in Wiki Master)
-  template: src=var/lib/dokuwiki/data/pages/inventory/host-{{ item }}.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp owner=root group=0 mode=0644
+  template: src=var/lib/dokuwiki/data/pages/inventory/host-{{ item }}.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp owner=root group=root mode=0644
   with_items:
     - packagestotal
   delegate_to: "{{ hostWeb }}"
@@ -73,7 +68,7 @@
   when: siteFactsPackages|success
 
 - name: Commit changes of host-packages.txt & update (in Wiki Server)
-  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp inventory:{{ inventory_hostname|lower }}-{{ item }}) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ inventory_hostname|lower }}-{{ item }}.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ inventory_hostname|lower }}-{{ item }}.* || true)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" commit /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp inventory:{{ inventory_hostname|lower }}-{{ item }}) || (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp inventory:{{ inventory_hostname|lower }}-{{ item }})
   with_items:
     - packagestotal
   delegate_to: "{{ hostWeb }}"
@@ -82,30 +77,33 @@
   when: siteFactsPackages|success
 
 - name: Getting Last 100 Packages Installed in node (in Mysql Server)
-  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="packageslast" query="Select Name, Version, Size, Init as Date, End, Checked from Package where Server='{{ inventory_hostname }}' and Auto order by Init desc, Name limit 100"
+  action: db_facts hostMysql="{{ hostMysql }}" and passwd="{{ passwdMysqlInventory }}" label="packageslast" query="Select Name, Version, Size, Init as Date, End, Checked from Package where Server='{{ inventory_hostname }}' and Auto order by Init desc, Name limit 100"
   delegate_to: "{{ hostMysql }}"
   changed_when: False
   ignore_errors: yes
-  when: siteFactsPackages|success and passwdAdmin|default("") != ""
+  when: siteFactsPackages|success and passwdMysqlInventory|default("") != ""
+
+#- name: Display facts of mysql
+#  debug: msg=" Facts - {{ hostvars[inventory_hostname]["packageslast"] }}"
 
 - name: Copy host-items.txt from DB (in Wiki Master)
-  template: src=var/lib/dokuwiki/data/pages/inventory/host-{{ item }}.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp owner=root group=0 mode=0644
+  template: src=var/lib/dokuwiki/data/pages/inventory/host-{{ item }}.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp owner=root group=root mode=0644
   with_items:
     - packages
     - packageslast
   delegate_to: "{{ hostWeb }}"
   ignore_errors: yes
-  when: siteFactsPackages|success and passwdAdmin|default("") != ""
+  when: siteFactsPackages|success and passwdMysqlInventory|default("") != ""
 
 - name: Commit changes of host-items.txt from DB & update (in Wiki Server)
-  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp inventory:{{ inventory_hostname|lower }}-{{ item }}) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ inventory_hostname|lower }}-{{ item }}.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ inventory_hostname|lower }}-{{ item }}.* || true)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" commit /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp inventory:{{ inventory_hostname|lower }}-{{ item }}) || (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp inventory:{{ inventory_hostname|lower }}-{{ item }})
   with_items:
     - packages
     - packageslast 
   delegate_to: "{{ hostWeb }}"
   changed_when: False
   ignore_errors: yes
-  when: siteFactsPackages|success and passwdAdmin|default("") != ""
+  when: siteFactsPackages|success and passwdMysqlInventory|default("") != ""
 
 - name: Get userApache in Web Server
   shell: stat -c "%U" /var/lib/dokuwiki/data executable=/bin/bash
@@ -116,7 +114,7 @@
   when: siteFactsPackages|success
 
 - name: Change owner of /var/lib/dokuwiki/data to userApache
-  shell: "find /var/lib/dokuwiki/data ! -user {{ userApacheServer.stdout }} -exec chown {{ userApacheServer.stdout }} {} \\; executable=/bin/bash"
+  shell: chown -R {{ userApacheServer.stdout }} /var/lib/dokuwiki/data executable=/bin/bash
   delegate_to: "{{ hostWeb }}"
   changed_when: False
   ignore_errors: yes

@@ -1,9 +1,4 @@
 #!/usr/bin/python
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
 
 import subprocess
 import sys
@@ -24,7 +19,7 @@ def main():
     os.system("clear")
     # System Installation
     print
-    print "Installation of EPS Monitoring System"
+    print "Installation of Automatic Monitoring System"
     print
 
     # Check Python Version

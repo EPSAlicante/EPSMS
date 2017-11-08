@@ -25,7 +25,7 @@ class Rest_Software
 
         // GET /software/distribution
         static public function getSoftwareDistribution() {
-	  $query = "SELECT F.Server, MAX(if(SoftType='Distribution' and F.Name='Distribution',Value,'')) as 'Distribution', MAX(if(SoftType='Version' and F.Name='Version',Value,'')) as 'Version' FROM Software as F, Server as S WHERE F.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and F.Auto and F.End is Null and ((SoftType='Distribution' and F.Name='Distribution') or (SoftType='Version' and F.Name='Version')) GROUP BY 1 ORDER BY F.Server";
+	  $query = "SELECT Server, MAX(if(SoftType='Distribution' and Name='Distribution',Value,'')) as 'Distribution', MAX(if(SoftType='Version' and Name='Version',Value,'')) as 'Version' FROM Software WHERE Auto and End is Null and ((SoftType='Distribution' and Name='Distribution') or (SoftType='Version' and Name='Version')) GROUP BY 1 ORDER BY Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -39,7 +39,7 @@ class Rest_Software
 
         // GET /software/kernel
         static public function getSoftwareKernel() {
-          $query = "SELECT F.Server, Value as 'Kernel' FROM Software as F, Server as S WHERE F.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and F.Auto and F.End is Null and SoftType='Kernel' and F.Name='Kernel' ORDER BY F.Server";
+          $query = "SELECT Server, Value as 'Kernel' FROM Software WHERE Auto and End is Null and SoftType='Kernel' and Name='Kernel' ORDER BY Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -53,7 +53,7 @@ class Rest_Software
 
         // GET /software/modules
         static public function getSoftwareModules() {
-          $query = "SELECT F.Server, F.Name, FileName as 'File Name', Author, Description, License, Version, VerMagic as 'Version Magic', SrcVersion as 'Source Version' FROM Module as F, Server as S WHERE F.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and F.Auto and F.End is Null Order by F.Server, F.Name";
+          $query = "SELECT Server, Name, FileName as 'File Name', Author, Description, License, Version, VerMagic as 'Version Magic', SrcVersion as 'Source Version' FROM Module WHERE Auto and End is Null Order by Server, Name";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -67,7 +67,7 @@ class Rest_Software
 
         // GET /software/domain
         static public function getSoftwareDomain() {
-          $query = "SELECT F.Server, Value as 'Domain' FROM Software as F, Server as S WHERE F.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and F.Auto and F.End is Null and SoftType='Domain' and F.Name='Domain' ORDER BY F.Server";
+          $query = "SELECT Server, Value as 'Domain' FROM Software WHERE Auto and End is Null and SoftType='Domain' and Name='Domain' ORDER BY Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -81,7 +81,7 @@ class Rest_Software
 
         // GET /software/resolver
         static public function getSoftwareResolver() {
-          $query = "SELECT F.Server, F.Domain, Search, NS1 as 'NameServer 1', NS2 as 'NameServer 2', NS3 as 'NameServer 3' FROM Resolver as F, Server as S WHERE F.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and F.Auto and F.End is Null ORDER BY F.Server";
+          $query = "SELECT Server, Domain, Search, NS1 as 'NameServer 1', NS2 as 'NameServer 2', NS3 as 'NameServer 3' FROM Resolver WHERE Auto and End is Null ORDER BY Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -97,7 +97,7 @@ class Rest_Software
 
         // GET /software/filehost
         static public function getSoftwareFilehost() {
-          $query = "SELECT F.Server, Rule FROM FileHost as F, Server as S WHERE F.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and F.Auto and F.End is Null Order by F.Server, NumHost";
+          $query = "SELECT Server, Rule FROM FileHost WHERE Auto and End is Null Order by Server, NumHost";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -111,7 +111,7 @@ class Rest_Software
 
         // GET /software/routes
         static public function getSoftwareRoutes() {
-          $query = "SELECT F.Server, Destination, Mask, Gateway, Flags, Interface FROM Route as F, Server as S WHERE F.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and F.Auto and F.End is Null Order by F.Server, Destination";
+          $query = "SELECT Server, Destination, Mask, Gateway, Flags, Interface FROM Route WHERE Auto and End is Null Order by Server, Destination";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -125,7 +125,7 @@ class Rest_Software
 
         // GET /software/swap
         static public function getSoftwareSwap() {
-          $query = "SELECT F.Server, Value as 'Swap' FROM Software as F, Server as S WHERE F.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and F.Auto and F.End is Null and SoftType='Swap' and F.Name='Swap' ORDER BY F.Server";
+          $query = "SELECT Server, Value as 'Swap' FROM Software WHERE Auto and End is Null and SoftType='Swap' and Name='Swap' ORDER BY Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -139,7 +139,7 @@ class Rest_Software
 
         // GET /software/virtualization
         static public function getSoftwareVirtualization() {
-          $query = "SELECT F.Server, MAX(if(SoftType='Virtualization' and F.Name='Virtualization Role',Value,'')) as 'Virtualization Role', MAX(if(SoftType='Virtualization' and F.Name='Virtualization Type',Value,'')) as 'Virtualization Type' FROM Software as F, Server as S WHERE F.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and F.Auto and F.End is Null and ((SoftType='Virtualization' and F.Name='Virtualization Role') or (SoftType='Virtualization' and F.Name='Virtualization Type')) GROUP BY 1 ORDER BY F.Server";
+          $query = "SELECT Server, MAX(if(SoftType='Virtualization' and Name='Virtualization Role',Value,'')) as 'Virtualization Role', MAX(if(SoftType='Virtualization' and Name='Virtualization Type',Value,'')) as 'Virtualization Type' FROM Software WHERE Auto and End is Null and ((SoftType='Virtualization' and Name='Virtualization Role') or (SoftType='Virtualization' and Name='Virtualization Type')) GROUP BY 1 ORDER BY Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -153,7 +153,7 @@ class Rest_Software
 
         // GET /software/filesystems
         static public function getSoftwareFilesystems() {
-          $query = "SELECT F.Server, F.Name, Type, Mount, Options, Size  FROM FileSystem as F, Server as S WHERE F.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and F.Auto and F.End is Null Order by F.Server, F.Name";
+          $query = "SELECT Server, Name, Type, Mount, Options, Size  FROM FileSystem WHERE Auto and End is Null Order by Server, Name";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -167,7 +167,7 @@ class Rest_Software
 
         // GET /software/wlogicaldevices
         static public function getSoftwareWLogicalDevices() {
-          $query = "SELECT F.Server, DeviceID as 'Device ID', Caption, DriveType as 'Drive Type', FileSystem as 'File System', Size, Access, Availability, Compressed, ConfigManagerErrorCode as 'Config Manager Error Code', SupportsDiskQuotas as 'Supports Disk Quotas', QuotasDisabled as 'Quotas Disabled', SupportsFileBasedCompression as 'Supports File Based Compression', VolumeName as 'Volume Name', VolumeSerialNumber as 'Volume Serial Number' FROM WinLogicalDisk as F, Server as S WHERE F.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and F.Auto and F.End is Null Order by F.Server, DeviceID";
+          $query = "SELECT Server, DeviceID as 'Device ID', Caption, DriveType as 'Drive Type', FileSystem as 'File System', Size, Access, Availability, Compressed, ConfigManagerErrorCode as 'Config Manager Error Code', SupportsDiskQuotas as 'Supports Disk Quotas', QuotasDisabled as 'Quotas Disabled', SupportsFileBasedCompression as 'Supports File Based Compression', VolumeName as 'Volume Name', VolumeSerialNumber as 'Volume Serial Number' FROM  WinLogicalDisk WHERE Auto and End is Null Order by Server, DeviceID";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -183,7 +183,7 @@ class Rest_Software
 
         // GET /software/packagemanager
         static public function getSoftwarePackagemanager() {
-          $query = "SELECT F.Server, Value as 'Package Manager' FROM Software as F, Server as S WHERE F.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and F.Auto and F.End is Null and SoftType='Package Manager' and F.Name='Package Manager' ORDER BY F.Server";
+          $query = "SELECT Server, Value as 'Package Manager' FROM Software WHERE Auto and End is Null and SoftType='Package Manager' and Name='Package Manager' ORDER BY Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -197,7 +197,7 @@ class Rest_Software
 
         // GET /software/woperatingsystem
         static public function getSoftwareWOperatingSystem() {
-          $query = "SELECT F.Server, MAX(if(SoftType='OS' and F.Name='OSName',Value,'')) as 'OS Name', MAX(if(SoftType='OS' and F.Name='OSDescription',Value,'')) as 'OS Description', MAX(if(SoftType='BootSystem' and F.Name='BootDevice',Value,'')) as 'Boot Device', MAX(if(SoftType='OS' and F.Name='ServicePackMajorMinorVersion',Value,'')) as 'Service Pack Version', MAX(if(SoftType='Architecture' and F.Name='OSArchitecture',Value,'')) as 'OS Architecture', MAX(if(SoftType='OS' and F.Name='OSType',Value,'')) as 'OS Type', MAX(if(SoftType='OS' and F.Name='ProductType',Value,'')) as 'Product Type', MAX(if(SoftType='OS' and F.Name='Version',Value,'')) as 'Version', MAX(if(SoftType='OS' and F.Name='SerialNumber',Value,'')) as 'Serial Number', MAX(if(SoftType='OS' and F.Name='Country',Value,'')) as 'Country', MAX(if(SoftType='OS' and F.Name='Language',Value,'')) as 'Language', MAX(if(SoftType='OS' and F.Name='PAEEnabled',Value,'')) as 'PAE Enabled', MAX(if(SoftType='OS' and F.Name='Manufacturer',Value,'')) as 'Manufacturer', MAX(if(SoftType='TimeZone' and F.Name='CurrentTimeZone',Value,'')) as 'Current Time Zone', MAX(if(SoftType='OS' and F.Name='EncryptionLevel',Value,'')) as 'Encryption Level', MAX(if(SoftType='OS' and F.Name='NumberOfLicensedUsers',Value,'')) as 'Number Of Licensed Users', MAX(if(SoftType='OS' and F.Name='OperatingSystemSKU',Value,'')) as 'Operating System SKU', MAX(if(SoftType='OS' and F.Name='Organization',Value,'')) as 'Organization', MAX(if(SoftType='OS' and F.Name='RegisteredUser',Value,'')) as 'Registered User', MAX(if(SoftType='Processes' and F.Name='MaxNumberOfProcesses',Value,'')) as 'Max Number Of Processes', MAX(if(SoftType='OS' and F.Name='SystemDevice',Value,'')) as 'System Device', MAX(if(SoftType='OS' and F.Name='SystemDrive',Value,'')) as 'System Drive', MAX(if(SoftType='OS' and F.Name='WindowsDirectory',Value,'')) as 'Windows Directory', MAX(if(SoftType='OS' and F.Name='SystemDirectory',Value,'')) as 'System Directory', MAX(if(SoftType='Memory' and F.Name='TotalVisibleMemorySize',Value,'')) as 'Total Visible Memory Size', MAX(if(SoftType='Memory' and F.Name='TotalSwapSpaceSize',Value,'')) as 'Total Swap Space Size', MAX(if(SoftType='Memory' and F.Name='TotalVirtualMemorySize',Value,'')) as 'Total Virtual Memory Size', MAX(if(SoftType='OS' and F.Name='Distributed',Value,'')) as 'Distributed' FROM Software as F, Server as S WHERE F.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and F.Auto and F.End is Null and ((SoftType='OS' and F.Name='OSName') or (SoftType='OS' and F.Name='OSDescription') or (SoftType='BootSystem' and F.Name='BootDevice') or (SoftType='OS' and F.Name='ServicePackMajorMinorVersion') or (SoftType='Architecture' and F.Name='OSArchitecture') or (SoftType='OS' and F.Name='OSType') or (SoftType='OS' and F.Name='ProductType') or (SoftType='OS' and F.Name='Version') or (SoftType='OS' and F.Name='SerialNumber') or (SoftType='OS' and F.Name='Country') or (SoftType='OS' and F.Name='Language') or (SoftType='OS' and F.Name='PAEEnabled') or (SoftType='OS' and F.Name='Manufacturer') or (SoftType='TimeZone' and F.Name='CurrentTimeZone') or (SoftType='OS' and F.Name='EncryptionLevel') or (SoftType='OS' and F.Name='NumberOfLicensedUsers') or (SoftType='OS' and F.Name='OperatingSystemSKU') or (SoftType='OS' and F.Name='Organization') or (SoftType='OS' and F.Name='RegisteredUser') or (SoftType='Processes' and F.Name='MaxNumberOfProcesses') or (SoftType='OS' and F.Name='SystemDevice') or (SoftType='OS' and F.Name='SystemDrive') or (SoftType='OS' and F.Name='WindowsDirectory') or (SoftType='OS' and F.Name='SystemDirectory') or (SoftType='Memory' and F.Name='TotalVisibleMemorySize') or (SoftType='Memory' and F.Name='TotalSwapSpaceSize') or (SoftType='Memory' and F.Name='TotalVirtualMemorySize') or (SoftType='OS' and F.Name='Distributed')) GROUP BY 1 ORDER BY F.Server";
+          $query = "SELECT Server, MAX(if(SoftType='OS' and Name='OSName',Value,'')) as 'OS Name', MAX(if(SoftType='OS' and Name='OSDescription',Value,'')) as 'OS Description', MAX(if(SoftType='BootSystem' and Name='BootDevice',Value,'')) as 'Boot Device', MAX(if(SoftType='OS' and Name='ServicePackMajorMinorVersion',Value,'')) as 'Service Pack Version', MAX(if(SoftType='Architecture' and Name='OSArchitecture',Value,'')) as 'OS Architecture', MAX(if(SoftType='OS' and Name='OSType',Value,'')) as 'OS Type', MAX(if(SoftType='OS' and Name='ProductType',Value,'')) as 'Product Type', MAX(if(SoftType='OS' and Name='Version',Value,'')) as 'Version', MAX(if(SoftType='OS' and Name='SerialNumber',Value,'')) as 'Serial Number', MAX(if(SoftType='OS' and Name='Country',Value,'')) as 'Country', MAX(if(SoftType='OS' and Name='Language',Value,'')) as 'Language', MAX(if(SoftType='OS' and Name='PAEEnabled',Value,'')) as 'PAE Enabled', MAX(if(SoftType='OS' and Name='Manufacturer',Value,'')) as 'Manufacturer', MAX(if(SoftType='TimeZone' and Name='CurrentTimeZone',Value,'')) as 'Current Time Zone', MAX(if(SoftType='OS' and Name='EncryptionLevel',Value,'')) as 'Encryption Level', MAX(if(SoftType='OS' and Name='NumberOfLicensedUsers',Value,'')) as 'Number Of Licensed Users', MAX(if(SoftType='OS' and Name='OperatingSystemSKU',Value,'')) as 'Operating System SKU', MAX(if(SoftType='OS' and Name='Organization',Value,'')) as 'Organization', MAX(if(SoftType='OS' and Name='RegisteredUser',Value,'')) as 'Registered User', MAX(if(SoftType='Processes' and Name='MaxNumberOfProcesses',Value,'')) as 'Max Number Of Processes', MAX(if(SoftType='OS' and Name='SystemDevice',Value,'')) as 'System Device', MAX(if(SoftType='OS' and Name='SystemDrive',Value,'')) as 'System Drive', MAX(if(SoftType='OS' and Name='WindowsDirectory',Value,'')) as 'Windows Directory', MAX(if(SoftType='OS' and Name='SystemDirectory',Value,'')) as 'System Directory', MAX(if(SoftType='Memory' and Name='TotalVisibleMemorySize',Value,'')) as 'Total Visible Memory Size', MAX(if(SoftType='Memory' and Name='TotalSwapSpaceSize',Value,'')) as 'Total Swap Space Size', MAX(if(SoftType='Memory' and Name='TotalVirtualMemorySize',Value,'')) as 'Total Virtual Memory Size', MAX(if(SoftType='OS' and Name='Distributed',Value,'')) as 'Distributed' FROM Software WHERE Auto and End is Null and ((SoftType='OS' and Name='OSName') or (SoftType='OS' and Name='OSDescription') or (SoftType='BootSystem' and Name='BootDevice') or (SoftType='OS' and Name='ServicePackMajorMinorVersion') or (SoftType='Architecture' and Name='OSArchitecture') or (SoftType='OS' and Name='OSType') or (SoftType='OS' and Name='ProductType') or (SoftType='OS' and Name='Version') or (SoftType='OS' and Name='SerialNumber') or (SoftType='OS' and Name='Country') or (SoftType='OS' and Name='Language') or (SoftType='OS' and Name='PAEEnabled') or (SoftType='OS' and Name='Manufacturer') or (SoftType='TimeZone' and Name='CurrentTimeZone') or (SoftType='OS' and Name='EncryptionLevel') or (SoftType='OS' and Name='NumberOfLicensedUsers') or (SoftType='OS' and Name='OperatingSystemSKU') or (SoftType='OS' and Name='Organization') or (SoftType='OS' and Name='RegisteredUser') or (SoftType='Processes' and Name='MaxNumberOfProcesses') or (SoftType='OS' and Name='SystemDevice') or (SoftType='OS' and Name='SystemDrive') or (SoftType='OS' and Name='WindowsDirectory') or (SoftType='OS' and Name='SystemDirectory') or (SoftType='Memory' and Name='TotalVisibleMemorySize') or (SoftType='Memory' and Name='TotalSwapSpaceSize') or (SoftType='Memory' and Name='TotalVirtualMemorySize') or (SoftType='OS' and Name='Distributed')) GROUP BY 1 ORDER BY Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -211,7 +211,7 @@ class Rest_Software
 
         // GET /software/wdomain
         static public function getSoftwareWDomain() {
-          $query = "SELECT F.Server, MAX(if(SoftType='WinDomain' and F.Name='Domain',Value,'')) as 'Domain', MAX(if(SoftType='WinDomain' and F.Name='DomainRole',Value,'')) as 'Domain Role', MAX(if(SoftType='WinDomain' and F.Name='PartOfDomain',Value,'')) as 'Part Of Domain' FROM Software as F, Server as S WHERE F.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and F.Auto and F.End is Null and ((SoftType='WinDomain' and F.Name='Domain') or (SoftType='WinDomain' and F.Name='DomainRole') or (SoftType='WinDomain' and F.Name='PartOfDomain')) GROUP BY 1 ORDER BY F.Server";
+          $query = "SELECT Server, MAX(if(SoftType='WinDomain' and Name='Domain',Value,'')) as 'Domain', MAX(if(SoftType='WinDomain' and Name='DomainRole',Value,'')) as 'Domain Role', MAX(if(SoftType='WinDomain' and Name='PartOfDomain',Value,'')) as 'Part Of Domain' FROM Software WHERE Auto and End is Null and ((SoftType='WinDomain' and Name='Domain') or (SoftType='WinDomain' and Name='DomainRole') or (SoftType='WinDomain' and Name='PartOfDomain')) GROUP BY 1 ORDER BY Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {

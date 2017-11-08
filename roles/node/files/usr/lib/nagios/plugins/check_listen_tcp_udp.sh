@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #
 # A Nagios Plugin that checks if there is any program listening on specified
 # TCP/UDP port.  
@@ -151,9 +150,6 @@ fi;
 if [ "`uname -s`" == "SunOS" ]
 then
     NETSTAT_OPTS="-an -f inet -f inet6"
-elif [ "`uname -s`" == "OpenBSD" ] || [ "`uname -s`" == "FreeBSD" ]
-then
-    NETSTAT_OPTS="-an"
 else
     NETSTAT_OPTS="-ln"
 fi;
@@ -164,16 +160,13 @@ case $proto in
     if [ "`uname -s`" == "SunOS" ]
     then
         NETSTAT_OPTS="${NETSTAT_OPTS} -P udp|grep -i 'Idle'"
-    elif [ "`uname -s`" == "OpenBSD" ] || [ "`uname -s`" == "FreeBSD" ]
-    then
-        NETSTAT_OPTS="${NETSTAT_OPTS} -p udp"
     else
         NETSTAT_OPTS="${NETSTAT_OPTS}u"
     fi;
     ;;
     "any")
     proto_code="(tcp|udp)"
-    if [ "`uname -s`" == "SunOS" ] || [ "`uname -s`" == "OpenBSD" ] || [ "`uname -s`" == "FreeBSD" ]
+    if [ "`uname -s`" == "SunOS" ]
     then
         NETSTAT_OPTS="${NETSTAT_OPTS}tu"
     else
@@ -185,9 +178,6 @@ case $proto in
     if [ "`uname -s`" == "SunOS" ]
     then
         NETSTAT_OPTS="${NETSTAT_OPTS} -P tcp|grep -i 'LISTEN'"
-    elif [ "`uname -s`" == "OpenBSD" ] || [ "`uname -s`" == "FreeBSD" ]
-    then
-        NETSTAT_OPTS="${NETSTAT_OPTS} -p tcp|grep -i 'LISTEN'"
     else
         NETSTAT_OPTS="${NETSTAT_OPTS}t"
     fi;
@@ -200,10 +190,7 @@ NETSTAT="netstat"
 #NET_SED='sed -nr -e "s/^([a-zA-Z0-9]+) [0-9 ]+ ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+|[:0-9]+) +.*/\1,\2/p"'
 if [ "`uname -s`" == "SunOS" ]
 then
-    NET_SED="tr '\t' ' '|tr -s ' '|gsed \"s/^ */$proto_code,/\"|gsed 's/\*\./0\.0\.0\.0:/'|gsed 's/\./:/g'|cut -d' ' -f1"
-elif [ "`uname -s`" == "OpenBSD" ] || [ "`uname -s`" == "FreeBSD" ]
-then
-    NET_SED="tr '\t' ' '|tr -s ' '|cut -d ' ' -f4|sed 's/\*\./0\.0\.0\.0:/'|sed 's/\./:/g'"
+    NET_SED="tr '\t' ' '|tr -s ' '|gsed \"s/^ */$proto_code,/\"|gsed 's/\*\./0\.0\.0\.0:/'|gsed 's/\./:/4'|cut -d' ' -f1"
 else
     NET_SED='sed -nr -e "s/^([a-zA-Z0-9]+) [0-9 ]+ ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+|[:0-9]+|.*:[0-9]+) +.*/\1,\2/p"'
 fi;
@@ -215,7 +202,7 @@ then
     NET_GREP="${NET_GREP} | grep \"$listening_address\""
 fi;
 
-cmd="${NETSTAT} ${NETSTAT_OPTS} | ${NET_SED} | ${NET_GREP}"
+cmd="$NETSTAT ${NETSTAT_OPTS} | $NET_SED | $NET_GREP"
 
 if $verbose
 then

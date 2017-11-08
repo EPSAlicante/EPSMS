@@ -82,6 +82,6 @@
   delegate_to: "{{ hostWeb }}"
 
 - name: Change owner of /var/lib/dokuwiki/data to userApache
-  shell: "find /var/lib/dokuwiki/data ! -user {{ userApacheServer.stdout }} -exec chown {{ userApacheServer.stdout }} {} \\; executable=/bin/bash"
+  shell: chown -R {{ userApacheServer.stdout }} /var/lib/dokuwiki/data executable=/bin/bash
   delegate_to: "{{ hostWeb }}"
 

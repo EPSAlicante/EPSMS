@@ -1,66 +1,36 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
-
-# Mysql Server Configuration
+# Configuración del servidor mysql 
 
 # Need to do this for idempotency, see
 # http://ansible.cc/docs/modules.html#mysql-user
 
-- name: Access root user from localhost
+- name: update mysql root password for all root accounts
   mysql_user: name=root host=localhost priv=*.*:ALL,GRANT password={{ passwdMysqlRoot }} state=present
 
 - name: Copy .my.cnf file with root password credentials
   template: src=root/.my.cnf.j2 dest=/root/.my.cnf owner=root mode=0600
 
-- name: Access root user from localhost, Mysql server and Web server 
+- name: Update mysql root password for all root accounts
   mysql_user: name=root host={{ item }} priv=*.*:ALL,GRANT password={{ passwdMysqlRoot }} state=present
   with_items:
     - "{{ ansible_hostname }}"
-    - "{{ hostnameMysql }}"
+    - "{{ ansible_fqdn }}"
     - "{{ hostMysql }}"
-    - "{{ hostnameWeb }}"
-    - "{{ hostWeb }}"
     - localhost
     - 127.0.0.1
     - ::1
   notify: restart mysql
 
-- name: Access root user from Administrators Hosts
-  mysql_user: name=root host={{ item }} priv=*.*:ALL,GRANT password={{ passwdMysqlRoot }} state=present
-  with_items: "{{ hostsAdmins }}"
-  notify: restart mysql
-  when: hostsAdmins|count > 0
-
-- name: Access root user from Administrators Hosts (ALL)
-  mysql_user: name=root host='%' priv=*.*:ALL,GRANT password={{ passwdMysqlRoot }} state=present
-  notify: restart mysql
-  when: hostsAdmins|count == 0
-
-- name: Delete anonymous users
+- name: Ensure anonymous users are not in the database
   mysql_user: name='' host={{ item }} state=absent
   with_items:
     - localhost
     - 127.0.0.1
     - ::1
     - "{{ ansible_hostname }}"
-    - "{{ hostnameMysql }}"
+    - "{{ ansible_fqdn }}"
     - "{{ hostMysql }}"
   notify: restart mysql
-
-- name: Getting Host allowed for root user
-  action: db_facts hostMysql="{{ hostMysql }}" user="root" passwd="{{ passwdMysqlRoot }}" db="mysql" label="hostsRoot" query="select Host from user where User='root' and Host != 'localhost' and Host != '127.0.0.1' and Host != '::1' and Host != '{{ ansible_hostname }}' and Host != '{{ hostnameMysql }}' and Host != '{{ hostMysql }}' and Host != '{{ hostnameWeb }}' and Host != '{{ hostWeb }}'"
-  delegate_to: "{{ hostMysql }}" 
-
-- name: Delete Hosts not allowed for root user
-  mysql_user: name=root host={{ item.Host }} state=absent
-  with_items: "{{ hostsRoot }}"
-  notify: restart mysql
-  when: item.Host not in hostsAdmins and not (hostsAdmins|count == 0 and item.Host == "%")
 
 - name: Remove the test database
   mysql_db: name=test state=absent

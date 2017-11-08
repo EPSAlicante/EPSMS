@@ -1,19 +1,31 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
-
-# Munin Server configuration 
+# Configuración del servidor Munin 
 
 - name: Be sure mod_fcgid is installed (yum)
   yum: pkg=mod_fcgid enablerepo={{ labelEpel }} state=installed
   when: ansible_pkg_mgr == "yum"
 
+#- name: Be sure libapache2-mod-fcgid is installed (apt)
+#  apt: pkg=libapache2-mod-fcgid state=installed update_cache=yes force=yes
+#  when: ansible_pkg_mgr == "apt"
+
+#- name: Enable rewrite module in apache (Debian)
+#  shell: a2enmod rewrite 
+#  notify: restart apache
+#  when: ansible_os_family == "Debian"
+
+#- name: Enable fastCGI module in apache (Debian)
+#  shell: a2enmod fcgid
+#  notify: restart apache
+#  when: ansible_os_family == "Debian"
+
 - name: Copy munin.conf to /etc/munin
   template: src=etc/munin/munin.conf.j2 dest=/etc/munin/munin.conf owner=root group=root mode=0644
+
+#- name: Copy apache.conf to /etc/munin (apt)
+#  template: src=etc/munin/apache.conf.j2 dest=/etc/munin/apache.conf owner=root group=root mode=0644
+#  notify: restart apache  
+#  when: ansible_pkg_mgr == "apt"
 
 - name: Copy munin.conf to /etc/httpd/conf.d (yum)
   template: src=etc/httpd/conf.d/munin.conf.j2 dest=/etc/httpd/conf.d/munin.conf owner=root group=root mode=0644
@@ -24,12 +36,13 @@
   file: path=/etc/munin/munin-conf.d state=link src=/etc/munin/conf.d force=yes
   when: ansible_os_family == "RedHat"
 
+#- name: Enlazar /etc/munin/conf.d -> /etc/munin/munin-conf.d (Debian)
+#  file: path=/etc/munin/conf.d state=link src=/etc/munin/munin-conf.d force=yes
+#  when: ansible_os_family == "Debian"
+
+#- name: Enlazar path muninHtml/static -> /etc/munin/static (Debian)
+#  file: path={{ muninHtml }}/static state=link src=/etc/munin/static force=yes
+#  when: ansible_os_family == "Debian"
+
 - name: Create cgi-tmp directory
   file: path=/var/lib/munin/cgi-tmp owner={{ userApache }} group={{ userApache }} state=directory mode=0755
-
-- name: Disabling SELinux for httpd process (if SELinux 'enforcing')
-  shell: (((sestatus|grep -i 'enforcing') && (ls -Z /usr/sbin/httpd|grep -v 'unconfined_exec_t')) >/dev/null 2>/dev/null && (chcon -t unconfined_exec_t /usr/sbin/httpd) >/dev/null 2>/dev/null) || echo "no"
-  register: seLinux
-  changed_when: seLinux.stdout != "no"
-  notify: restart apache
-

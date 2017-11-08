@@ -1,11 +1,4 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
-
 - hosts: newNode 
   gather_facts: True
   user: root
@@ -28,6 +21,12 @@
     register: typeOS
     ignore_errors: yes
 
+#  - name: Enlazar /usr/bin/python
+#    shell: ( [ -f /usr/bin/python ] || ( [ `which python|wc -l` -gt 0 ] && ln -s `which python` /usr/bin/python &&  echo "link" ) ) 2>/dev/null
+#    register: linkPython
+#    changed_when: linkPython.stdout == "link"
+#    ignore_errors: yes
+
   - name: Getting Base Data from node
     action: base_facts
     ignore_errors: yes
@@ -49,10 +48,6 @@
     user: name={{ ansibleUser }} comment="Ansible user" home="{{ homeDirectory.stdout|default('/home') }}/{{ ansibleUser }}" uid={{ uidUser }}
     when: ansibleUser != "root" and uidUser != "default"
  
-  - name: Permission 0700 ansibleUser home
-    file: path="{{ homeDirectory.stdout|default('/home') }}/{{ ansibleUser }}" mode=0700 state=directory
-    when: ansibleUser != "root"
-
   - name: Change user to NP (Non Password) for solaris
     shell: '{{ path.passwd }} -N {{ ansibleUser }}'
     when: typeOS.stdout == "SunOS"
@@ -88,13 +83,12 @@
     when: packageManager|default("") == "emerge"
 
   - name: Be sure bash & sudo are installed (freebsd_pkg)
-    #shell: 'out=`{{ path.pkg }} install {{ item }} 2>&1`; ret=$?; echo "$out"; [ $ret -eq 0 ] || echo "$out"|{{ path.grep }} -iq "already installed"' 
-    package: name="{{ item }}" state="present"
+    shell: 'out=`{{ path.pkg_add }} -r {{ item }} 2>&1`; ret=$?; echo "$out"; [ $ret -eq 0 ] || echo "$out"|{{ path.grep }} -iq "already installed"' 
     with_items:
       - bash
       - sudo
-    #register: freebsdOutput
-    #changed_when: freebsdOutput.stdout != "already installed"
+    register: freebsdOutput
+    changed_when: freebsdOutput.stdout != "already installed"
     ignore_errors: yes
     when: packageManager|default("") == "freebsd_pkg"
 
@@ -110,7 +104,6 @@
     openbsd_pkg: name={{ item }} state=present
     with_items:
       - bash
-      - sudognu
     ignore_errors: yes
     when: packageManager|default("") == "openbsd_pkg"
 
@@ -130,14 +123,6 @@
     ignore_errors: yes
     when: packageManager|default("") == "pkgutil"
 
-  - name: Be sure bash & sudo are installed (slackpkg)
-    slackpkg: name={{ item }} state=present
-    with_items:
-      - bash
-      - sudo
-    ignore_errors: yes
-    when: packageManager|default("") == "slackpkg"
-
   - name: Be sure bash & sudo are installed (yum)
     yum: pkg={{ item }} state=installed
     with_items:
@@ -154,14 +139,8 @@
     ignore_errors: yes
     when: packageManager|default("") == "zypper"
 
-  - name: Enlazar /bin/bash
-    shell: (([ -f /bin/bash ] && echo 'Done') || ([ `{{ path.find }} / -name 'bash'|wc -l` -gt 0 ] && ln -s `{{ path.find }} /etc /usr/local / -name 'bash'|head -1` /bin/bash &&  echo 'link') || echo 'No' ) 2>/dev/null executable='bash'
-    register: linkBash
-    changed_when: linkBash.stdout == "link"
-    ignore_errors: yes
-
   - name: Enlazar /etc/sudoers
-    shell: (([ -f /etc/sudoers ] && echo 'Done') || ([ `{{ path.find }} / -name 'sudoers'|wc -l` -gt 0 ] && ln -s `{{ path.find }} /etc /usr/local / -name 'sudoers'|head -1` /etc/sudoers &&  echo 'link') || echo 'No' ) 2>/dev/null executable='bash'
+    shell: ( [ -f /etc/sudoers ] || ( [ `{{ path.find }} / -name 'sudoers'|wc -l` -gt 0 ] && ln -s `{{ path.find }} /etc /usr/local / -name 'sudoers'|head -1` /etc/sudoers &&  echo "link" ) ) 2>/dev/null 
     register: linkSudoers
     changed_when: linkSudoers.stdout == "link"
     ignore_errors: yes

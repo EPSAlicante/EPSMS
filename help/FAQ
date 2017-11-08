@@ -1,492 +1,432 @@
-<html>
-<head>
-<title>F.A.Q.</title>
-</head>
-<body style="background:#A4BBC7">
-<div align="center">
-<table width="80%">
-<tr><td>
-<center><h1>F.A.Q.</h1></center>
-<p>&nbsp;</p>
-<p>Prerrequisites</p>
-<ul>
-<li><a href="#A1">(A1) Prerequisites of Control server</a></li>
-<li><a href="#A2">(A2) Prerequisites of Mysql server, Nagios server, Munin server, Web server, InfluxBD server, Grafana server and Openvas server</a></li>
-<li><a href="#A3">(A3) Steps to enable EPEL repository in a CentOS 6 (servers)</a></li>
-<li><a href="#A4">(A4) How many different servers we need to deploy infrastructure?</a></li>
-</ul>
-<p>Nodes/Windows Nodes/Outsiders</p>
-<ul>
-<li><a href="#B1">(B1) Preparing a Linux/Unix host to be a 'node'</a></li>
-<li><a href="#B2">(B2) Preparing a Windows host to be a 'winNode'</a></li>
-<li><a href="#B3">(B3) What changes make Control server in a outsider?</a></li>
-<li><a href="#B4">(B4) What changes make Control server in a node?</a></li>
-<li><a href="#B5">(B5) What changes make Control server in a winNode?</a></li>
-<li><a href="#B6">(B6) Using a template for a node</a></li>
-<li><a href="#B7">(B7) Using a template for a distribution</a></li>
-</ul>
-<p>Packages/Executables</p>
-<ul>
-<li><a href="#C1">(C1) Selecting directories to search executable files</a></li>
-<li><a href="#C2">(C2) Why have 'packages and exes searchs' their own frequency?</a></li>
-</ul>
-<p>Web Applications</p>
-<ul>
-<li><a href="#D1">(D1) Inventory App (angularJS) doesn't show packages and executables</a></li>
-<li><a href="#D2">(D2) Modify PHP & Angularjs applications</a></li>
-</ul>
-<p>Wiki</p>
-<ul>
-<li><a href="#E1">(E1) Modify existing Wiki pages</a></li>
-<li><a href="#E2">(E2) Add a new Wiki page with data from database</a></li>
-<li><a href="#E3">(E3) Get new information about nodes</a></li>
-<li><a href="#E4">(E4) How can we add some information in Wiki Server?</a></li>
-</ul>
-<p>Mysql</p>
-<ul>
-<li><a href="#F1">(F1) How can we consult information directly on database?</a></li>
-<li><a href="#F2">(F2) Can we add new rows to inventory tables on database?</a></li>
-</ul>
-<p>Nagios</p>
-<ul>
-<li><a href="#G1">(G1) Can we modify Nagios checks?</a></li>
-</ul>
-<p>Grafana</p>
-<ul>
-<li><a href="#H1">(H1) Can we modify created Grafana dashboards or create new ones?</a></li>
-</ul>
-<p>Windows Nodes</p>
-<ul>
-<li><a href="#I1">(I1) Are winNodes (windows nodes) monitored by Nagios?</a></li>
-<li><a href="#I2">(I2) Are winNodes (windows nodes) monitored by Munin?</a></li>
-</ul>
-<p>Openvas</p>
-<ul>
-<li><a href="#J1">(J1) Modifying Date and Time of scanning vulnerabilites</a></li>
-<li><a href="#J2">(J2) Modifying scan profile</a></li>
-<li><a href="#J3">(J3) Can we setup a different frequency for a special group of servers?</a></li>
-<li><a href="#J4">(J4) Can we exclude some hosts of scanning vulnerabilities?</a></li>
-<li><a href="#J5">(J5) Can we get all vulnerability reports?</a></li>
-</ul>
-<p>Ansible</p>
-<ul>
-<li><a href="#K1">(K1) Can we modify Ansible timeout (connection time)?</a></li>
-<li><a href="#K2">(K2) How to know if a file has been modified by Control Server?</a></li>
-</ul>
-<p>Users</p>
-<ul>
-<li><a href="#L1">(L1) Can we define a different user than admin to watch information in read only mode?</a></li>
-</ul>
-<p>Certificates</p>
-<ul>
-<li><a href="#M1">(M1) Can we configure servers with our certificates?</a></li>
-</ul>
-<p>Firewall</p>
-<ul>
-<li><a href="#N1">(N1) What kind of firewall is EPSMS firewall? How does it work?</a></li>
-<li><a href="#N2">(N2) Can we configure our iptables rules?</a></li>
-</ul>
-<p>Live Demo</p>
-<ul>
-<li><a href="#O1">(O1) How does Live Demo work? It's a real Monitoring System collecting data or it has static (no real) data?</a></li>
-</ul>
-<p>&nbsp;</p>
-<a name="A1"><h3>(A1) Prerequisites of Control server</h3></a>
-<p>Control server has to be a <strong>CentOS 6 (64 bits)</strong> with <strong>python 2.6</strong> installed and <strong>EPEL</strong> repository enabled. Requirementes: <strong>SSH</strong> connection to all nodes, environment variable <strong>LANG</strong> with <strong>UTF8</strong> and a <strong>FQDN</strong> name by <strong>DNS</strong> or <strong>'/etc/hosts'</strong> file.</p>
-<p>&nbsp;</p>
-<a name="A2"><h3>(A2) Prerequisites of Mysql server, Nagios server, Munin server, Web server, InfluxDB server, Grafana server and Openvas server</h3></a>
-<p>All servers have to be a <strong>CentOS 6 (64 bits)</strong> with <strong>python 2.6</strong> installed and <strong>EPEL</strong> repository enabled. They need to be <strong>SSH</strong> accessed by Control server, environment variable <strong>LANG</strong> with <strong>UTF8</strong> and a <strong>FQDN</strong> name by <strong>DNS</strong> or <strong>'/etc/hosts'</strong> file.</p>
-<p align='center'><strong>Servers required permissions</strong></p>
-<table border='1' cellspacing='5' cellpadding='5'>
-<tr><th width='15%' align='center'>Server</th><th width='25%' align='center'>Permission: target (port)</th><th width='60%' align='center'>Description</th></tr>
-<tr><td rowspan="2">Nagios</td><td>nodes (TCP/5666)</td><td>Access to Nagios NRPE in nodes</td></tr>
-<tr><td>InfluxDB server (TCP/8086)</td><td>Access to InfluxDB server transferring nagios data to Influx database trough Grapios service</td></tr>
-<tr><td rowspan="2">Munin</td><td>nodes (TCP/4949)</td><td>Access to Munin-node in nodes</td></tr>
-<tr><td>InfluxDB server (TCP/8086)</td><td>Access to InfluxDB server transferring munin data to Influx database trough MuninInfluxdb software</td></tr>
-<tr><td>InfluxDB</td><td>repos.influxdata.com (TCP/80)</td><td>Access to InfluxDB repository</td></tr>
-<tr><td>Grafana</td><td>packagecloud.io & grafanarel.s3.amazonaws.com (TCP/443)</td><td>Access to Grafana repositories</td></tr>
-<tr><td rowspan="2">Openvas</td><td>nodes & outsiders (all ports)</td><td>Access to all hosts (nodes & outsiders) to check vulnerabilities. We should check <strong>SELinux</strong> to disable it if necessary (with SELinux enabled, Openvas will be installed but it won't be able to scan ports)</td></tr>
-<tr><td>mirrors.hosting.in.th & mirrors.thzhost.com (TCP/80)</td><td>Access to Atomic repositories</td></tr>
-<tr><td rowspan="6">Web</td><td>Mysql server (TCP/3306)</td><td>Access to Mysql database to manage (phpMyAdmin) or getting data for Web Apps</td></tr>
-<tr><td>Nagios server (TCP/443)</td><td>Access to Nagios software</td></tr>
-<tr><td>Munin server (TCP/443)</td><td>Access to Munin software</td></tr>
-<tr><td>InfluxDB server (TCP/8083)</td><td>Access to InfluxDB management software</td></tr>
-<tr><td>Grafana server (TCP/3000)</td><td>Access to Grafana software</td></tr>
-<tr><td>Openvas server (TCP/9392)</td><td>Access to Openvas software</td></tr>
-</table>
-<p>* We recommend to allow <strong>OUTPUT</strong> connections from servers during configuration to avoid problems downloanding required software. <br /><br /> * Be carefull with <strong>'SELinux'</strong> (enabled by default in CentOS 6) because it can block output connections. To disable <strong>'SELinux'</strong>: check status with <strong>'sestatus'</strong> command, modify <strong>'/etc/sysconfig/selinux'</strong> file with <strong>'SELINUX=disabled'</strong> and reboot.</p>
-<p>&nbsp;</p>
-<a name="A3"><h3>(A3) Steps to enable EPEL repository in a CentOS 6 (servers)</h3></a>
-<ul>
-<li>Check if EPEL repository is installed (<strong>yum repolist</strong>).</li>
-<li>Install EPEL repository (<strong>yum install epel-release</strong>)</li>
-<li>If you have problems with GPG key, manually download (<strong>cd /etc/pki/rpm-gpg; wget https://fedoraproject.org/static/0608B895.txt; mv 0608B895.txt RPM-GPG-KEY-EPEL-6; rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6</strong>)</li>
-<li>Set <strong>enabled=1</strong> in epel repository file in <strong>/etc/yum.repos.d/</strong></li>
-<li>If you want to select another different id in epel repository file (by default id is 'epel'), you have to change variable named 'labelEpel' in 'group_vars/CentOS-6 file'.</li>
-</ul>
-<p>&nbsp;</p>
-<a name="A4"><h3>(A4) How many different servers we need to deploy infrastructure?</h3></a>
-<p>We can install all services (control, mysql, nagios, munin, web, influxDB & grafana, and openvas) on the same server, we can separate every service on a different server, or we can group them on several servers (for example: control on a server, mysql, nagios and web on a second server, influxDB & grafana on a third server, and openvas on another one).</p>
-<p>So, the question is: How many servers we need? It depends on the number or nodes and the kind of server (RAM, CPU, Disk, etc)</p>
-<p>There's not a fixed rule, but if we have a few nodes (for example, 10 or less), we could need only a server.</p>
-<p>If we have more than 20 nodes, we need a good server, o we'll have to separate services on different servers.</p>
-<p><strong>Advice:</strong> We can configure all services on a server, and test performance. If control server is under high load, we can set lower frecuencies of playbooks to decreases load. If we can't decrease enough, we reconfigure system and let set a different server for the service most load consumption.</p>
-<p>Of course, we can do it again for more services to reach an acceptable load level</p>
-<p>&nbsp;</p>
-<a name="B1"><h3>(B1) Preparing a Linux/Unix host to be a 'node'</h3></a>
-<p>If we want a host becomes a node, we have to check and probably made some changes inside:</p>
-<ul>
-<li><strong>SSH</strong> server listenning and permitting Control servers connections</li>
-<li><strong>Python 2.X</strong>: if python is lower than 2.6 we have to install simplejson package</li>
-<li>Be sure that host is able to connect to repositories and install software</li>
-<li>Set the environment variable <strong>LANG</strong> to <strong>UTF8</strong> ('/etc/sysconfig/i18n' file) Then, we can transform host in a new node, using option <strong>'2 Add node'</strong> of menu '/etc/ansible/menu.py'. This option will connect by SSH to host (as root user), and do some aperations there:</li>
-<li>A connection user will be created ('remote user' selected in system configuration) * '.ssh/authorized_keys' will be modified (or created) with SSH public key of control server * 'sudo' package will be installed</li>
-<li>'/etc/sudoers' file will be modified allowing 'remote user' to execute everything without password</li>
-</ul>
-<p>** Remember that this 'node' has to belong to 'subnets' and musn't belong to 'exclude' (both defined at configuration) **</p>
-<p>&nbsp;</p>
-<a name="B2"><h3>(B2) Preparing a Windows host to be a 'winNode'</h3></a>
-<p>If we want a windows host becomes a winNode, we have to configure system to check windows Node and define a connection user and password (option '1 Configure System' of menu '/etc/ansible/menu.py').</p>
-<p>This user will connect to every winNode through WMI (Windows Management Instrumentation). So we need to do some steps in every node:</p>
-<ul>
-<li>Create the defined user and password (in configuration) and add to <strong>'Performance Log Users'</strong> group.</li>
-<li>Add user to <strong>security WMI control</strong> with <strong>'Remote Enable'</strong> permission.</li>
-<li>Permit acces to <strong>WMI</strong> in <strong>'Inbound rules'</strong> of firewall.</li>
-</ul>
-<p>&nbsp;</p>
-<a name="B3"><h3>(B3) What changes make Control server in a outsider?</h3></a>
-<p>Nothing</p>
-<p>&nbsp;</p>
-<a name="B4"><h3>(B4) What changes make Control server in a node?</h3></a>
-<ul>
-<li><strong>Bash</strong> and <strong>sudo</strong> will be installed</li>
-<li>A new <strong>user</strong> will be created (user used to connect to nodes and execute jobs inside)</li>
-<li>Created user will be configured to access from Control server without password</li>
-<li>Sudo will be configured to permit user (created user) execute everything</li>
-<li><strong>Coreutils, grep, sed, gawk, net-tools, findutils, dmidecode, util-linux</strong> will be installed</li>
-<li><strong>Nagios NRPE</strong> & plugins will be installed and configured to be checked (disk Root space free, load and TCP and UDP ports) from Nagios server.</li>
-<li><strong>TCP wrappers</strong> will be configured to permit access from Nagios server</li>
-<li><strong>Munin node</strong> will be installed and configured to be checked from Munin server</li>
-<li>Iptables or any other firewall will NOT be modified, but access to TCP port 5566 (Nagios NRPE) from Nagios server is needed, and access to TCP port 4949 (Munin node) from Munin server too.</li>
-</ul>
-<p>&nbsp;</p>
-<a name="B5"><h3>(B5) What changes make Control server in a winNode?</h3></a>
-<p>Nothing</p>
-<p>&nbsp;</p>
-<a name="B6"><h3>(B6) Using a template for a node</h3></a>
-<p>System is able to get information on a node about packages needed and commands' paths. But sometimes we want to decide the exact packages and commands' paths for a specific node.</p>
-<p>In this case we ca do it creating a file with the node's hostname, in <strong>'host_vars'</strong> directory. There's a template inside, named <strong>'node.template'</strong>.</p>
-<p>We can use it as example to fill it with variables about packages and commands' paths.</p>
-<p>&nbsp;</p>
-<a name="B7"><h3>(B7) Using a template for a distribution</h3></a>
-<p>The same way, we probably want to decide exact packages and command's paths for a specific distribution and version (Debian 7 for example).</p>
-<p>In this case we have to create a file with name <strong>'Distribution-Version'</strong> (Debian-7 for example) in <strong>'group_vars'</strong> directory. There a template inside, named <strong>'Distribution-Version.template'</strong>.</p>
-<p>We can use it as example to fill it with variables about packages and commands' paths.</p>
-<p>&nbsp;</p>
-<a name="C1"><h3>(C1) Selecting directories to search executable files</h3></a>
-<p>Searching executables, getting information about them and making a signature, is a very long job because of big number of executable files in a host.</p>
-<p>So, we can decide where searching executables and where don't do it to reduce time of computing.</p>
-<p>We have to modify two extra variables in '/etc/ansible/config_files/extra.conf': <strong>'pathExes'</strong> and <strong>'pathNoExes'</strong></p>
-<ul>
-<li>pathExes is list of directories where system is going to search executables</li>
-<li>pathNoExes is a list of directories where system is NOT going to search executables</li>
-</ul>
-<p>Of course, we can decide don't search in any directory, and modify both with an empty string: pathExes: '' and pathNoExes: ''</p>
-<p>Remember always reconfigure system (option 1 in control menu) after modifying extra variables.</p>
-<p>&nbsp;</p>
-<a name="C2"><h3>(C2) Why have 'packages and exes searchs' their own frequency?</h3></a>
-<p>Searching packages and executables (specially executables), spend a lot of time. So, we can set frequency for them less often than 'basic data search'.</p>
-<p>&nbsp;</p>
-<a name="D1"><h3>(D1) Inventory App (angularJS) doesn't show packages and/or executables</h3></a>
-<p>If Inventory App (angularJS) and Rest API don't show information about packages and/or executables, and we are sure info is saved on Mysql database, probably PHP crashes for <strong>'Memory limit' error</strong>. </p>
-<p>To check error, we can define <strong>'displat_errors = On'</strong> (Off by default) on <strong>/etc/php.ini</strong> configuration file of Web server (and reload apache <strong>/etc/init.d/httpd reload</strong>).</p>
-<p>Execute API rest for packages <strong>https://webServer/web/rest/private/security/packages</strong> or executables <strong>https://webServer/web/rest/private/security/exes</strong> to see PHP error.</p>
-<p>If error is: <strong>Fatal error: Allowed memory size of ... bytes exhausted...</strong>, we have to increase <strong>'memory_limit' (128MB by default)</strong> on <strong>/etc/php.ini</strong> configuration file of Web server (and reload apache <strong>/etc/init.d/httpd reload</strong>).</p>
-<p>&nbsp;</p>
-<a name="D2"><h3>(D2) Modify PHP & Angularjs applications</h3></a>
-<p>The <strong>PHP</strong> & <strong>Angularjs</strong> Applications are really simple, just to use them as templates to make a customized application.</p>
-<p>There's a dokuwiki server with pages about hardware & software inventory to present all this information to user, but if we need more than this, we have to customize the PHP & Angularjs Applications.</p>
-<p>First of all, we should know the meaning of dynamic and static pages. In this case, 'static' doesn't mean the type of language used (like HTML or PHP). A page is dynamic if the code inside requires access to Ansible's variables to get their values before showing the page. In other case, the apge will be static.</p>
-<h4>PHP App</h4>
-<p>There're two simple PHP Applications: '<strong>Simple List</strong> /web/simplelist' and '<strong>Update List</strong> /web/updates'.</p>
-<p>In PHP Applications there's just one <strong>dynamic</strong> page: <strong>'db.php.j2'</strong> (j2 extension means that this file is using <strong>'jinja2'</strong> language to get Ansible's variables). This file code to connect to database, and need values saved in Ansible's variables as: Database server IP and password of admin user. So this PHP code is:</p>
-<small><pre><code> 
+######################################################
+                      F.A.Q.
+######################################################
+
+
+(0) Prerequisites of Control server
+(1) Prerequisites of Mysql server, Nagios server, Munin server , Web server and Openvas server
+(2) Preparing a Linux/Unix host to be a 'node'
+(3) Preparing a Windows host to be a 'winNode'
+(4) What changes make Control server in a outsider?
+(5) What changes make Control server in a node?
+(6) What changes make Control server in a winNode?
+(7) Using a template for a node
+(8) Using a template for a distribution
+(9) Selecting directories to search executable files
+(10) Modify PHP & Angularjs applications
+(11) Modify existing Wiki pages
+(12) Add a new Wiki page with data from database
+(13) Get new information about nodes
+(14) How can we add some information in Wiki Server?
+(15) How can we consult information directly on database?
+(16) Can we add new rows to inventory tables on database?
+(17) Can we modify Nagios checks?
+(18) Are winNodes (windows nodes) monitored by Nagios?
+(19) Are winNodes (windows nodes) monitored by Munin?
+(20) Modifying Date and Time of scanning vulnerabilites
+(21) Modifying scan profile   
+(22) Can we setup a different frequency for a special group of servers?
+(23) Can we exclude some hosts of scanning vulnerabilities?
+(24) Can we get all vulnerability reports?
+(25) Can we modify Ansible timeout (connection time)?
+
+
+######################################################
+
+
+(0) Prerequisites of Control server
+
+    Control server has to be a CentOS 6 with python 2.6 installed. It needs ssh connection to all nodes
+
+
+(1) Prerequisites of Mysql server, Nagios server, Munin server or Web server
+
+    All servers have to be a CentOS 6 with python 2.6 installed 
+
+    Nagios server has to connect to TCP/5666 port (NRPE Nagios) in nodes
+
+    Munin server has to connect to TCP/4949 port (Munin-node) in nodes.
+
+    Openvas server has to connect to all ports in nodes to check vulnerabilities. It also needs TCP/80 permissions to access to atomic repositories (updates.atomicorp.com, www.openvas.org and feed.openvas.org) to install and update openvas software
+
+
+(2) Preparing a Linux/Unix host to be a 'node'
+
+    If we want a host becomes a node, we have to check and probably made some changes inside:
+
+    * SSH server listenning and permitting Control servers' connections
+
+    * Python 2.X: if python is lower than 2.6 we have to install simplejson package
+
+    * Be sure that host is able to connect to repositories and install software
+
+    Then, we can transform host in a new node, using option '2 Add node' of menu '/etc/ansible/menu.py'
+
+
+(3) Preparing a Windows host to be a 'winNode'
+
+    If we want a windows host becomes a winNode, we have to configure system to check windows Node and define a connection user and password (option '1 Configure System' of menu '/etc/ansible/menu.py').
+
+    This user will connect to every winNode through WMI (Windows Management Instrumentation). So we need to do some steps in every node:
+
+    * create the defined user and password (in configuration) and add to 'Performance Log Users' group.
+
+    * Add user to security WMI control with 'Remote Enable' permission.
+
+    * Permit acces to WMI in 'Inbound rules' of firewall.
+
+
+(4) What changes make Control server in a outsider?
+
+    Nothing
+
+
+(5) What changes make Control server in a node?
+
+    * Bash and sudo will be installed
+
+    * A new user will be created (user used to connect to nodes and execute jobs inside)
+
+    * Created user will be configured to access from Control server without password
+
+    * Sudo will be configured to permit user (created user) execute everything
+
+    * Coreutils, grep, sed, gawk, net-tools, findutils, dmidecode, util-linux will be installed
+
+    * Nagios NRPE & plugins will be installed and configured to be checked (disk Root space free, load and TCP and UDP ports) from Nagios server.
+
+    * TCP wrappers will be configured to permit access from Nagios server
+
+    * Munin node will be installed and configured to be checked from Munin server
+
+    * Iptables or any other firewall will NOT be modified, but access to TCP port 5566 (Nagios NRPE) from Nagios server is needed, and access to TCP port 4949 (Munin node) from Munin server too.
+
+
+(6) What changes make Control server in a winNode?
+
+    Nothing
+
+
+(7) Using a template for a node
+
+    System is able to get information on a node about packages needed and commands' paths. But sometimes we want to decide the exact packages and commands' paths for a specific node. In this case we ca do it creating a file with the node's hostname, in 'host_vars' directory. There's a template inside, named 'node.template'. We can use it as example to fill it with variables about packages and commands' paths.
+
+
+(8) Using a template for a distribution
+
+    The same way, we probably want to decide exact packages and command's paths for a specific distribution and version (Debian 7 for example). In this case we have to create a file with name 'Distribution-Version' (Debian-7 for example) in 'group_vars' directory. There a template inside, named 'Distribution-Version.template'. We can use it as example to fill it with variables about packages and commands' paths.
+
+
+(9) Selecting directories to search executable files
+
+    Searching executables, getting information about them and making a signature, is a very long job because of big number of executable files in a host.
+
+    So, we can decide where searching executables and where don't do it to reduce time of computing.
+    We have to modify two extra variables in '/etc/ansible/config_files/extra.conf': 'pathExes' and 'pathNoExes'
+
+    * pathExes is list of directories where system is going to search executables
+
+    * pathNoExes is a list of directories where system is NOT going to search executables
+
+    Of course, we can decide don't search in any directory, and modify both with an empty string: pathExes: '' and pathNoExes: ''
+
+    Remember always reconfigure system (option 1 in control menu) after modifying extra variables.
+
+
+(10) Modify PHP & Angularjs applications
+
+     The PHP & Angularjs Applications are really simple, just to use them as templates to make a customized application.
+
+     There's a dokuwiki server with pages about hardware & software inventory to present all this information to user, but if we need more than this, we have to customize the PHP & Angularjs Applications.
+
+     First of all, we should know the meaning of dynamic and static pages. In this case, 'static' doesn't mean the type of language used (like HTML or PHP).  A page is dynamic if the code inside needs to access to Ansible's variables to get their values before showing the page. In other case, the apge will be static.
+
+     -- PHP App --
+
+     There're two simple PHP Applications: 'Simple List /web/simplelist' and 'Update List /web/updates'.
+
+     In PHP Applications there's just one dynamic page: 'db.php.j2' (j2 extension means that this file is using 'jinja2' language to get Ansible's variables). This file code to connect to database, and need values saved in Ansible's variables as: Database server IP and password of inventory user.
+
+     So this code is:
+
+     <?php
      $hostDB="{{ hostMysql }}";
      $nameDB="inventory";
-     $userDB="admin";
-     $passwdDB="{{ passwdAdmin }}";
+     $userDB="inventory";
+     $passwdDB="{{ passwdMysqlInventory }}";
+     ?>
 
-</code></pre></small>
-<p>We can see the PHP code with <strong>'jinja2'</strong> code ("{{ hostMysql }}" and "{{ passwdAdmin }}") to get values of Ansible's variables: hostMysql and passwdAdmin</p>
-<p>The rest of pages are statics all of them.</p>
-<p>We need to know where the pages are. Statics and dynamics pages are located in differents paths.</p>
-<h4>Angularjs App</h4>
-<p>There's an Angularjs Aplication: '<strong>Inventory</strong> /web/angularjs'.</p>
-<p>In Angularjs Application there's no dynamic page because they don't access Database directly, they access to <strong>REST API</strong> (no need of DB user and password), with database data in <strong>JSON</strong> format.</p>
-<p>&nbsp;</p>
-<p>PHP & Angularjs Applications belong to 'web' role. This role have some important tasks to do, as: checking correct installation and configuration of Apache and PHP software, and sincronize PHP & Angularjs pages to Web server.</p>
-<p>In its directory <strong>'/etc/ansible/roles/web'</strong> we find three important directories:</p>
-<ul>
-<li><strong>'tasks'</strong>, with code to check software and sincronize PHP & Angularjs pages</li>
-<li><strong>'files'</strong>, with static pages in 'files/var/www/web' and subdirectories</li>
-<li><strong>'templates'</strong>, with dynamic pages in 'templates/var/www/web' and subdirectories</li>
-</ul>
-<p>Sincronization task get the values of Ansible's variables and send updated pages to Web server under <strong>'/var/www/web'</strong>.</p>
-<p>We <strong>MUST NOT modify pages in Web server</strong>, because they will be updated in the next sincronization and we'll lose all changes. We have to change web pages in Control Server and wait for next sincronization to have Web server updated, or we can force a sincronization calling 'web.yml' playbook manually typing:</p>
-<p><strong>ansible-playbook /etc/ansible/web.yml -t web </strong></p>
-<p>This playbook (with 'web' label) will check installation and configuration of software and sincronizes web pages (PHP & Angularjs Applications).</p>
-<p>&nbsp;</p>
-<a name="E1"><h3>(E1) Modify existing Wiki pages</h3></a>
-<p>Wiki Server is made with Dokuwiki software and show all the information about nodes (software and hardware) and outsiders (just TCP ports) with historic old versions.</p>
-<p>If we want to change pages with no new information (just changing the output format), we have to modify dokuwiki code.</p>
-<p><strong>We MUST NOT modify pages in Wiki server</strong>, because they will be updated in the next web playbook execution and we'll lose all changes. We have to change dokuwiki pages in Wiki Server and wait for next web playbook execution to have Wiki server updated, or we can force an update calling 'web.yml' playbook manually typing:</p>
-<p><strong>ansible-playbook /etc/ansible/web.yml -t wiki </strong></p>
-<p>This playbook (with 'wiki' label) will check installation and configuration of dokuwiki software and sincronizes wiki pages.</p>
-<p>Wiki pages are in different places, depending on the role that make them (playbooks calls roles code). Almost every page are made by 'node' role except:</p>
-<ul>
-<li><strong>main</strong> page 'servers' (it shows list of servers: nodes and outsiders)</li>
-<li><strong>'last 100 changes'</strong> pages 'hostname-hostslast' (they show last 100 changes in 'hostname' server)</li>
-<li>'<strong>external</strong> TCP ports check' pages 'hostname-portsext' (they show TCP ports clicking in 'hostname' link for outsiders)</li>
-</ul>
-<p>All of these are made by 'outsider' role.</p>
-<p>Pages made by <strong>'node'</strong> role are located in '/etc/ansible/roles/node/templates/var/lib/dokuwiki/data/pages/inventory' directory.</p>
-<p>Pages made by <strong>'outsider'</strong> role are located in '/etc/ansible/roles/outsider/templates/var/lib/dokuwiki/data/pages/inventory' directory.</p>
-<p>All pages have <strong>'j2'</strong> extension. They have <strong>'jinja2'</strong> code inside used to get information about Ansible's variables. In this case information is not just about global variables, 'outsider' role generates new variables about network scanning and 'node' role generates variables about software and hardware information.</p>
-<p>We can modify dokuwiki code to change output format or add/delete/change existing Ansible's variables with information.</p>
-<p>&nbsp;</p>
-<a name="E2"><h3>(E2) Add a new Wiki page with data from database</h3></a>
-<p>There are some pages with information from database. These pages get more information than the other pages (information about nodes or outsiders), they add information from database to show historic information to user.</p>
-<p>These are the steps we have to do to make these kind of wiki pages:</p>
-<p>* Add a new task, calling 'db_facts' script in a task file ('.yml' files in 'tasks' directory of every role).</p>
-<p>For example, if we want to make a new wiki page about nodes basic information (not about packages or executables), we'll modify '/etc/ansible/roles/node/tasks/dataDB.yml'.</p>
-<p>New task could be like:</p>
-<small><pre><code>
-  - name: Task name 
-    action:db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="DB query's name" 
-    query="Select Field1, FieldN from Table where Server='{{ inventory_hostname }}'" 
-    delegate_to: ${hostMysql}
+     We can see the PHP code with 'jinja2' code ("{{ hostMysql }}" and "{{ passwdMysqlInventory }}") to get values of Ansible's variables: hostMysql and passwdMysqlInventory
 
-</code></pre></small>
-<p>Notes:</p>
-<p>+ 'label' is the query's name. Very important because it make a variables list with this name, so we'll have to use it to call variables inside page's code.</p>
-<p>+ We can use every valid SQL query. Field's names are very important (of course we can use 'AS' SQL label to rename them) because they will be attributes' names of variables to call them inside page's code.</p>
-<p>+ A very used Ansible's variable to make SQL query filters is {{ inventory_hostname }} (curly braces is 'jinja2' code to get value of Ansible's variable 'inventory_hostname'). This way we could make a SQL query for every node.</p>
-<p>&nbsp;</p>
-<p>* After making the query, we have to prepare wiki page using new variables.</p>
-<p>We'll place wiki template in '/etc/ansible/roles/node/templates/var/lib/dokuwiki/data/pages/inventory' with whathever name, but it requires '.txt.j2' extension (dokuwiki files have 'txt' extension and template with jinja2 code have 'j2' extension).</p>
-<p>So this file will have jinja2 code to get variables' values (made with SQL query) and dokuwiki code will make an output format to show data. There are some examples of wiki pages with data from database in 'node' and 'outsider' roles.</p>
-<p>&nbsp;</p>
-<p>* Then we have to create a new task in the same task file (after 'db_facts' task), to copy wiki file to Wiki server with 'tmp' extension (and without 'j2' extension) and calling revision control system script '/usr/share/dokuwiki/bin/dwpage.php'.</p>
-<p>For example, if our wiki file is called 'host-prueba.txt.j2', task will be:</p>
-<small><pre><code>
-  - name: Copy host-prueba.txt from DB (in Wiki Master) 
-    template: src=var/lib/dokuwiki/data/pages/inventory/host-prueba.txt.j2 
-    dest=/var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-prueba.txt.tmp owner=root group=root mode=0644 
-    delegate_to: ${hostWeb} 
+     The rest of pages are statics all of them.
 
-  - name: Commit changes of host-prueba.txt from DB & update (in Wiki Server) 
-    shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" 
-    /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-prueba.txt.tmp 
-    inventory:{{ inventory_hostname|lower }}-prueba)  
-    delegate_to: ${hostWeb}
+     We need to know where the pages are. Statics and dynamics pages are located in differents paths.
 
-</code></pre></small>
-<p>&nbsp;</p>
-<p>* We should keep in mind that we need a link in some page to our new page.</p>
-<p>So we have to add dokuwiki code to make a link '[[ linked page | text ]]', in template where we want to call or new page.</p>
-<p>Templates are located in '/etc/ansible/roles/node/templates/var/lib/dokuwiki/data/pages/inventory' directory, except main Wiki page 'servers', located in '/etc/ansible/roles/outsider/templates/var/lib/dokuwiki/data/pages/inventory/servers.txt.j2' and a few more generated by 'outsider' role, about outter scannings (in the same directory that 'servers' page).</p>
-<p>&nbsp;</p>
-<p>* Finally, we can test that everything works correctly. So, we have to execute option '7 Get data from node(s)', and if playbook ends without errors, we can check wiki page, accesing to URL 'https://WebServer/wiki'.</p>
-<p>&nbsp;</p>
-<a name="E3"><h3>(E3) Get new information about nodes</h3></a>
-<p>Thats the longest modification. It's not difficult but it takes some time.</p>
-<p>We need a script to get information from nodes, some tables on database to save new information, templates with SQL operation to save information on database, wiki template to show information on Wiki server, and Ansible tasks to manage every step.</p>
-<p>For example, if we want to get information about kernel parameters in '/etc/sysctl.conf' file, we have to do the next steps:</p>
-<p>* Create new script in '/etc/ansible/scripts' directory, to get new information, called site_facts.sysctl.py or something similar.</p>
-<p>Of course, We can modify '/etc/ansible/scripts/site_facts.py' to add a new function to get info about sysctl.</p>
-<p>We can use any language to make new script. If we use python we'll be sure that python is on every node because python is a prerequisite to be a node. But we can use any other language, and add a new task to install language binary before execute the script.</p>
-<p>Script has to return information in JSON format. We can watch other scripts (for example 'site_facts.py') to learn about output format.</p>
-<p>&nbsp;</p>
-<p>* We can test it, executing script by command line and analyzing information and a correct JSON format. If script works correctly, we have to release new script in Ansible.</p>
-<p>We can do it linking from '/usr/share/ansible/site_facts.sysctl.py' to our script in '/etc/ansible/scripts/site_facts.sysctl.py', but not directly (by command line), we have to add a new task to 'ansible' role, modifying '/etc/ansible/roles/ansible/tasks/config.yml' task file, and adding:</p>
-<small><pre><code>
-  - name: Link /[pathAnsibleLibrary]/site_facts.sysctl -> /[pathAnsible]/scripts/site_facts.sysctl.py 
-    file: path={{ pathAnsibleLibrary }}/site_facts.sysctl state=link src={{ pathAnsible }}/scripts/site_facts.sysctl.py force=yes
 
-</code></pre></small>
-<p>Script will be released in the next Ansible configuration (execution of '/etc/ansible/ansible.yml' playbook), but we can do it immediately, executing the playbook:</p>
-<p>ansible-playbook /etc/ansible/ansible.yml -t config</p>
-<p>&nbsp;</p>
-<p>* Now we have to create a table called 'sysctl' on database to save new information.</p>
-<p>We don't create table directly, we have to modify the database creation file '/etc/ansible/roles/msyql/files/root/inventory/createTables.sql' (a SQL file to create all the tables on 'inventory' database).</p>
-<p>Database will be modified in the next execution of 'mysql' role, but we can do it immediately, executing the playbook:</p>
-<p>ansible-playbook /etc/ansible/mysql.yml</p>
-<p>&nbsp;</p>
-<p>* Then we have to add a new task in '/etc/ansible/roles/node/tasks/dataDB.yml' (task file of 'node' role to get data from nodes) to execute the new script 'site_facts.sysctl.y':</p>
-<small><pre><code>
-  - name: Getting sysctl data from nodes 
-    action: site_facts.sysctl
+     -- Angularjs App --
 
-</code></pre></small>
-<p>We have to add task in the beginning of task file (after task that executes 'site_facts') to have the new information available for the rest of file.</p>
-<p>&nbsp;</p>
-<p>* Now, we have information in Ansible's variables and database ready, so we have to save data on database. This way, we have to create 'jinja2' templates with SQL operations to INSERT or MODIFY data.</p>
-<p>We can learn 'jinja2' to create SQL file or analyze other SQL file of '/etc/ansible/roles/node/templates/root/inventory/nodes' directory, copy as 'node_dataSysctl.sql.j2' in the same directory and modify.</p>
-<p>Last SQL operations: 'END-CHECK_' and 'END-UPDATE_' are used to nullify rows not detected. We'll use a pair of them for any table.</p>
-<p>We have to change another SQL file, '/etc/ansible/roles/outsider/templates/root/inventory/POST_ending.sql.j2' adding a pair of 'END-CHECK_' and 'END-UPDATE_' for any table, at the end of the file.</p>
-<p>This file is used to nullify all rows of a server when server is down (when network scanning script 'net_facts.py' doesn't detect the server anymore).</p>
-<p>&nbsp;</p>
-<p>* Then we have to modify task file '/etc/ansible/roles/node/tasks/dataDB.yml', looking for 'Generate sql files (in Mysql Server)' task, adding a new template called 'sysctl' at the botton of list 'with_items:'</p>
-<p>&nbsp;</p>
-<p>* We can test that everything works correctly before add the wiki page. So, we have to execute option '7 Get data from node(s)', and if playbook ends without errors, we can check database to find new information with 'PhpMyAdmin' (Mysql management software), accesing to URL 'https://WebServer/phpmyadmin' (user 'admin' and password introduced at configuration time).</p>
-<p>* Now, it's time to create new wiki page.</p>
-<p>Steps are similar we did to create SQL file. Now we need to create a wiki template with 'jinja2' code to access Ansible's variables and 'dokuwiki' code to design page.</p>
-<p>The simplest way is to copy another wiki template from '/etc/ansible/roles/node/templates/var/lib/dokuwiki/data/pages/inventory' directory as 'host-sysctl.txt.j2' in the same directory, and change 'jinja2' with new variables ('jinja2' code is always between curly braces or '{%' and '%}' symbols) and 'dokuwiki' code with new design.</p>
-<p>&nbsp;</p>
-<p>* Then we have to modify task file '/etc/ansible/roles/node/tasks/dataDB.yml' again to generate new wiki page.</p>
-<p>We have to look for 'Copy host-items.txt (in Wiki Master)' task (copy generated wiki page in server) and 'Commit changes of host-items.txt & update (in Wiki Server)' task (put old page to historic versions and is updated with new page), adding a new template called 'sysctl' at the bottom of list 'with_items:'.</p>
-<p>&nbsp;</p>
-<p>* We should keep in mind that we need a link in some page to our new page.</p>
-<p>So we have to add dokuwiki code to make a link '[[ linked page | text ]]', in template where we want to call or new page. Templates are located in '/etc/ansible/roles/node/templates/var/lib/dokuwiki/data/pages/inventory' directory, except main Wiki page 'servers', located in '/etc/ansible/roles/outsider/templates/var/lib/dokuwiki/data/pages/inventory/servers.txt.j2' and a few more generated by 'outsider' role, about outter scannings (in the same directory that 'servers' page).</p>
-<p>&nbsp;</p>
-<p>* Finally, we can test again that everything works correctly.</p>
-<p>So, we have to execute option '7 Get data from node(s)' again, and if playbook ends without errors, we can check wiki page, accesing to URL 'https://WebServer/wiki'.</p>
-<p>&nbsp;</p>
-<a name="E4"><h3>(E4) How can we add some information in Wiki Server?</h3></a>
-<p>Wiki Server main page 'servers' shows a list of servers: 'nodes', 'winNodes' and 'outsiders'. This list has a fiels named 'notes' to add some information about servers.</p>
-<p>This information won't be saved on database, just in Wiki pages.</p>
-<p>&nbsp;</p>
-<a name="F1"><h3>(F1) How can we consult information directly on database?</h3></a>
-<p>Obviouly we can do it with every mysql client, but we have to know the list of IP's permitted to access (this list is defined on configuration time).</p>
-<p>Furthermore, we always can use PhpMyAdmin software in Web server, in URL https://web_server/phpmyadmin , a grahical mysql client.</p>
-<p>We just need enter mysql user: 'admin' to access 'inventory' database (all data is saved in this database) or 'root' to manage database. Password of both users are defined in configuration time.</p>
-<p>&nbsp;</p>
-<a name="F2"><h3>(F2) Can we add new rows to inventory tables on database?</h3></a>
-<p>Yes, all tables on 'inventory' database have a field named 'auto' (boolean type). Every data made by system are saved on databse with field 'auto' as 'true', and system just recognise data with 'auto' as 'true'.</p>
-<p>So we can add every row we want. If we save data with 'auto' as 'true', system will recognise as owner of data (we can see new data on wiki server and PHP Application).</p>
-<p>But if we add data with 'auto' as 'false' , system won't recognise it (they won't appear on wiki server or PHP Application), but we can modify PHP Application to admit these data, or make SQL queries to get new data.</p>
-<p>&nbsp;</p>
-<a name="G1"><h3>(G1) Can we modify Nagios checks?</h3></a>
-<p>Of course, but we have to know what kind of checks are defined by system (we can't change these checks, because system always update them).</p>
-<p>For every host ('node' or 'outsider') there are some external checks (directly check, without NRPE) defined in Nagios server, in a file named '/etc/nagios3/conf.d/hostname_nagios3.cfg'. Inside Nagios defines 'host' and an external check for every TCP port (with check_tcp plugin).</p>
-<p>We can't modify these 'hostname_nagios3.cfg' files because they will be updated in every execution of outsider.yml playbook, but we can create another file (named hostname_extra_nagios3.cfg for example) and define inside every external check we want for 'hostname' host.</p>
-<p>For every node (nodes have installed Nagios NRPE, so we can do internal checks) Nagios server defines some NRPE check (with check_nrpe plugin) in a file named '/etc/nagios3/conf.d/node_hostname_nagios3.cfg'.</p>
-<p>On top of file there's a 'check_nrpe' with a label 'check_Ansible_load' to check node's Load (this label have to be defined in Nagios NRPE of nodes).</p>
-<p>After 'check_Ansible_load' there's another 'check_nrpe' with label 'check_Ansible_diskRoot' to check free space on root disk.</p>
-<p>Finally there're some 'check_nrpe', each of them for every TCP & UDP port, with a label as 'check_portTCP_numberPort' or 'check_portUDP_numberPort' (depending on kind of port, TCP or UDP).</p>
-<p>Every node has Nagios NRPE installed. In '/etc/nagios/nrpe.d' directory there're three file:</p>
-<p>* nrpe_diskRoot.cfg</p>
-<p>This file includes a command with 'check_Ansible_diskRoot' label and calls 'check_disk' plugin to check free space in root disk.</p>
-<p>* nrpe_load.cfg</p>
-<p>This file includes a command with 'check_Ansible_load' label and calls 'check_load' plugin to check Load.</p>
-<p>* nrpe_ports.cfg This file includes some commands with 'check_portTCP_portNumber' and 'check_portUDP_portNumber' labels and call 'check_listen_tcp_udp.sh' plugin to check TCP & UDP ports.</p>
-<p>We can't modify these 'nrpe_*' files because they will be updated in every execution of nodes.yml playbook, but we can create another file named 'nrpe_whateverCheck.cfg' to add new NRPE checks (don't forget add a 'check_nrpe' in Nagios server with the same label).</p>
-<p>If we want to modify something in defined external checks in Nagios server, we have to modify '/etc/ansible/roles/outsider/templates/etc/nagios3/conf.d/out_nagios3.cfg.j2' template (it has 'jinja2' code inside). NEVER change files directly in Nagios server.</p>
-<p>If we want to modify something in defined internal checks in nodes, we have to modify '/etc/ansible/roles/node/templates/etc/nagios3/conf.d/node_nagios3.cfg.j2' template (to modify 'check_nrpe' calls from Nagios server) and '/etc/ansible/roles/node/templates/etc/nagios/nrpe.d/nrpe_*' templates (to modify internals 'check_*' in nodes). NEVER change files directly in nodes (Nagios NRPE).</p>
-<p>&nbsp;</p>
-<a name="H1"><h3>(H1) Can we modify created Grafana dashboards or create new ones?</h3></a>
-<p>Yes, every dashboard can be customized, or we can create new ones if we need them.</p>
-<p>Control server generates a dahsboard for every host (node or outsider) with their hostnames. When a outsider becomes a node, its dahsboard will be updated (with news graphs from munin data) if it hasn't been modified by user.</p>
-<p>If we want to regenerate a dashboard or some of them, first we have to delete dahsboard(s) to regenerate, and then execute: '<strong>ansible-playbook /etc/ansible/grafana.yml -t dashboards</strong>' or wait for the next 'checking installed software' (frequency set at configuration).</p>
-<p>&nbsp;</p>
-<a name="I1"><h3>(I1) Are winNodes (windows nodes) monitored by Nagios?</h3></a>
-<p>Yes, winNodes are monitored but just externally as outsiders. They aren't monitored internally monitored (with 'check_nrpe') because they don't have Nagios NRPE installed.</p>
-<p>If we want to install Nagios NRPE in winNodes, we have to do it manually. We can get a Nagios NRPE for windows as 'winrpe' ('https://www.itefix.net/winrpe') or 'Nsclient++' ('www.nsclient.org') and configure it.</p>
-<p>&nbsp;</p>
-<a name="I2"><h3>(I2) Are winNodes (windows nodes) monitored by Munin?</h3></a>
-<p>No, winNodes aren't monitored by Munin because they don't have Munin node installed. If we want to install Munin node in winNodes, we have to do it manually.</p>
-<p>We can get a Munin node for windows as 'munin-node-win32' ('http://sourceforge.net/projects/munin-nodewin32') and configure it.</p>
-<p>&nbsp;</p>
-<a name="J1"><h3>(J1) Modifying Date and Time of scanning vulnerabilites</h3></a>
-<p>At configuration time we can choice frequency of scanning vulnerabilities (in months). By default scannings will start at 02:30 of first day of month.</p>
-<p>We can change minutes, hours, day, even weekday of starting, configuring extra parameters with 'Configure Extra Variables (option 2 in control menu). Script will ask: 'Openvas Crontab' to define minutes, hours, day or weekday at crontab.</p>
-<p>&nbsp;</p>
-<a name="J2"><h3>(J2) Modifying scan profile</h3></a>
-<p>By default Openvas use 'Full and Fast' scan profile.</p>
-<p>We can change it configuring extra parameters with 'Configure Extra Variables (option 2 in control menu). Script will ask: 'Config Scan Openvas' and available options are: 'Discovery', 'Host Discovery', 'System Discovery', 'Full and fast', 'Full and fast ultimate', 'Full and very deep' and 'Full and very deep ultimate'.</p>
-<p>&nbsp;</p>
-<a name="J3"><h3>(J3) Can we setup a different frequency (for scanning vulnerabilities) for a special group of servers?</h3></a>
-<p>Yes, if we want to scan vulnerabilities on a small group of servers with a different frequency (usually with a higher frequency), we can do it configuring extra parameters with 'Configure Extra Variables (option 2 in control menu).</p>
-<p>Script will ask: 'Do you want to create Openvas Special Group?'. If we answer 'y', script will ask some questions to configure group:</p>
-<ul>
-<li>'Openvas Special Servers List' to define 'special' servers (a list of servers separated by whitespaces).</li>
-<li>'Openvas Special Group Crontab' to define frequency checks, setting crontab variables: minutes, hours, day, month and weekday.</li>
-</ul>
-<p>&nbsp;</p>
-<a name="J4"><h3>(J4) Can we exclude some hosts of scanning vulnerabilities?</h3></a>
-<p>Yes, if we want to avoid scanning vulnerabilities in a group of servers, we can specify them configuring extra parameters with 'Configure Extra Variables (option 2 in control menu).</p>
-<p>Script will ask: 'Exclude Openvas Servers List' to define 'excluded' servers (a list of servers separated by whitespaces).</p>
-<p>&nbsp;</p>
-<a name="J5"><h3>(J5) Can we get all vulnerability reports?</h3></a>
-<p>Of course, all reports are saved in 'openvas' directory of Web server. In 'openvas' directory there are a subdirectory for every server scanned.</p>
-<p>All reports are saved as 'serverName-DateTime.html', 'serverName-DateTime.pdf', 'serverName-DateTime.txt' and 'serverName-DateTime.xml' in their directory.</p>
-<p>&nbsp;</p>
-<a name="K1"><h3>(K1) Can we modify Ansible timeout (connection time)?</h3></a>
-<p>Sometimes netload is high and Ansible's errors are produced tryng to connect to nodes. We can increase SSH timeout (just for Ansible software) modifying value of 'timeout' variable in 'ansible.cfg' file.</p>
-<p>&nbsp;</p>
-<a name="K2"><h3>(K2) How to know if a file has been modified by Control Server?</h3></a>
-<p>Every file modified by Control Server begins with a comment 'Made by EPS Monitoring System'. Don't modify these files because they will be restored by Control Server (losing changes).</p>
-<p>&nbsp;</p>
-<a name="L1"><h3>(L1) Can we define a different user than admin to watch information in read only mode?</h3></a>
-<p>Yes, selecting option '2. Configure Extra Variables' we can define a read only user, its password and IP's (or everywhere) to access all servers.</p>
-<p>&nbsp;</p>
-<a name="M1"><h3>(M1) Can we configure servers with our CA & Servers certificates?</h3></a>
-<p>Yes, all certificates are created in <strong>/etc/ssl/ansible</strong> directory in Control server.</p>
-<p>CA certificates are saved as:</p>
-<ul>
-<li><strong>ca.crt</strong> (CA certificate)</li>
-<li><strong>ca.key</strong> (CA key)</li>
-<li><strong>ca.srl</strong> (CA serial file)</li>
-</ul>
-<p>Servers certificates are saved as:</p>
-<ul>
-<li><strong>servername.crt</strong> (server 'servername' certificate) Ex. epsms.eps.ua.es.crt</li>
-<li><strong>servername.csr</strong> (server 'servername' request) Ex. epsms.eps.ua.es.csr</li>
-<li><strong>servername.key</strong> (server 'servername' key) Ex. epsms.seps.ua.es.key</li>
-<li><strong>servername.pem</strong> (server 'servername' certificate & key together) Ex. epsms.eps.ua.es.pem</li>
-</ul>
-<p>After CA & Servers certificates creation, files (crt, key and pem) are copied to servers (Nagios server, Munin server, Web server, Grafana & InfluxDB server and Openvas server) in <strong>/etc/ssl/ansible</strong> directory as:<p>
-<ul>
-<li><strong>ansible-ssl.crt</strong> (server certificate)</li>
-<li><strong>ansible-ssl.key</strong> (server key)</li>
-<li><strong>ansible-ssl.pem</strong> (server certificate & key together)</li>
-</ul>
-<p>&nbsp;</p>
-<a name="N1"><h3>(N1) What kind of firewall is EPSMS firewall? How does it work?</h3></a>
-<p>EPSMS has a firewall based on 'iptables'. 'Firewall role' installs iptables package and configures a new service called 'epsms-firewall' filtering access to monitoring services (Web, Mysql, Nagios, Munin, Grafana, InfluxDB and Openvas).</p>
-<p>Firewall allows access from 'hostsAdmins' and 'hostsReadUser' (if defined read user) to all services.</p>
-<p>Mysql allows access from Web server too (Web Apps need get data from mysql database).</p>
-<p>InfluxDB API (tcp/8086) allows access from Nagios and Munin servers (they need write data to influxDB databases).</p>
-<p>EPSMS firewall doesn't configure default policies. It only configures iptables to access services: Web (tcp/443), Mysql (tcp/3306), Nagios (tcp/443), Munin (tcp/443), Grafana (tcp/3000), InfluxDB (tcp/8083,8086,8088) and Openvas (tcp/9390,9391,9392).
-<p>&nbsp;</p>
-<a name="N2"><h3>(N2) Can we configure our iptables rules?</h3></a>
-<p>Of course, EPSMS firewall doesn't flush iptables rules. and it only configures rules about services.</p>
-<p>We should configure our iptables rules to be called before EPSMS firewall.</p>
-<p>&nbsp;</p>
-<a name="O1"><h3>(O1) How does Live Demo work? It's a real Monitoring System collecting data or it has static (no real) data?</h3></a>
-<p>Live Demo <strong><a href="https://epsms.eps.ua.es" target="_blank">https://epsms.eps.ua.es</a></strong> is a real EPS Monitoring System collecting data from hosts in a network.</p>
-<p>User can access with user 'epsms' and password 'epsms'. It's a read only user to watch all information collected from servers through: Nagios alerts, Munin performance graphics, Web Apps, Inventory Wiki, Grafana Dahsboards and Openvas Vulnerability Reports (InfluxDB Web Interface is not available for 'epsms' user, it's only for Admins).</p>
-<table border='1'>
-<p align='center'><strong>Hosts List</strong> (Domain: <strong>epsms.eps.ua.es</strong> Network: <strong>192.168.0.0/27</strong>)</p>
-<table border='1' cellspacing='5' cellpadding='5'>
-<tr><td width='15%' align='center'>Hostname</td><td width='15%' align='center'>IP</td><td width='20%' align='center'>Operating System</td><td width='15%' align='center'>Type</td><td width='35%' align='center'>Comments</td></tr>
-<tr><td>centos</td><td>192.168.0.2</td><td>CentOS 6</td><td align='center'>node</td><td>All servers installed: Ansible, Nagios, Munin, Web, Mysql, Grafana & InfluxDB and Openvas</td></tr>
-<tr><td>debian</td><td>192.168.0.3</td><td>Debian 7</td><td align='center'>node</td><td>NRPE & Munin-node installed</td></tr>
-<tr><td>fedora</td><td>192.168.0.4</td><td>Fedora 19</td><td align='center'>node</td><td>NRPE & Munin-node installed</td></tr>
-<tr><td>ubuntu</td><td>192.168.0.5</td><td>Ubuntu 14.04</td><td align='center'>node</td><td>NRPE & Munin-node installed</td></tr>
-<tr><td>freebsd</td><td>192.168.0.6</td><td>FreeBSD 9.2</td><td align='center'>node</td><td>NRPE & Munin-node installed</td></tr>
-<tr><td>solaris</td><td>192.168.0.7</td><td>SunOS Solaris 5.11</td><td align='center'>node</td><td>NRPE & Munin-node installed</td></tr>
-<tr><td>gentoo</td><td>192.168.0.8</td><td>Gentoo</td><td align='center'>node</td><td>-</td></tr>
-<tr><td>opensuse</td><td>192.168.0.9</td><td>Opensuse 13.2</td><td align='center'>node</td><td>Munin-node installed</td></tr>
-<tr><td>slackware</td><td>192.168.0.10</td><td>Slackware 14.0</td><td align='center'>node</td><td>-</td></tr>
-<tr><td>arch</td><td>192.168.0.11</td><td>Arch Linux</td><td align='center'>node</td><td>NRPE (no SSL) & Munin-node installed</td></tr>
-<tr><td>openbasd</td><td>192.168.0.12</td><td>OpenBSD 5.6</td><td align='center'>outsider</td><td>NRPE & Munin-node installed</td></tr>
-<tr><td>win2008</td><td>192.168.0.13</td><td>Windows Server 2008</td><td align='center'>windows node</td><td>NRPE & Munin-node installed</td></tr>
-<tr><td>win2000</td><td>192.168.0.14</td><td>Windows Server 2000</td><td align='center'>windows node</td><td>Historical Server</td></tr>
-</table>
-<p>&nbsp;</p>
-</td></tr>
-</table>
-</div>
-</body>
-</html>
+     There's an Angularjs Aplication: 'Inventory /web/angularjs'.
+ 
+     In Angularjs Application there's no dynamic page because they don't access Database directly, they access to REST API (no need of DB user and password), with database data in JSON format.
+
+
+     PHP & Angularjs Applications belong to 'web' role. This role have some important tasks to do, as: checking correct installation and configuration of Apache and PHP software, and sincronize PHP & Angularjs pages to Web server. In its directory '/etc/ansible/roles/web' we find three important directories:
+
+     * 'tasks', with code to check software and sincronize PHP & Angularjs pages
+
+     * 'files', with static pages in 'files/var/www/web' and subdirectories
+
+     * 'templates', with dynamic pages in 'templates/var/www/web' and subdirectories
+
+     Sincronization task get the values of Ansible's variables and send updated pages to Web server under '/var/www/web'.
+
+     We MUST NOT modify pages in Web server, because they will be updated in the next sincronization and we'll lose all changes. We have to change web pages in Control Server and wait for next sincronization to have Web server updated, or we can force a sincronization calling 'web.yml' playbook manually typing:
+
+     ansible-playbook /etc/ansible/web.yml -t web
+
+     This playbook (with 'web' label) will check installation and configuration of software and sincronizes web pages (PHP & Angularjs Applications).
+
+
+(11) Modify existing Wiki pages
+
+     Wiki Server is made with Dokuwiki software and show all the information about nodes (software and hardware) and outsiders (just TCP ports) with historic old versions.
+
+     If we want to change pages with no new information (just changing the output format), we have to modify dokuwiki code.
+
+     We MUST NOT modify pages in Wiki server, because they will be updated in the next web playbook execution and we'll lose all changes. We have to change dokuwiki pages in Wiki Server and wait for next web playbook execution to have Wiki server updated, or we can force an update calling 'web.yml' playbook manually typing:
+
+     ansible-playbook /etc/ansible/web.yml -t wiki
+
+     This playbook (with 'wiki' label) will check installation and configuration of dokuwiki software and sincronizes wiki pages.
+ 
+     Wiki pages are in different places, depending on the role that make them (playbooks calls roles code). Almost every page are made by 'node' role except:
+
+     * main page 'servers' (it shows list of servers: nodes and outsiders)
+
+     * 'last 100 changes' pages 'hostname-hostslast' (they show last 100 changes in 'hostname' server)
+
+     * 'external TCP ports check' pages 'hostname-portsext' (they show TCP ports clicking in 'hostname' link for outsiders)
+
+     All of these are made by 'outsider' role.
+
+     Pages made by 'node' role are located in '/etc/ansible/roles/node/templates/var/lib/dokuwiki/data/pages/inventory' directory.
+
+     Pages made by 'outsider' role are located in '/etc/ansible/roles/outsider/templates/var/lib/dokuwiki/data/pages/inventory' directory.
+
+     All pages have 'j2' extension. They have 'jinja2' code inside used to get information about Ansible's variables. In this case information is not just about global variables, 'outsider' role generates new variables about network scanning and 'node' role generates variables about software and hardware information.
+
+     We can modify dokuwiki code to change output format or add/delete/change existing Ansible's variables with information.
+
+
+(12) Add a new Wiki page with data from database
+
+     There are some pages with information from database. These pages get more information than the other pages (information about nodes or outsiders), they add information from database to show historic information to user.
+
+     These are the steps we have to do to make these kind of wiki pages:
+
+     * Add a new task, calling 'db_facts' script in a task file ('.yml' files in 'tasks' directory of every role).
+
+       For example, if we want to make a new wiki page about nodes basic information (not about packages or executables), we'll modify '/etc/ansible/roles/node/tasks/dataDB.yml'.
+
+       New task could be like:
+
+       - name: Task name
+         action: db_facts hostMysql="{{ hostMysql }}" and passwd="{{ passwdMysqlInventory }}" label="DB query's name"
+query="Select Field1, FieldN from Table where Server='{{ inventory_hostname }}'"
+         delegate_to: ${hostMysql} 
+
+       Notes:
+
+       + 'label' is the query's name. Very important because it make a variables list with this name, so we'll have to use it to call variables inside page's code.
+
+       + We can use every valid SQL query. Field's names are very important (of course we can use 'AS' SQL label to rename them) because they will be attributes' names of variables to call them inside page's code.
+
+       + A very used Ansible's variable to make SQL query filters is {{ inventory_hostname }} (curly braces is 'jinja2' code to get value of Ansible's variable 'inventory_hostname'). This way we could make a SQL query for every node.  
+
+
+     * After making the query, we have to prepare wiki page using new variables. We'll place wiki template in '/etc/ansible/roles/node/templates/var/lib/dokuwiki/data/pages/inventory' with whathever name, but it needs '.txt.j2' extension (dokuwiki files have 'txt' extension and template with jinja2 code have 'j2' extension). So this file will have jinja2 code to get variables' values (made with SQL query) and dokuwiki code will make an output format to show data. There are some examples of wiki pages with data from database in 'node' and 'outsider' roles.
+
+     * Then we have to create a new task in the same task file (after 'db_facts' task), to copy wiki file to Wiki server with 'tmp' extension (and without 'j2' extension) and calling revision control system script '/usr/share/dokuwiki/bin/dwpage.php'. For example, if our wiki file is called 'host-prueba.txt.j2', task will be:
+
+       - name: Copy host-prueba.txt from DB (in Wiki Master)
+         template: src=var/lib/dokuwiki/data/pages/inventory/host-prueba.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-prueba.txt.tmp owner=root group=root mode=0644
+         delegate_to: ${hostWeb}
+
+       - name: Commit changes of host-prueba.txt from DB & update (in Wiki Server)
+         shell: /usr/bin/php /usr/share/dokuwiki/bin/dwpage.php -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" commit /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-prueba.txt.tmp inventory:{{ inventory_hostname|lower }}-prueba
+         delegate_to: ${hostWeb}
+
+     * We should keep in mind that we need a link in some page to our new page. So we have to add dokuwiki code to make a link '[[ linked page | text ]]', in template where we want to call or new page. Templates are located in '/etc/ansible/roles/node/templates/var/lib/dokuwiki/data/pages/inventory' directory, except main Wiki page 'servers', located in '/etc/ansible/roles/outsider/templates/var/lib/dokuwiki/data/pages/inventory/servers.txt.j2' and a few more generated by 'outsider' role, about outter scannings (in the same directory that 'servers' page).
+
+     * Finally, we can test that everything works correctly. So, we have to execute option '7 Get data from node(s)', and if playbook ends without errors, we can check wiki page, accesing to URL 'https://WebServer/wiki'.
+
+
+(13) Get new information about nodes
+
+     Thats the longest modification. It's not difficult but it takes some time.
+
+     We need a script to get information from nodes, some tables on database to save new information, templates with SQL operation to save information on database, wiki template to show information on Wiki server, and Ansible tasks to manage every step.
+ 
+     For example, if we want to get information about kernel parameters in '/etc/sysctl.conf' file, we have to do the next steps:
+
+     * Create new script in '/etc/ansible/scripts' directory, to get new information, called site_facts.sysctl.py or something similar. Of course, We can modify '/etc/ansible/scripts/site_facts.py' to add a new function to get info about sysctl.
+       We can use any language to make new script. If we use python we'll be sure that python is on every node because python is a prerequisite to be a node. But we can use any other language, and add a new task to install language binary before execute the script.
+       Script has to return information in JSON format. We can watch other scripts (for example 'site_facts.py') to learn about output format.
+
+     * We can test it, executing script by command line and analyzing information and a correct JSON format. If script works correctly, we have to release new script in Ansible. We can do it linking from '/usr/share/ansible/site_facts.sysctl.py' to our script in '/etc/ansible/scripts/site_facts.sysctl.py', but not directly (by command line), we have to add a new task to 'ansible' role, modifying '/etc/ansible/roles/ansible/tasks/config.yml' task file, and adding:
+
+       - name: Link /[pathAnsibleLibrary]/site_facts.sysctl -> /[pathAnsible]/scripts/site_facts.sysctl.py
+         file: path={{ pathAnsibleLibrary }}/site_facts.sysctl state=link src={{ pathAnsible }}/scripts/site_facts.sysctl.py force=yes
+
+       Script will be released in the next Ansible configuration (execution of '/etc/ansible/ansible.yml' playbook), but we can do it immediately, executing the playbook:
+
+       ansible-playbook /etc/ansible/ansible.yml -t config
+
+     * Now we have to create a table called 'sysctl' on database to save new information. We don't create table directly, we have to modify the database creation file '/etc/ansible/roles/msyql/files/root/inventory/createTables.sql' (a SQL file to create all the tables on 'inventory' database).
+
+       Database will be modified in the next execution of 'mysql' role, but we can do it immediately, executing the playbook:
+
+       ansible-playbook /etc/ansible/mysql.yml
+
+     * Then we have to add a new task in '/etc/ansible/roles/node/tasks/dataDB.yml' (task file of 'node' role to get data from nodes) to execute the new script 'site_facts.sysctl.y':
+
+       - name: Getting sysctl data from nodes
+         action: site_facts.sysctl
+
+       We have to add task in the beginning of task file (after task that executes 'site_facts') to have the new information available for the rest of file.
+
+     * Now, we have information in Ansible's variables and database ready, so we have to save data on database. This way, we have to create 'jinja2' templates with SQL operations to INSERT or MODIFY data.
+
+       We can learn 'jinja2' to create SQL file or analyze other SQL file of '/etc/ansible/roles/node/templates/root/inventory/nodes' directory, copy as 'node_dataSysctl.sql.j2' in the same directory and modify. Last SQL operations: 'END-CHECK_' and 'END-UPDATE_' are used to nullify rows not detected. We'll use a pair of them for any table.
+
+       We have to change another SQL file, '/etc/ansible/roles/outsider/templates/root/inventory/POST_ending.sql.j2' adding a pair of 'END-CHECK_' and 'END-UPDATE_' for any table, at the end of the file. This file is used to nullify all rows of a server when server is down (when network scanning script 'net_facts.py' doesn't detect the server anymore).
+
+     * Then we have to modify task file '/etc/ansible/roles/node/tasks/dataDB.yml', looking for 'Generate sql files (in Mysql Server)' task, adding a new template called 'sysctl' at the botton of list 'with_items:' 
+
+     * We can test that everything works correctly before add the wiki page. So, we have to execute option '7 Get data from node(s)', and if playbook ends without errors, we can check database to find new information with 'PhpMyAdmin' (Mysql management software), accesing to URL 'https://WebServer/phpmyadmin' (user 'inventory' and password introduced at configuation time).
+
+     * Now, it's time to create new wiki page. Steps are similar we did to create SQL file. Now we need to create a wiki template with 'jinja2' code to access Ansible's variables and 'dokuwiki' code to design page. The simplest way is to copy another wiki template from '/etc/ansible/roles/node/templates/var/lib/dokuwiki/data/pages/inventory' directory as 'host-sysctl.txt.j2' in the same directory, and change 'jinja2' with new variables ('jinja2' code is always between curly braces or '{%' and '%}' symbols) and 'dokuwiki' code with new design.
+
+     * Then we have to modify task file '/etc/ansible/roles/node/tasks/dataDB.yml' again to generate new wiki page. We have to look for 'Copy host-items.txt (in Wiki Master)' task (copy generated wiki page in server)  and 'Commit changes of host-items.txt & update (in Wiki Server)' task (put old page to historic versions and is updated with new page), adding a new template called 'sysctl' at the bottom of list 'with_items:'.
+
+     * We should keep in mind that we need a link in some page to our new page. So we have to add dokuwiki code to make a link '[[ linked page | text ]]', in template where we want to call or new page. Templates are located in '/etc/ansible/roles/node/templates/var/lib/dokuwiki/data/pages/inventory' directory, except main Wiki page 'servers', located in '/etc/ansible/roles/outsider/templates/var/lib/dokuwiki/data/pages/inventory/servers.txt.j2' and a few more generated by 'outsider' role, about outter scannings (in the same directory that 'servers' page).
+
+     * Finally, we can test again that everything works correctly. So, we have to execute option '7 Get data from node(s)' again, and if playbook ends without errors, we can check wiki page, accesing to URL 'https://WebServer/wiki'.
+
+
+(14) How can we add some information in Wiki Server?
+
+     Wiki Server main page 'servers' shows a list of servers: 'nodes', 'winNodes' and 'outsiders'. This list has a fiels named 'notes' to add some information about servers.
+
+     This information won't be saved on database, just in Wiki pages.
+
+
+(15) How can we consult information directly on database?
+
+     Obviouly we can do it with every mysql client, but we have to know the list of IP's permitted to access (this list is defined on configuration time).
+
+     Furthermore, we always can use PhpMyAdmin software in Web server, in URL https://web_server/phpmyadmin , a grahical mysql client.
+
+     We just need enter mysql user: can be 'inventory' to access 'inventory' database (all data is saved in this database) or 'root' to manage database. Password of both users are defined in configuration time.
+
+
+(16) Can we add new rows to inventory tables on database?
+
+     Yes, all tables on 'inventory' database have a field named 'auto' (boolean type). Every data made by system are saved on databse with field 'auto' as 'true', and system just recognise data with 'auto' as 'true'.
+
+     So we can add every row we want. If we save data with 'auto' as 'true', system will recognise as owner of data (we can see new data on wiki server and PHP Application). 
+
+     But if we add data with 'auto' as 'false' , system won't recognise it (they won't appear on wiki server or PHP Application), but we can modify PHP Application to admit these data, or make SQL queries to get new data.
+
+
+(17) Can we modify Nagios checks?
+
+     Of course, but we have to know what kind of checks are defined by system (we can't change these checks, because system always update them).
+
+     For every host ('node' or 'outsider') there are some external checks (directly check, without NRPE) defined in Nagios server, in a file named '/etc/nagios3/conf.d/hostname_nagios3.cfg'. Inside Nagios defines 'host' and an external check for every TCP port (with check_tcp plugin).
+
+     We can't modify these 'hostname_nagios3.cfg' files because they will be updated in every execution of outsider.yml playbook, but we can create another file (named hostname_extra_nagios3.cfg for example) and define inside every external check we want for 'hostname' host.
+
+     For every node (nodes have installed Nagios NRPE, so we can do internal checks) Nagios server defines some NRPE check (with check_nrpe plugin) in a file named '/etc/nagios3/conf.d/node_hostname_nagios3.cfg'. 
+
+     On top of file there's a 'check_nrpe' with a label 'check_Ansible_load' to check node's Load (this label have to be defined in Nagios NRPE of nodes).
+
+     After 'check_Ansible_load' there's another 'check_nrpe' with label 'check_Ansible_diskRoot' to check free space on root disk.
+
+     Finally there're some 'check_nrpe', each of them for every TCP & UDP port, with a label as 'check_portTCP_numberPort' or 'check_portUDP_numberPort' (depending on kind of port, TCP or UDP). 
+
+     Every node has Nagios NRPE installed. In '/etc/nagios/nrpe.d' directory there're three file: 
+
+     * nrpe_diskRoot.cfg
+
+       This file includes a command with 'check_Ansible_diskRoot' label and calls 'check_disk' plugin to check free space in root disk.
+
+     * nrpe_load.cfg
+
+       This file includes a command with 'check_Ansible_load' label and calls 'check_load' plugin to check Load.
+
+     * nrpe_ports.cfg
+
+       This file includes some commands with 'check_portTCP_portNumber' and 'check_portUDP_portNumber' labels and call 'check_listen_tcp_udp.sh' plugin to check TCP & UDP ports.
+
+     We can't modify these 'nrpe_*' files because they will be updated in every execution of nodes.yml playbook, but we can create another file named 'nrpe_whateverCheck.cfg' to add new NRPE checks (don't forget add a 'check_nrpe' in Nagios server with the same label).
+
+     If we want to modify something in defined external checks in Nagios server, we have to modify '/etc/ansible/roles/outsider/templates/etc/nagios3/conf.d/out_nagios3.cfg.j2' template (it has 'jinja2' code inside). NEVER change files directly in Nagios server.
+
+     If we want to modify something in defined internal checks in nodes, we have to modify '/etc/ansible/roles/node/templates/etc/nagios3/conf.d/node_nagios3.cfg.j2' template (to modify 'check_nrpe' calls from Nagios server) and '/etc/ansible/roles/node/templates/etc/nagios/nrpe.d/nrpe_*' templates (to modify internals 'check_*' in nodes). NEVER change files directly in nodes (Nagios NRPE).
+
+
+(18) Are winNodes (windows nodes) monitored by Nagios?
+
+     Yes, winNodes are monitored but just externally as outsiders. They aren't monitored internally monitored (with 'check_nrpe') because they don't have Nagios NRPE installed. 
+
+     If we want to install Nagios NRPE in winNodes, we have to do it manually. We can get a Nagios NRPE for windows as 'winrpe' ('https://www.itefix.net/winrpe') or 'Nsclient++' ('www.nsclient.org') and configure it.
+
+
+(19) Are winNodes (windows nodes) monitored by Munin?
+
+     No, winNodes aren't monitored by Munin because they don't have Munin node installed.
+
+     If we want to install Munin node in winNodes, we have to do it manually. We can get a Munin node for windows as 'munin-node-win32' ('http://sourceforge.net/projects/munin-nodewin32') and configure it.
+
+
+(20) Modifying Date and Time of scanning vulnerabilites
+
+     At configuration time we can choice frequency of scanning vulnerabilities (in months). By default scannings will start at 02:30 of first day of month.
+
+     We can change minutes, hours, day, even weekday of starting, configuring extra parameters with 'Configure Extra Variables (option 2 in control menu). Script will ask: 'Openvas Crontab' to define minutes, hours, day or weekday at crontab.
+
+
+
+(21) Modifying scan profile
+
+     By default Openvas use 'Full and Fast' scan profile. 
+
+     We can change it configuring extra parameters with 'Configure Extra Variables (option 2 in control menu). Script will ask: 'Config Scan Openvas' and available options are: 'Discovery', 'Host Discovery', 'System Discovery', 'Full and fast', 'Full and fast ultimate', 'Full and very deep' and 'Full and very deep ultimate'.
+
+
+(22) Can we setup a different frequency (for scanning vulnerabilities) for a special group of servers?
+
+     Yes, if we want to scan vulnerabilities on a small group of servers with a different frequency (usually with a higher frequency), we can do it configuring extra parameters with 'Configure Extra Variables (option 2 in control menu). Script will ask: 'Do you want to create Openvas Special Group?'. If we answer 'y', script will ask some questions to configure group:
+
+     * 'Openvas Special Servers List' to define 'special' servers (a list of servers separated by whitespaces). 
+
+     * 'Openvas Special Group Crontab' to define frequency checks, setting crontab variables: minutes, hours, day, month and weekday.
+
+
+(23) Can we exclude some hosts of scanning vulnerabilities?
+
+     Yes, if we want to avoid scanning vulnerabilities in a group of servers, we can specify them configuring extra parameters with 'Configure Extra Variables (option 2 in control menu). Script will ask: 'Exclude Openvas Servers List' to define 'excluded' servers (a list of servers separated by whitespaces).
+
+
+(24) Can we get all vulnerability reports?
+
+     Of course, all reports are saved in 'openvas' directory of Web server. In 'openvas' directory there are a subdirectory for every server scanned. All reports are saved as 'serverName-DateTime.html', 'serverName-DateTime.pdf', 'serverName-DateTime.txt' and 'serverName-DateTime.xml' in their directory.
+
+
+(25) Can we modify Ansible timeout (connection time)?
+
+     Sometimes netload is high and Ansible's errors are produced tryng to connect to nodes. We can increase SSH timeout (just for Ansible software) modifying value of 'timeout' variable in 'ansible.cfg' file.
+
+
+######################################################

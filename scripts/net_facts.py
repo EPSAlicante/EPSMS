@@ -1,10 +1,4 @@
 #!/usr/bin/python
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
 
 import subprocess
 import socket
@@ -95,19 +89,12 @@ def sshAccess(IP, user):
       s = paramiko.SSHClient()
       s.set_missing_host_key_policy(paramiko.AutoAddPolicy())
       paramiko.util.log_to_file("/dev/null")
-    except:
-      # Not sure if ssh fails
-      return True
-
-    try:
       s.connect(IP, username=user)
+
     except KeyboardInterrupt:
       return False
-    except (paramiko.ssh_exception.AuthenticationException, paramiko.ssh_exception.BadAuthenticationType, paramiko.ssh_exception.PartialAuthentication, paramiko.ssh_exception.PasswordRequiredException, paramiko.ssh_exception.BadHostKeyException):
-      return False
     except:
-      # Not sure if ssh fails
-      return True
+      return False
 
     s.close()
     return True
@@ -224,7 +211,7 @@ def showTCP(IP):
     winPort = 0
 
     contTCP = 1
-    command = "((%s -sS \"%s\" --host-timeout=30 -v0 -p 22,4949,5666;%s -sS \"%s\" --host-timeout=30 -v0)|grep tcp|grep open|cut -d'/' -f1|sort|uniq) 2>/dev/null" % (path('nmap'),IP,path('nmap'),IP)
+    command = "(%s -min-parallelism 100 -sS \"%s\" --host-timeout=30 --min-hostgroup=10 -v0|grep tcp|grep open|cut -d'/' -f1) 2>/dev/null" % (path('nmap'),IP)
     listTCP = subprocess.Popen("%s" % (command), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
 	
     lines = listTCP.stdout.readlines()
@@ -311,7 +298,7 @@ def main():
       if excludeNmap != "":
         excludeNmap = "--exclude " + excludeNmap.replace('\n',',') 
 
-    command = "(%s -n -sP %s %s | grep \"scan report\" | cut -d' ' -f5) 2> /dev/null" % (path('nmap'),subnetsNmap,excludeNmap)
+    command = "(%s -min-parallelism 100 -n -sP %s %s | grep \"scan report\" | cut -d' ' -f5) 2> /dev/null" % (path('nmap'),subnetsNmap,excludeNmap)
     listHosts = subprocess.Popen("%s" % (command), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
     linesHosts = listHosts.stdout.readlines()
 
@@ -330,11 +317,6 @@ def main():
       print "      {"
       print "        \"IP\": \"%s\"," % (IP)
       print "        \"name\": \"%s\"," % (name)
-      if IP != name:
-        domain = name.split('.',1)[1]
-      else:
-        domain = ""
-      print "        \"domain\": \"%s\"," % (domain)
       print "        \"contHosts\": \"%s\"," % (contHosts)
       print "        \"maxHosts\": \"%s\"," % (maxHosts)
       print "        \"sshUser\": \"%s\"," % (sshUser())

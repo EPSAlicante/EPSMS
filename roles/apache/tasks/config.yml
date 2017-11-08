@@ -1,17 +1,17 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
-
 # Apache Server Configuration
 
 - name: Copy ansible-ssl.conf to /etc/httpd/conf.d (yum)
   template: src=etc/httpd/conf.d/ansible-ssl.conf.j2 dest=/etc/httpd/conf.d/ansible-ssl.conf owner=root group=root mode=0644
-  notify: restart apache
   when: ansible_pkg_mgr == "yum"
+
+#- name: Copy ansible-ssl to /etc/apache2/sites-available (apt)
+#  template: src=etc/apache2/sites-available/ansible-ssl.j2 dest=/etc/apache2/sites-available/ansible-ssl owner=root group=root mode=0644
+#  when: ansible_pkg_mgr == "apt"
+
+#- name: Enable ssl module (Debian)
+#  shell: a2enmod ssl
+#  when: ansible_os_family == "Debian"
 
 - name: Be sure mod_ssl is installed (yum)
   yum: pkg=mod_ssl state=installed
@@ -19,22 +19,25 @@
  
 - name: Disable port 80
   lineinfile: name={{ pathApachePorts }} state=present regexp="^#?Listen 80" line='#Listen 80' 
-  notify: restart apache
 
 - name: Disable NameVirtualHost 80
   lineinfile: name={{ pathApachePorts }} state=present regexp="^#?NameVirtualHost \*:80" line='#NameVirtualHost *:80'
-  notify: restart apache
 
 - name: Create user admin
-  htpasswd: path={{ pathApache }}/.passwdFile name=admin password={{ passwdAdmin }} owner=root group={{ userApache }} mode=0640
+  htpasswd: path={{ pathApache }}/.passwdFile name=admin password={{ passwdWebAdmin }} owner=root group={{ userApache }} mode=0640
 
-- name: Delete read only user if it changed 
-  htpasswd: path={{ pathApache }}/.passwdFile name={{ readUserOld|default('') }} state=absent
-  when: readUserOld|default('') != "" and readUser != readUserOld|default('')
+#- name: Enable ansible-ssl in apache (Debian)
+#  shell: a2ensite ansible-ssl 
+#  notify: restart apache
+#  when: ansible_os_family == "Debian"
 
-- name: Create read only user
-  htpasswd: path={{ pathApache }}/.passwdFile name={{ readUser }} password={{ passwdReadUser }} owner=root group={{ userApache }} mode=0640
-  when: readUser != ""
+#- name: Disable defaults in apache (Debian)
+#  shell: a2dissite {{ item }}
+#  with_items:
+#    - default
+#    - default-ssl
+#  notify: restart apache
+#  when: ansible_os_family == "Debian"
 
 - name: Get values of ssl.conf (Centos)
   shell: (grep "^{{ item }}" {{ pathApache }}/conf.d/ssl.conf|head -1) || echo "" 2>/dev/null
@@ -43,75 +46,34 @@
     - SSLProtocol
     - SSLHonorCipherOrder
     - SSLCipherSuite
+    - SSLProxyEngine
     - SSLCertificateFile
     - SSLCertificateKeyFile
   changed_when: False
-  notify: restart apache
   when: ansible_os_family == "RedHat"
 
 - name: Comment SSL variables in ssl.conf (Centos)
-  lineinfile: name={{ pathApache }}/conf.d/ssl.conf regexp="^#?{{ item.item }}" line='#{{ item.stdout }}'
+  lineinfile: name={{ pathApache }}/conf.d/ssl.conf regexp="^#?{{ item.stdout }}" line='#{{ item.stdout }}'
   with_items: "{{ varSSL.results }}"
   notify: restart apache
   when: ansible_os_family == "RedHat" and item.stdout != ""
 
-- name: Add proxy variables in ssl.conf (Centos)
-  lineinfile: name={{ pathApache }}/conf.d/ssl.conf state=present regexp="{{ item.key }}" insertbefore="^</VirtualHost>" line="{{ item.value }}"
-  with_items:
-    - { key: "SSLProxyEngine", value: "SSLProxyEngine ON" }
-    - { key: "ProxyRequests", value: "ProxyRequests Off" }
-  notify: restart apache 
+- name: Copy index.html to pathApacheHTML 
+  template: src=var/www/index.html.j2 dest={{ pathApacheHTML }}/index.html owner={{ userApache }} group={{ userApache }} mode=0644
 
-- name: Copy html files to pathApacheHTML
-  template: src=var/www/{{ item }}.j2 dest={{ pathApacheHTML }}/{{ item }} owner={{ userApache }} group={{ userApache }} mode=0644
-  with_items: 
-    - index.html
-    - table.html
-
-- name: Copy html files to pathApacheHTML
-  copy: src=var/www/{{ item }} dest={{ pathApacheHTML }}/{{ item }} owner={{ userApache }} group={{ userApache }} mode=0644
-  with_items:
-    - logo.html
-
-- name: Copy CA cert to pathApacheHTML
-  copy: src=/etc/ssl/ansible/ca.crt dest={{ pathApacheHTML }}/ca.crt owner={{ userApache }} group={{ userApache }} mode=0644
-
-- name: Create images directory
-  file: path={{ pathApacheHTML }}/images state=directory owner={{ userApache }} group={{ userApache }} mode=0755
-
-- name: Copy images to pathApacheHTML
-  copy: src=var/www/images/{{ item }} dest={{ pathApacheHTML }}/images owner={{ userApache }} group={{ userApache }} mode=0644
-  with_items:
-    - logo.png
-    - Nagios.png 
-    - Munin.png
-    - Wiki.png
-    - PhpMyAdmin.png
-    - WebMenu.png
-    - SimpleList.png
-    - UpdateList.png
-    - AngularJS.png
-    - RestAPI.png
-    - InfluxDB.png
-    - Grafana.png
-    - Openvas.png
-    - HelpMenu.png
-    - Cert.png
-
-- name: Create help directory 
+- name: Create directory help 
   file: path={{ pathApacheHTML }}/help state=directory owner={{ userApache }} group={{ userApache }} mode=0755
 
 - name: Copy Help files to pathApacheHTML
   copy: src=var/www/help/{{ item }} dest={{ pathApacheHTML }}/help owner={{ userApache }} group={{ userApache }} mode=0644
   with_items:
-    - description.html 
-    - structure.html
-    - menu.html
-    - configure.html
-    - configextra.html
-    - faq.html
-    - example.html
-    - readme.pdf
+    - description.txt 
+    - structure.txt
+    - menu.txt
+    - configure.txt
+    - configextra.txt
+    - faq.txt
+    - example.txt
     - index.html
 
 - name: Be sure apache daemon is running and enabled

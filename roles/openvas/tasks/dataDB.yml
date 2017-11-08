@@ -1,23 +1,319 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
-
 # Getting vulnerabilities from servers 
 
-- include: preScan.yml
-  tags: [ openvas, dataDB, preScan ]
+- name: Getting servers' List (nodes, winNodes and outsiders) (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" and passwd="{{ passwdMysqlInventory }}" label="serversList" query="Select Name from Server where End is null and Auto order by Name"
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  when: serversList is undefined 
 
-- include: startScan.yml hostScan={{ item.item.Name }}
-  tags: [ openvas, dataDB, startScan ]
+- name: Check server in inventory and not in Exclude List
+  shell: ((grep '^{{ item.Name }}$' {{ pathAnsible }}/inventory/* > /dev/null && echo "{{ item.Name }}") || echo "") 2>/dev/null executable=/bin/bash
+  with_items: "{{ serversList }}"
+  register: serversInventoryList 
+  ignore_errors: yes
+  changed_when: False
+  delegate_to: "{{ hostAnsible }}"
+  when: not (item.Name in excludeServersListOpenvas)
+
+- name: Check omp (OpenVas Management Protocol) 
+  shell: (omp -u admin -w {{ passwdOpenvas }} -g > /dev/null && echo "OK") || echo "No" executable=/bin/bash
+  register: ompStatus 
+  changed_when: False
+
+- name: Get Scannig config
+  shell: omp -u admin -w {{ passwdOpenvas }} -g|tr '\t' ' '|tr -s ' '|grep -i ' {{ configScanOpenvas }}$'|cut -d' ' -f1 executable=/bin/bash
+  register: ompConfig
+  changed_when: False
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+
+- name: Get HTML format
+  shell: omp -u admin -w {{ passwdOpenvas }} -F|tr '\t' ' '|tr -s ' '|grep -i ' HTML$'|cut -d' ' -f1 executable=/bin/bash
+  register: ompFormatHTML
+  changed_when: False
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+
+- name: Get PDF format
+  shell: omp -u admin -w {{ passwdOpenvas }} -F|tr '\t' ' '|tr -s ' '|grep -i ' PDF$'|cut -d' ' -f1 executable=/bin/bash
+  register: ompFormatPDF
+  changed_when: False
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+
+- name: Get TXT format
+  shell: omp -u admin -w {{ passwdOpenvas }} -F|tr '\t' ' '|tr -s ' '|grep -i ' TXT$'|cut -d' ' -f1 executable=/bin/bash
+  register: ompFormatTXT
+  changed_when: False
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+
+- name: Get XML format
+  shell: omp -u admin -w {{ passwdOpenvas }} -F|tr '\t' ' '|tr -s ' '|grep -i ' XML$'|cut -d' ' -f1 executable=/bin/bash
+  register: ompFormatXML
+  changed_when: False
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+
+- name: Create Targets
+  shell: ([ -n "{{ item.stdout }}" ] && omp -u admin -w {{ passwdOpenvas }} --xml="<create_target><name>{{ item.item.Name }}</name><hosts>{{ item.item.Name }}</hosts><alive_tests>Consider Alive</alive_tests></create_target>") || echo "" executable=/bin/bash
   with_items: "{{ serversInventoryList.results }}"
-  #when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and item.stdout is defined and item.stdout != ""
-  when: ompStatus.stdout == "OK" and item.stdout is defined and item.stdout != ""
+  ignore_errors: yes
+  register: createTarget
+  changed_when: createTarget.stdout.find('201') != -1
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and item.stdout is defined and item.stdout != ""
 
-- include: updateWiki.yml 
-  tags: [ openvas, dataDB, updateWiki ]
-  when: openvas is defined
+- name: Create Tasks
+  shell: ([ -n "{{ item.stdout }}" ] && (target=$(omp -u admin -w {{ passwdOpenvas }} -T|tr '\t' ' '|tr -s ' '|grep -i ' {{ item.item.Name }}$'|tail -1|cut -d ' ' -f1); [ -n "$target" ] && omp -u admin -w {{ passwdOpenvas }} -C -n '{{ item.item.Name }}' --target="$target" --config="{{ ompConfig.stdout }}")) || echo "" executable=/bin/bash 
+  with_items: "{{ serversInventoryList.results }}"
+  register: tasksList
+  ignore_errors: yes
+  changed_when: tasksList.stdout != ""
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and item.stdout is defined and item.stdout != ""
+
+- name: Get PID
+  shell: echo "$$" executable=/bin/bash
+  register: PID
+  changed_when: False
+  ignore_errors: yes
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+
+- name: Get Start Scanning (Timestamp)
+  shell: date +"%y%m%d%H%M%S" executable=/bin/bash
+  register: startScan 
+  changed_when: False
+  ignore_errors: yes
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" 
+
+- name: Execute Tasks
+  shell: '([ -n "{{ item.stdout }}" ] && (omp -u admin -w {{ passwdOpenvas }} -S "{{ item.stdout }}" && (taskDone=""; while [ -z "$taskDone" ]; do sleep 60; taskDone=$(omp -u admin -w {{ passwdOpenvas }} -G|grep "{{ item.stdout }}"|grep -i "Done"); done))) || echo "" executable=/bin/bash'
+  with_items: "{{ tasksList.results }}"
+  register: runTasksList
+  ignore_errors: yes
+  changed_when: runTasksList.stdout != ""
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and tasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Create HTML reports
+  shell: '([ -n "{{ item.stdout }}" ] && (omp -u admin -w {{ passwdOpenvas }} -R "{{ item.stdout }}" -f "{{ ompFormatHTML.stdout }}" > /tmp/openvas-{{ PID.stdout }}-{{ item.item.item.item.Name }}-{{ startScan.stdout }}.html)) || echo "No" executable=/bin/bash'
+  with_items: "{{ runTasksList.results }}"
+  register: createHTMLReport
+  ignore_errors: yes
+  changed_when: createHTMLReport.stdout != "No"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Create PDF reports
+  shell: '([ -n "{{ item.stdout }}" ] && (omp -u admin -w {{ passwdOpenvas }} -R "{{ item.stdout }}" -f "{{ ompFormatPDF.stdout }}" > /tmp/openvas-{{ PID.stdout }}-{{ item.item.item.item.Name }}-{{ startScan.stdout }}.pdf)) || echo "No" executable=/bin/bash'
+  with_items: "{{ runTasksList.results }}"
+  register: createPDFReport
+  ignore_errors: yes
+  changed_when: createPDFReport.stdout != "No"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Create TXT reports
+  shell: '([ -n "{{ item.stdout }}" ] && (omp -u admin -w {{ passwdOpenvas }} -R "{{ item.stdout }}" -f "{{ ompFormatTXT.stdout }}" > /tmp/openvas-{{ PID.stdout }}-{{ item.item.item.item.Name }}-{{ startScan.stdout }}.txt)) || echo "No" executable=/bin/bash'
+  with_items: "{{ runTasksList.results }}"
+  register: createTXTReport
+  ignore_errors: yes
+  changed_when: createTXTReport.stdout != "No"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Create XML reports
+  shell: '([ -n "{{ item.stdout }}" ] && (omp -u admin -w {{ passwdOpenvas }} -R "{{ item.stdout }}" -f "{{ ompFormatXML.stdout }}" > /tmp/openvas-{{ PID.stdout }}-{{ item.item.item.item.Name }}-{{ startScan.stdout }}.xml)) || echo "No" executable=/bin/bash'
+  with_items: "{{ runTasksList.results }}"
+  register: createXMLReport
+  ignore_errors: yes
+  changed_when: createXMLReport.stdout != "No"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Create Openvas directory
+  file: path={{ pathApacheHTML }}/openvas state=directory owner={{ userApache }} group={{ userApache }} mode=0755
+  delegate_to: "{{ hostWeb }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+
+- name: Create targets directories 
+  file: path={{ pathApacheHTML }}/openvas/{{ item.item.item.item.Name }} state=directory owner={{ userApache }} group={{ userApache }} mode=0755
+  with_items: "{{ runTasksList.results }}"
+  delegate_to: "{{ hostWeb }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Copy HTML report to Ansible server
+  fetch: src=/tmp/openvas-{{ PID.stdout }}-{{ item.item.item.item.Name }}-{{ startScan.stdout }}.html dest=/tmp/ flat=yes
+  with_items: "{{ runTasksList.results }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Copy PDF report to Ansible server
+  fetch: src=/tmp/openvas-{{ PID.stdout }}-{{ item.item.item.item.Name }}-{{ startScan.stdout }}.pdf dest=/tmp/ flat=yes
+  with_items: "{{ runTasksList.results }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Copy TXT report to Ansible server
+  fetch: src=/tmp/openvas-{{ PID.stdout }}-{{ item.item.item.item.Name }}-{{ startScan.stdout }}.txt dest=/tmp/ flat=yes
+  with_items: "{{ runTasksList.results }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Copy XML report to Ansible server
+  fetch: src=/tmp/openvas-{{ PID.stdout }}-{{ item.item.item.item.Name }}-{{ startScan.stdout }}.xml dest=/tmp/ flat=yes
+  with_items: "{{ runTasksList.results }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Copy HTML reports to Web Server
+  copy: src=/tmp/openvas-{{ PID.stdout }}-{{ item.item.item.item.Name }}-{{ startScan.stdout }}.html dest={{ pathApacheHTML }}/openvas/{{ item.item.item.item.Name }}/{{ item.item.item.item.Name }}-{{ startScan.stdout }}.html owner={{ userApache }} group={{ userApache }} mode=0644
+  with_items: "{{ runTasksList.results }}"
+  ignore_errors: yes
+  delegate_to: "{{ hostWeb }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Copy PDF reports to Web Server
+  copy: src=/tmp/openvas-{{ PID.stdout }}-{{ item.item.item.item.Name }}-{{ startScan.stdout }}.pdf dest={{ pathApacheHTML }}/openvas/{{ item.item.item.item.Name }}/{{ item.item.item.item.Name }}-{{ startScan.stdout }}.pdf owner={{ userApache }} group={{ userApache }} mode=0644
+  with_items: "{{ runTasksList.results }}"
+  ignore_errors: yes
+  delegate_to: "{{ hostWeb }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Copy TXT reports to Web Server
+  copy: src=/tmp/openvas-{{ PID.stdout }}-{{ item.item.item.item.Name }}-{{ startScan.stdout }}.txt dest={{ pathApacheHTML }}/openvas/{{ item.item.item.item.Name }}/{{ item.item.item.item.Name }}-{{ startScan.stdout }}.txt owner={{ userApache }} group={{ userApache }} mode=0644
+  with_items: "{{ runTasksList.results }}"
+  ignore_errors: yes
+  delegate_to: "{{ hostWeb }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Copy XML reports to Web Server
+  copy: src=/tmp/openvas-{{ PID.stdout }}-{{ item.item.item.item.Name }}-{{ startScan.stdout }}.xml dest={{ pathApacheHTML }}/openvas/{{ item.item.item.item.Name }}/{{ item.item.item.item.Name }}-{{ startScan.stdout }}.xml owner={{ userApache }} group={{ userApache }} mode=0644
+  with_items: "{{ runTasksList.results }}"
+  ignore_errors: yes
+  delegate_to: "{{ hostWeb }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+- name: Delete reports in Openvas server
+  shell: (rm -rf /tmp/openvas-{{ PID.stdout }}-*) 2>/dev/null executable=/bin/bash  
+  ignore_errors: yes
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+ 
+- name: Delete reports in Ansible server
+  shell: (rm -rf /tmp/openvas-{{ PID.stdout }}-*) 2>/dev/null executable=/bin/bash 
+  ignore_errors: yes
+  delegate_to: "{{ hostAnsible }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK"
+
+- name: Make a temp file with servers to scan
+  template: src=tmp/openvas_facts_servers.tmp dest=/tmp/openvas_facts_servers.tmp owner=root group=root mode=0644
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined
+
+- name: Getting data 
+  action: openvas_facts passwd="{{ passwdOpenvas }}"
+  register: openvasFacts
+  changed_when: False
+  ignore_errors: yes
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined
+
+- name: Remove temp file with servers
+  file: path=/tmp/openvas_facts_servers.tmp state=absent
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined
+
+#- name: Delete Tasks
+#  shell: '([ -n "{{ item.stdout }}" ] && omp -u admin -w {{ passwdOpenvas }} -D "{{ item.stdout }}") || echo "No" executable=/bin/bash'
+#  with_items: "{{ tasksList.results }}"
+#  register: deleteTask
+#  ignore_errors: yes
+#  changed_when: deleteTask.stdout != "No"
+#  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and tasksList.results[0].skipped is not defined and item.stdout is defined and item.stdout != ""
+
+#- name: Delete Targets
+#  shell: ([ -n "{{ item.stdout }}" ] && (target=$(omp -u admin -w {{ passwdOpenvas }} -T|tr '\t' ' '|tr -s ' '|grep -i ' {{ item.item.Name }}$'|tail -1|cut -d ' ' -f1); [ -n "$target" ] && omp -u admin -w {{ passwdOpenvas }} --xml="<delete_target target_id=\"$target\"/>")) || echo "" executable=/bin/bash
+#  with_items: "{{ serversInventoryList.results }}"
+#  register: deleteTarget
+#  ignore_errors: yes
+#  changed_when: deleteTarget.stdout.find('200') != -1
+#  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and item.stdout is defined and item.stdout != ""
+
+- name: Generate sql file for Openvas (in Mysql Server)
+  template: src=root/inventory/outsiders/out_dataOpenvas.sql.j2 dest={{ pathInventoryDirectory }}/outsiders/{{ item.Server }}_openvas.{{ PID.stdout }}.sql owner=root group=root mode=0640
+  with_items: "{{ openvas }}"
+  delegate_to: "{{ hostMysql }}"
+  ignore_errors: yes
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Get timeStamp
+  shell: echo $(date "+%Y-%m-%d %H:%M:%S") executable=/bin/bash
+  register: timeStamp
+  delegate_to: "{{ hostMysql }}"
+  changed_when: False
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Execute script out.py (in Mysql Server) for every openvas 
+  shell: '{{ pathInventoryDirectory }}/outsiders/out.py {{ item.Server }} "{{ PID.stdout }}" > /dev/null 2> /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp; [ -s /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp ] && (echo "### ERROR openvas - out.py {{ item.Server }} {{ PID.stdout }} - $(date) ###" >> /var/log/ansible/mysql-errors.log; cat /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp >> /var/log/ansible/mysql-errors.log); rm -f /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp executable=/bin/bash'
+  with_items: "{{ openvas }}"
+  delegate_to: "{{ hostMysql }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Getting Data servers (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" and passwd="{{ passwdMysqlInventory }}" label="network" query="select Name as name, IP, if(Node='0', 'outsider', if(Node='1', 'node', 'winNode')) as type from Server where End is null and Auto order by Name"
+  delegate_to: "{{ hostMysql }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Getting Last 100 changes in host (node or outsider) (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" and passwd="{{ passwdMysqlInventory }}" label="{{ item.name }}-last" query="Select Init as Date, End, Checked, Node from Server where Binary Name='{{ item.name|lower }}' and Auto order by Init desc limit 100"
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostMysql }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Getting Openvas Data (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" and passwd="{{ passwdMysqlInventory }}" label="{{ item.name }}-openvas" query="Select StartScan as Date, CVSS, Severity, TotalHigh, TotalMedium, TotalLow, TotalLog, TotalFalsePositive, DATE_FORMAT(StartScan, '%y%m%d%H%i%s') as DateString from OpenvasHost where Binary Server='{{ item.name|lower }}' and Auto order by StartScan desc limit 100"
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostMysql }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Getting historical servers (in Mysql Server)
+  action: db_facts hostMysql="{{ hostMysql }}" and passwd="{{ passwdMysqlInventory }}" label="servers-hist" query="select Name, MAX(End) as Date from Server where End is not null and Auto and Name NOT IN (Select Name from Server where End is null) group by Name order by Name;"
+  delegate_to: "{{ hostMysql }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Getting Munin information about hosts (in Munin Server)
+  shell: ((cd /var/lib/munin/{{ ansible_domain }} && find ./|grep -i "./{{ item.name }}-"|head -1|cut -d'/' -f2|cut -d'-' -f1) || echo "No") 2>/dev/null executable=/bin/bash 
+  with_items: "{{ network }}"
+  register: muninName
+  ignore_errors: yes  
+  delegate_to: "{{ hostMunin }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Copy servers pages (in Wiki Server)
+  template: src=var/lib/dokuwiki/data/pages/inventory/{{ item }}.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ item }}.txt.tmp owner=root group=root mode=0644
+  with_items:
+    - servers
+    - servers-nodes
+    - servers-winnodes
+    - servers-outsiders
+    - servers-hist
+  delegate_to: "{{ hostWeb }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Commit changes of servers pages & update (in Wiki Server)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" commit /var/lib/dokuwiki/data/pages/inventory/.{{ item }}.txt.tmp inventory:{{ item }}) || (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ item }}.txt.tmp inventory:{{ item }})
+  with_items:
+    - servers
+    - servers-nodes
+    - servers-winnodes
+    - servers-outsiders
+    - servers-hist
+  delegate_to: "{{ hostWeb }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Copy host-openvas.txt (in Wiki Master)
+  template: src=var/lib/dokuwiki/data/pages/inventory/host-openvas.txt.j2 dest=/var/lib/dokuwiki/data/pages/inventory/.{{ item.name|lower }}-openvas.txt.tmp owner=root group=root mode=0644
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostWeb }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Commit changes of host-openvas.txt & update (in Wiki Server)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" commit /var/lib/dokuwiki/data/pages/inventory/.{{ item.name|lower }}-openvas.txt.tmp inventory:{{ item.name|lower }}-openvas) || (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ item.name|lower }}-openvas.txt.tmp inventory:{{ item.name|lower }}-openvas)
+  with_items: "{{ network }}"
+  delegate_to: "{{ hostWeb }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Get userApache in Web Server
+  shell: stat -c "%U" /var/lib/dokuwiki/data executable=/bin/bash
+  register: userApacheServer
+  delegate_to: "{{ hostWeb }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
+
+- name: Change owner of /var/lib/dokuwiki/data to userApache
+  shell: chown -R {{ userApacheServer.stdout }} /var/lib/dokuwiki/data executable=/bin/bash
+  delegate_to: "{{ hostWeb }}"
+  when: serversInventoryList.results[0].skipped is not defined and ompStatus.stdout == "OK" and runTasksList.results[0].skipped is not defined and openvas is defined and openvas|count > 0
 

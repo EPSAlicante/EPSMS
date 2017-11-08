@@ -1,10 +1,4 @@
 #!/usr/bin/python
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
 
 import subprocess
 import socket
@@ -14,8 +8,6 @@ import re
 import time
 import codecs
 import shlex
-
-
 try:
   import json
 except ImportError:
@@ -46,7 +38,14 @@ def path(command1, command2=''):
 
 def formatCad(cad):
     try:
+#      if isinstance(cad,basestring):
+#        retCad = cad.replace("\\","\\\\").replace("\"","\\\"").replace("'","\\\"").replace("\(","\\(").replace("\)","\\)").replace("\[","\\[").replace("\]","\\]").replace("\{","\\{").replace("\}","\\}")
+#      else:
+#        retCad = cad
+
+      #retCad = json.dumps(cad.replace("'","\"")).replace("\\u","\\\\u")[1:-1]
       retCad = json.dumps(cad.replace("'","\"").replace("{%","(%").replace("%}","%)").replace("{{","((").replace("}}","))")).replace("\\u","\\\\u")[1:-1]
+      #return retCad.encode('utf-8','replace')
       return retCad
 
     except:
@@ -55,46 +54,57 @@ def formatCad(cad):
 
 def getFormat(formatType):
 
-    ret = subprocess.Popen("(omp -u admin -w %s -F|tr '\t' ' '|tr -s ' '|grep -i ' %s$'|cut -d' ' -f1) 2>%s" % (passwdAdmin, formatType, errorLog), shell=True, executable='/bin/bash', stdout=subprocess.PIPE).stdout.read().strip()
+    ret = subprocess.Popen("(omp -u admin -w %s -F|tr '\t' ' '|tr -s ' '|grep -i ' %s$'|cut -d' ' -f1) 2>%s" % (passwdOpenvas, formatType, errorLog), shell=True, executable='/bin/bash', stdout=subprocess.PIPE).stdout.read().strip()
     return ret
 
 
-def show_openvas():
+def show_openvas(list):
 
     formatReport = getFormat("CSV Hosts")
 
-    print "    \"openvas\": {"
+    print "    \"openvas\": ["
 
     if formatReport != "":
 
-	hostResults = subprocess.Popen("(omp -u admin -w %s -R %s -f %s|grep -i -e ',%s,' -e '^%s,') 2>%s" % (passwdAdmin, scan, formatReport, server, socket.gethostbyname(server), errorLog), shell=True, executable='/bin/bash', stdout=subprocess.PIPE).stdout.read().strip().split(',')
+      totalServers = len(list)
+
+      countServers = 1
+      for server, scan in sorted(list.iteritems()):
+
+	server = server.strip()
+ 	scan = scan.strip()
+
+	formatReport = getFormat("CSV Hosts")
+
+	hostResults = subprocess.Popen("(omp -u admin -w %s -R %s -f %s|grep -i ',%s,') 2>%s" % (passwdOpenvas, scan, formatReport, server, errorLog), shell=True, executable='/bin/bash', stdout=subprocess.PIPE).stdout.read().strip().split(',')
 
 	if len(hostResults) >= 12:	
-          print "      \"Server\": \"%s\"," % (formatCad(server))
-          print "      \"IP\": \"%s\"," % (formatCad(hostResults[0]))
-	  print "      \"ScanId\": \"%s\"," % (scan)
-          print "      \"CVSS\": \"%s\"," % (formatCad(hostResults[5]))
-          print "      \"Severity\": \"%s\"," % (formatCad(hostResults[6]))
-          print "      \"TotalHigh\": \"%s\"," % (formatCad(hostResults[7]))
-          print "      \"TotalMedium\": \"%s\"," % (formatCad(hostResults[8]))
-          print "      \"TotalLow\": \"%s\"," % (formatCad(hostResults[9]))
-          print "      \"TotalLog\": \"%s\"," % (formatCad(hostResults[10]))
-          print "      \"TotalFalsePositive\": \"%s\"," % (formatCad(hostResults[11]))
+          print "      {"
+          print "        \"Server\": \"%s\"," % (formatCad(server))
+          print "        \"IP\": \"%s\"," % (formatCad(hostResults[0]))
+	  print "        \"ScanId\": \"%s\"," % (scan)
+          print "        \"CVSS\": \"%s\"," % (formatCad(hostResults[5]))
+          print "        \"Severity\": \"%s\"," % (formatCad(hostResults[6]))
+          print "        \"TotalHigh\": \"%s\"," % (formatCad(hostResults[7]))
+          print "        \"TotalMedium\": \"%s\"," % (formatCad(hostResults[8]))
+          print "        \"TotalLow\": \"%s\"," % (formatCad(hostResults[9]))
+          print "        \"TotalLog\": \"%s\"," % (formatCad(hostResults[10]))
+          print "        \"TotalFalsePositive\": \"%s\"," % (formatCad(hostResults[11]))
 
 	  formatReport = getFormat("CSV Results")
 	  IPserver = hostResults[0]
 
 	  try:
-            totalResults = int(subprocess.Popen("(omp -u admin -w %s -R %s -f %s|tr '\n' ' '|sed 's/%s,/\\n%s,/g'|grep -i '^%s,'|wc -l) 2>%s" % (passwdAdmin, scan, formatReport, IPserver, IPserver, IPserver, errorLog), shell=True, executable='/bin/bash', stdout=subprocess.PIPE).stdout.read())
+            totalResults = int(subprocess.Popen("(omp -u admin -w %s -R %s -f %s|tr '\n' ' '|sed 's/%s,/\\n%s,/g'|grep -i '^%s,'|wc -l) 2>%s" % (passwdOpenvas, scan, formatReport, IPserver, IPserver, IPserver, errorLog), shell=True, executable='/bin/bash', stdout=subprocess.PIPE).stdout.read())
 	  except:
 	    totalResults = 0
  
           countResults = 1
-          print "      \"Results\": ["
+          print "        \"Results\": ["
 
 	  if totalResults > 0:
 
-	    dataResults = subprocess.Popen("(omp -u admin -w %s -R %s -f %s|tr '\n' ' '|sed 's/%s,/\\n%s,/g'|grep -i '^%s,'|tr -s ' ') 2>%s" % (passwdAdmin, scan, formatReport, IPserver, IPserver, IPserver, errorLog), shell=True, executable='/bin/bash', stdout=subprocess.PIPE)
+	    dataResults = subprocess.Popen("(omp -u admin -w %s -R %s -f %s|tr '\n' ' '|sed 's/%s,/\\n%s,/g'|grep -i '^%s,'|tr -s ' ') 2>%s" % (passwdOpenvas, scan, formatReport, IPserver, IPserver, IPserver, errorLog), shell=True, executable='/bin/bash', stdout=subprocess.PIPE)
 
 	    for lineResults in dataResults.stdout.readlines():
 
@@ -154,7 +164,7 @@ def show_openvas():
               print "            \"StartScan\": \"%s\"," % (formatCad(fieldStartScan))
               print "            \"ResultId\": \"%s\"," % (formatCad(fieldResultId))
               print "            \"Port\": \"%s\"," % (formatCad(fieldPort))
-              print "            \"Protocol\": \"%s\"," % (formatCad(fieldProtocol))
+	      print "            \"Protocol\": \"%s\"," % (formatCad(fieldProtocol))
 	      print "            \"CVSS\": \"%s\"," % (formatCad(fieldCVSS))
 	      print "            \"Severity\": \"%s\"," % (formatCad(fieldSeverity))
 	      print "            \"NVTName\": \"%s\"," % (formatCad(fieldNVTName))
@@ -175,24 +185,28 @@ def show_openvas():
 
 	      countResults += 1
 
-          print "      ]"
+          print "        ]"
 
         else:
-          print "      \"Server\": \"%s\"," % (formatCad(server))
-          print "      \"IP\": \"\","
-          print "      \"ScanId\": \"%s\"," % (scan)
-          print "      \"CVSS\": \"0.0\","
-          print "      \"Severity\": \"-----\","
-          print "      \"TotalHigh\": \"0\","
-          print "      \"TotalMedium\": \"0\","
-          print "      \"TotalLow\": \"0\","
-          print "      \"TotalLog\": \"0\","
-          print "      \"TotalFalsePositive\": \"0\","
-	  print "      \"Results\": ["
-	  print "      ]"
+          print "      {"
+          print "        \"Server\": \"%s\"," % (formatCad(server))
+          print "        \"IP\": \"\","
+          print "        \"ScanId\": \"%s\"," % (scan)
+          print "        \"CVSS\": \"0.0\","
+          print "        \"Severity\": \"-----\","
+          print "        \"TotalHigh\": \"0\","
+          print "        \"TotalMedium\": \"0\","
+          print "        \"TotalLow\": \"0\","
+          print "        \"TotalLog\": \"0\","
+          print "        \"TotalFalsePositive\": \"0\","
+	  print "        \"Results\": ["
+	  print "        ]"
 
+        print "      }%s" % (("",",") [ countServers < totalServers ])
 
-    print "    },"
+        countServers += 1
+
+    print "    ],"
 
 
 def show_cabecera():
@@ -215,12 +229,9 @@ def main():
     grep = path('ggrep','grep')
     sed = path('gsed','sed')
 
-    global passwdAdmin
-    passwdAdmin = "" 
-    global server
-    server = ""
-    global scan
-    scan = ""
+    global passwdOpenvas
+    passwdOpenvas = "" 
+    serversCad = ""
 
     # read the argument string from the arguments file
     if len(sys.argv) > 1:
@@ -236,20 +247,52 @@ def main():
           (key, value) = arg.split("=", 1)
 
           if key == "passwd":
-            passwdAdmin = value
+            passwdOpenvas = value
 
-          if key == "host":
-            server = value
-
-          if key == "scanID":
-            scan = value
+          if key == "servers":
+            serversCad = value
 
 
-      if passwdAdmin == "" or server == "" or scan == "":
+      if passwdOpenvas != "":
 
+        serversList = {}
+
+	if serversCad != "":
+
+          serverData = 1
+          for arg in serversCad:
+            if serverData == 1:
+              server = arg
+              serverData = 0
+            else:
+              scan = arg
+              serverData = 1
+              serversList[server] = scan
+
+	else:
+
+	  serversFile = "/tmp/openvas_facts_servers.tmp"
+
+          if os.access(serversFile, os.R_OK):
+            f = open(serversFile, "r")
+
+            for line in f.readlines():
+	      if line.strip() != "":
+	        server = line.split(' ')[0]
+	        scan = line.split(' ')[1]
+	        serversList[server] = scan
+
+	  else:
+	    print json.dumps({
+              "failed" : True,
+              "msg"    : "failed getting argument 'servers' or file '/tmp/openvas_facts_servers.tmp'"
+            })
+            sys.exit(1)
+       
+      else:
         print json.dumps({
           "failed" : True,
-          "msg"    : "failed getting argument 'passwd' 'host' or 'scanID'"
+          "msg"    : "failed getting argument 'passwd'"
         })
         sys.exit(1)
 
@@ -262,7 +305,7 @@ def main():
 
     
     show_cabecera()
-    show_openvas()
+    show_openvas(serversList)
     show_pie()
 
 

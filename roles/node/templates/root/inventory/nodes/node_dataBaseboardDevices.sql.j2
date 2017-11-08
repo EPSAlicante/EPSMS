@@ -1,21 +1,14 @@
-{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
-{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
-{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
-{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
-{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
-{#                                                                              #}
-{#                                                                              #}
 # Generating SQL for Baseboard Devices of {{ inventory_hostname }}
 
 {% if hostvars[inventory_hostname]["baseboarddevice"] is defined %}
 
 {% for device in hostvars[inventory_hostname]["baseboarddevice"] -%}
 
-CHECK_BASEBOARDDEV_{{ loop.index }}: SELECT * FROM BaseboardDevice WHERE Server='{{ inventory_hostname }}' AND Handle='{{ device["Handle"] }}' AND Type='{{ device["Type"]|default("") }}' AND Description='{{ device["Description"]|default("") }}' AND Enabled='{{ 1 if device["Enabled"]=="True" else 0 }}' AND Auto AND End IS NULL;
+CHECK_BASEBOARDDEV_{{ loop.index }}: SELECT * FROM BaseboardDevice WHERE Server='{{ inventory_hostname }}' AND Handle='{{ device["Handle"] }}' AND Type='{{ device["Type"] }}' AND Description='{{ device["Description"] }}' AND Enabled='{{ 1 if device["Enabled"]=="True" else 0 }}' AND Auto AND End IS NULL;
 
-UPDATE_BASEBOARDDEV_{{ loop.index }}: UPDATE BaseboardDevice SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ device["Handle"] }}' AND Type='{{ device["Type"]|default("") }}' AND Description='{{ device["Description"]|default("") }}' AND Enabled='{{ 1 if device["Enabled"]=="True" else 0 }}' AND Auto AND End IS NULL; 
+UPDATE_BASEBOARDDEV_{{ loop.index }}: UPDATE BaseboardDevice SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ device["Handle"] }}' AND Type='{{ device["Type"] }}' AND Description='{{ device["Description"] }}' AND Enabled='{{ 1 if device["Enabled"]=="True" else 0 }}' AND Auto AND End IS NULL; 
 
-INSERT_BASEBOARDDEV_{{ loop.index }}: INSERT INTO BaseboardDevice (Handle,Server,Type,Description,Enabled,Init,Checked,Auto) VALUES ('{{ device["Handle"] }}','{{ inventory_hostname }}', '{{ device["Type"]|default("") }}', '{{ device["Description"]|default("") }}', '{{ 1 if device["Enabled"]=="True" else 0 }}', NOW(), NOW(), 1);
+INSERT_BASEBOARDDEV_{{ loop.index }}: INSERT INTO BaseboardDevice (Handle,Server,Type,Description,Enabled,Init,Checked,Auto) VALUES ('{{ device["Handle"] }}','{{ inventory_hostname }}', '{{ device["Type"] }}', '{{ device["Description"] }}', '{{ 1 if device["Enabled"]=="True" else 0 }}', NOW(), NOW(), 1);
 
 {% endfor %}
 

@@ -1,24 +1,22 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
-
-# Mysql Server installation 
+# Instalación del servidor mysql 
 
 - name: Be sure mysql-server is installed (yum)
   yum: pkg={{ item }} state=installed
   with_items: "{{ packageMysql }}"
   when: ansible_pkg_mgr == "yum"
 
+#- name: Be sure mysql-server is installed (apt)
+#  apt: pkg={{ item }} state=installed update_cache=yes force=yes
+#  with_items: "{{ packageMysql }}"
+#  when: ansible_pkg_mgr == "apt"
+
 - name: Configure my.cnf file (commenting bind-address = 127.0.0.1)
   lineinfile: name={{ pathMysqlConf }} state=present regexp='^bind-address\s+=\s+127.0.0.1' line='#bind-address = 127.0.0.1' backrefs=yes
   notify: restart mysql
 
-- name: Configure my.cnf file (adding bind-address with 0.0.0.0) 
-  lineinfile: name={{ pathMysqlConf }} state=present regexp='^bind-address = 0.0.0.0$' insertafter='\[mysqld\]' line='bind-address = 0.0.0.0'
+- name: Configure my.cnf file (adding bind-address with the Mysql server IP) 
+  lineinfile: name={{ pathMysqlConf }} state=present regexp='^bind-address = {{ hostMysql }}$' insertafter='\[mysqld\]' line='bind-address = {{ hostMysql }}'
   notify: restart mysql 
 
 - name: Configure my.cnf file (adding max_connect_errors)
@@ -43,14 +41,9 @@
 - name: Configure /etc/hosts.allow file with hostWeb
   lineinfile: "name=/etc/hosts.allow state=present regexp='^mysqld: {{ hostWeb }}' line='mysqld: {{ hostWeb }}'"
 
-- name: Configure /etc/hosts.allow file with Administrators Hosts
+- name: Configure /etc/hosts.allow file with hostsAdmins
   lineinfile: "name=/etc/hosts.allow state=present regexp='^mysqld: {{ item }}' line='mysqld: {{ item }}'"
   with_items: "{{ hostsAdmins }}"
-  when: hostsAdmins|count >0
-
-- name: Configure /etc/hosts.allow file with Adminsistrators Hosts (ALL)
-  lineinfile: "name=/etc/hosts.allow state=present regexp='^mysqld: ALL' line='mysqld: ALL'"
-  when: hostsAdmins|count == 0
 
 - name: Be sure mysql daemon is running and enabled
   service: name={{ daemonMysql }} state=started enabled=true

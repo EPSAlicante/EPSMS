@@ -1,14 +1,7 @@
-{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
-{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
-{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
-{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
-{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
-{#                                                                              #}
-{#                                                                              #}
-[[ Servers | Back to Main page]]
+[[ Servers | Back to Servers page]]
 
 
-==== Host: {{ inventory_hostname }} ({{ hostvars[inventory_hostname]["nodeIP"][0]["IP"] }}) ====
+==== Server: {{ inventory_hostname }} ({{ hostvars[inventory_hostname]["nodeIP"][0]["IP"] }}) ====
 
 ^  Hardware  ^^ 
 ^ System | {{ "[[ %s-system | %s (%s) ]]" % (inventory_hostname,hostvars[inventory_hostname]["system"]["Product Name"] if hostvars[inventory_hostname]["system"]["Product Name"] is defined else "?",hostvars[inventory_hostname]["ansible_architecture"] if hostvars[inventory_hostname]["ansible_architecture"] is defined else "?") if hostvars[inventory_hostname]["system"] is defined else "%s" % (hostvars[inventory_hostname]["ansible_architecture"] if hostvars[inventory_hostname]["ansible_architecture"] is defined else "?") }} |
@@ -40,8 +33,8 @@
 
 ^  Software (Security)  ^^
 ^ Ports | {{ "[[ %s-ports | %s TCP ports & %s UDP ports ]]" % (inventory_hostname,hostvars[inventory_hostname]["tcp"]|count if hostvars[inventory_hostname]["tcp"] is defined else "0",hostvars[inventory_hostname]["udp"]|count if hostvars[inventory_hostname]["udp"] is defined else "0") if hostvars[inventory_hostname]["tcp"] is defined or hostvars[inventory_hostname]["udp"] is defined else "?" }} |
-^ Packages | {{ "[[ %s-packages | %s packages installed ]]" % (inventory_hostname,hostvars[inventory_hostname]["packagesCount"][0]["Total"] if (hostvars[inventory_hostname]["packagesCount"] is defined and hostvars[inventory_hostname]["packagesCount"] != "0") else "?") }} |
-^ Executables | {{ "[[ %s-exes | %s executables found ]]" % (inventory_hostname,hostvars[inventory_hostname]["exesCount"][0]["Total"] if (hostvars[inventory_hostname]["exesCount"] is defined and hostvars[inventory_hostname]["exesCount"] != "0") else "?") }} |
+^ Packages | {{ "[[ %s-packages | %s packages installed ]]" % (inventory_hostname,hostvars[inventory_hostname]["packagesCount"][0]["Total"] if hostvars[inventory_hostname]["packagesCount"] is defined else "?") }} |
+^ Executables | {{ "[[ %s-exes | %s executables found ]]" % (inventory_hostname,hostvars[inventory_hostname]["exesCount"][0]["Total"] if hostvars[inventory_hostname]["exesCount"] is defined else "?") }} |
 ^ Users & Groups | {{ "[[ %s-usersgroups | %s Users & %s groups ]]" % (inventory_hostname,hostvars[inventory_hostname]["lusers"]|count if hostvars[inventory_hostname]["lusers"] is defined else "?" ,hostvars[inventory_hostname]["lgroups"]|count if hostvars[inventory_hostname]["lgroups"] is defined else "?") }} |
 ^ Sudo | {{ "[[ %s-sudo | %s rules ]]" % (inventory_hostname,hostvars[inventory_hostname]["sudoers"]["userSpec"]|count if hostvars[inventory_hostname]["sudoers"] is defined else "?") }} |
 ^ Crontab | {{ "[[ %s-crontabs | %s crontab lines ]]" % (inventory_hostname,hostvars[inventory_hostname]["crontabs"]|count) if hostvars[inventory_hostname]["crontabs"] is defined and hostvars[inventory_hostname]["crontabs"]|count > 0 else "No lines" }} |
@@ -51,5 +44,5 @@
 
 
 
-[[ Servers | Back to Main page]]
+[[ Servers | Back to Servers page]]
 

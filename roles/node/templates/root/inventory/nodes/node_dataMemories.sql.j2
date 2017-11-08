@@ -1,10 +1,3 @@
-{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
-{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
-{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
-{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
-{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
-{#                                                                              #}
-{#                                                                              #}
 # Generating SQL for Memories of {{ inventory_hostname }}
 
 {% if hostvars[inventory_hostname]["memory"] is defined %}
@@ -13,11 +6,11 @@
 
 {% for array in hostvars[inventory_hostname]["memory"]["arrays"] -%}
 
-CHECK_MEMORYARRAY_{{ loop.index }}: SELECT * FROM MemoryArray WHERE Server='{{ inventory_hostname }}' AND Handle='{{ array["Handle"] }}' AND Location='{{ array["Location"]|default("") }}' AND MemoryUse='{{ array["Use"]|default("") }}' AND ErrorCorrectionType='{{ array["Error Correction Type"]|default("") }}' AND MaxCapacity='{{ array["Maximum Capacity"]|default("") }}' AND NumberDevices='{{ array["Number Of Devices"]|default("") }}' AND Auto AND End IS NULL;
+CHECK_MEMORYARRAY_{{ loop.index }}: SELECT * FROM MemoryArray WHERE Server='{{ inventory_hostname }}' AND Handle='{{ array["Handle"] }}' AND Location='{{ array["Location"] }}' AND MemoryUse='{{ array["Use"] }}' AND ErrorCorrectionType='{{ array["Error Correction Type"] }}' AND MaxCapacity='{{ array["Maximum Capacity"] }}' AND NumberDevices='{{ array["Number Of Devices"] }}' AND Auto AND End IS NULL;
 
-UPDATE_MEMORYARRAY_{{ loop.index }}: UPDATE MemoryArray SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ array["Handle"] }}' AND Location='{{ array["Location"]|default("") }}' AND MemoryUse='{{ array["Use"]|default("") }}' AND ErrorCorrectionType='{{ array["Error Correction Type"]|default("") }}' AND MaxCapacity='{{ array["Maximum Capacity"]|default("") }}' AND NumberDevices='{{ array["Number Of Devices"]|default("") }}' AND Auto AND End IS NULL; 
+UPDATE_MEMORYARRAY_{{ loop.index }}: UPDATE MemoryArray SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ array["Handle"] }}' AND Location='{{ array["Location"] }}' AND MemoryUse='{{ array["Use"] }}' AND ErrorCorrectionType='{{ array["Error Correction Type"] }}' AND MaxCapacity='{{ array["Maximum Capacity"] }}' AND NumberDevices='{{ array["Number Of Devices"] }}' AND Auto AND End IS NULL; 
 
-INSERT_MEMORYARRAY_{{ loop.index }}: INSERT INTO MemoryArray (Handle,Server,Location,MemoryUse,ErrorCorrectionType,MaxCapacity,NumberDevices,Init,Checked,Auto) VALUES ('{{ array["Handle"] }}','{{ inventory_hostname }}', '{{ array["Location"]|default("") }}', '{{ array["Use"]|default("") }}', '{{ array["Error Correction Type"]|default("") }}', '{{ array["Maximum Capacity"]|default("") }}', '{{ array["Number Of Devices"]|default("") }}', NOW(), NOW(), 1);
+INSERT_MEMORYARRAY_{{ loop.index }}: INSERT INTO MemoryArray (Handle,Server,Location,MemoryUse,ErrorCorrectionType,MaxCapacity,NumberDevices,Init,Checked,Auto) VALUES ('{{ array["Handle"] }}','{{ inventory_hostname }}', '{{ array["Location"] }}', '{{ array["Use"] }}', '{{ array["Error Correction Type"] }}', '{{ array["Maximum Capacity"] }}', '{{ array["Number Of Devices"] }}', NOW(), NOW(), 1);
 
 {% endfor %}
 
@@ -27,11 +20,11 @@ INSERT_MEMORYARRAY_{{ loop.index }}: INSERT INTO MemoryArray (Handle,Server,Loca
 
 {% for memory in hostvars[inventory_hostname]["memory"]["slots"] -%}
 
-CHECK_MEMORY_{{ loop.index }}: SELECT * FROM Memory WHERE Server='{{ inventory_hostname }}' AND Handle='{{ memory["Handle"] }}' AND Array='{{ memory["Array"] }}' AND Locator='{{ memory["Locator"]|default("") }}' AND BankLocator='{{ memory["Bank Locator"]|default("") }}' AND Size='{{ memory["Size"]|default("") }}' AND Speed='{{ memory["Speed"]|default("") }}' AND Type='{{ memory["Type"]|default("") }}' AND Auto AND End IS NULL;
+CHECK_MEMORY_{{ loop.index }}: SELECT * FROM Memory WHERE Server='{{ inventory_hostname }}' AND Handle='{{ memory["Handle"] }}' AND Array='{{ memory["Array"] }}' AND Locator='{{ memory["Locator"] }}' AND BankLocator='{{ memory["Bank Locator"] }}' AND Size='{{ memory["Size"] }}' AND Speed='{{ memory["Speed"] }}' AND Type='{{ memory["Type"] }}' AND Auto AND End IS NULL;
 
-UPDATE_MEMORY_{{ loop.index }}: UPDATE Memory SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ memory["Handle"] }}' AND Array='{{ memory["Array"] }}' AND Locator='{{ memory["Locator"]|default("") }}' AND BankLocator='{{ memory["Bank Locator"]|default("") }}' AND Size='{{ memory["Size"]|default("") }}' AND Speed='{{ memory["Speed"]|default("") }}' AND Type='{{ memory["Type"]|default("") }}' AND Auto AND End IS NULL; 
+UPDATE_MEMORY_{{ loop.index }}: UPDATE Memory SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ memory["Handle"] }}' AND Array='{{ memory["Array"] }}' AND Locator='{{ memory["Locator"] }}' AND BankLocator='{{ memory["Bank Locator"] }}' AND Size='{{ memory["Size"] }}' AND Speed='{{ memory["Speed"] }}' AND Type='{{ memory["Type"] }}' AND Auto AND End IS NULL; 
 
-INSERT_MEMORY_{{ loop.index }}: INSERT INTO Memory (Handle,Server,Array,Locator,BankLocator,Size,Speed,Type,Init,Checked,Auto) VALUES ('{{ memory["Handle"] }}','{{ inventory_hostname }}', '{{ memory["Array"] }}', '{{ memory["Locator"]|default("") }}', '{{ memory["Bank Locator"]|default("") }}', '{{ memory["Size"]|default("") }}', '{{ memory["Speed"]|default("") }}', '{{ memory["Type"]|default("") }}', NOW(), NOW(), 1);
+INSERT_MEMORY_{{ loop.index }}: INSERT INTO Memory (Handle,Server,Array,Locator,BankLocator,Size,Speed,Type,Init,Checked,Auto) VALUES ('{{ memory["Handle"] }}','{{ inventory_hostname }}', '{{ memory["Array"] }}', '{{ memory["Locator"] }}', '{{ memory["Bank Locator"] }}', '{{ memory["Size"] }}', '{{ memory["Speed"] }}', '{{ memory["Type"] }}', NOW(), NOW(), 1);
 
 {% endfor %}
 

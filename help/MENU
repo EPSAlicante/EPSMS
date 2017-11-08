@@ -1,126 +1,140 @@
-<html>
-<head>
-<title>Menu</title>
-</head>
-<body style="background:#A4BBC7">
-<div align="center">
-<table width="80%">
-<tr><td>
-<center><h1>Menu</h1></center>
-<p>&nbsp;</p>
-<p>Execute the Control Menu <strong>'/etc/ansible/menu.py'</strong></p>
-<h2>Control Menu's options:</h2>
-<ul>
-<li><a href="#0">0. Help</a></li>
-<li><a href="#1">1. Configure System</a></li>
-<li><a href="#2">2. Configure Extra variables</a></li>
-<li><a href="#3">3. Prepare Host(s) to be Node(s)</a></li>
-<li><a href="#4">4. Stop/Start/Restart System</a></li>
-<li><a href="#5">5. Scan Network</a></li>
-<li><a href="#6">6. Install Nodes</a></li>
-<li><a href="#7">7. Get Data from Nodes</a></li>
-<li><a href="#8">8. Get Data from Windows Nodes</a></li>
-<li><a href="#9">9. Scan vulnerabilities</a></li>
-<li><a href="#e">e. Check System Errors</a></li>
-<li><a href="#m">m. Check DB (SQL) Errors</a></li>
-<li><a href="#c">c. Clean System & DB Errors</a></li>
-<li><a href="#l">l. List Servers & Nodes</a></li>
-<li><a href="#s">s. View System Configuration</a></li>
-<li><a href="#x">x. View Executions List</a></li>
-<li><a href="#r">r. Log Running Executions (Crt+C to Exit)</a></li>
-<li><a href="#q">q. Quit Menu</a></li>
-</ul>
-<p>&nbsp;</p>
-  <a name="0"><h3>0. Help</h3></a>
-<p>Integrated Help Menu.</p>
-<p>&nbsp;</p>
-  <a name="1"><h3>1. Configure System</h3></a>
-<p>Configuration of System: Introduce parameters and start System.</p>
-<p>See <a href="configure.html">CONFIGURE</a> file to get details about required parameters.</p>
-<p>&nbsp;</p>
-  <a name="2"><h3>2. Configure Extra variables</h3></a>
-<p>Configuration of extra variables: Modify extra parameters and reload System.</p>
-<p>See <a href="configextra.html">CONFIGEXTRA</a> file to get details about extra parameters.</p>
-<p>&nbsp;</p>
-  <a name="3"><h3>3. Prepare Host(s) to be Node(s)</h3></a>
-<p>To configure Linux/Unix hosts as nodes (hosts accessed by Control Host).</p>
-<p>SSH connection to hosts as <strong>'root'</strong> are required. If connection is done, the <strong>'remote user'</strong> will be created, Control Host will be able to access with <strong>'remote user'</strong> without password (using authorized_keys) and sudo will be installed and configured to permit 'remote user' to execute every command with sudo.</p>
-<p>After configuration the conection with <strong>'remote user'</strong> will be tested, showing an <strong>'OK'</strong> or error message.</p>
-<p>We can repeat the same operation for several hosts until we decide to finish.</p>
-<p>In that moment script will start the <strong>'Scanning Networks to discover hosts (nodes and outsiders)'</strong> operation to discover the hosts configured as new nodes and the <strong>'Configuring nodes'</strong> operation to install and configure nodes (including new nodes).</p>
-<p>When <strong>'Getting data from nodes'</strong> (basic, packages and executables) operations were started by crontab, we would get information about new nodes (of course, we can start operations manually with <strong>'option 7 of menu'</strong> to get info immediatly)</p>
-<p>** Remember that this <strong>'node'</strong> has to belong to <strong>'subnets'</strong> and musn't belong to <strong>'exclude'</strong> (both defined at configuration) **</p>
-<p>&nbsp;</p>
-  <a name="4"><h3>4. Stop/Start/Restart System</h3></a>
-<p>Stop System deleting crontab entries -> This way no new operations will be started (but operations started are still runnnig).</p>
-<p>Start System adding crontab entries -> This way operations will be started with their own frequency.</p>
-<p>Restart System deleting crontab entries and adding crontab entries again.</p>
-<p>&nbsp;</p>
-  <a name="5"><h3>5. Scan Network</h3></a>
-<p><strong>'Scanning Networks to discover hosts (nodes and outsiders)'</strong> operation will start, scanning <strong>'working subnets'</strong> to discover hosts (Linux/Unix and Windows nodes if <strong>'check windows nodes'</strong> was selected), trying to connect to them (with <strong>'remote user'</strong> or <strong>'windows user'</strong>) and clasifying as nodes (if we are able to connect to them) or outsiders (if we can't do it), modifying the inventory of nodes.</p>
-<p>&nbsp;</p>
-  <a name="6"><h3>6. Install Nodes</h3></a>
-<p><strong>'Configuring Nodes'</strong> operation will start, connecting to nodes (Linux/Unix nodes) to install required software (Munin and Nagios clients) and configure them.</p>
-<p>Before start operation, script ask about a required parameter:</p>
-<ul>
-<li>Hostname or IP address to connect. If we don't introduce any information, script will start connecting to all nodes, in other case script will check if hostname or IP is a node before start.</li>
-</ul>
-<p>&nbsp;</p>
-  <a name="7"><h3>7. Get Data from Nodes</h3></a>
-<p><strong>'Getting (basic/packages/executables) data from nodes'</strong> operation will start, connecting to nodes (Linux/Unix nodes) to get (basic, packages and executables) information about them, saving on inventory database and updating web services.</p>
-<p>Before start operation, script ask about two required parameters:</p>
-<ul>
-<li><strong>Type of information</strong> to get from nodes: basic, packages, executables or all (by default the parameter is all).</li>
-</ul>
-<ul>
-<li><strong>Hostname or IP</strong> address to connect. If we don't introduce any information, script will start operation connecting to all nodes, in other case script will check if hostname or IP is a node before start.</li>
-</ul>
-<p>&nbsp;</p>
-  <a name="8"><h3>8. Get Data from Windows Nodes</h3></a>
-<p><strong>'Getting data from windows nodes'</strong> operation will start, connecting to windows nodes to get information about them, saving on inventory database and updating web services (only if 'check windows nodes' was selected).</p>
-<p>&nbsp;</p>
-  <a name="9"><h3>9. Scan vulnerabilities</h3></a>
-<p><strong>'Checking vulnerabilities (with Openvas) from hosts'</strong> operation will start, connecting to every host (outsiders, nodes and winNodes) scanning vulnerabilites, getting security information, making reports and updating wiki pages.</p>
-<p>We should check SELinux to disable it if necessary (with SELinux enabled, Openvas won't be able to scan ports).</p>
-<p>Before start operation, script ask about a required parameter:</p>
-<ul>
-<li>Hostnames List to scan. If we don't introduce any information, script will start scanning all hosts, in other case script will check if all hostnames of List are in inventory (as node, winNode or outsider) and starts scanning for them.</li>
-</ul>
-<p>&nbsp;</p>
-  <a name="e"><h3>e. Check System Errors</h3></a>
-<p>Any error connecting to nodes (Linux/Unix or Windows) or getting information about them, will create a file in Control Host showing problems in <strong>'/var/log/ansible/errors.log'</strong>. This option will check it.</p>
-<p>Before check error file, script ask about a required parameter:</p>
-<ul>
-<li>View summary or details. <strong>'summary'</strong> will show just lines where errors were produced, and 'details' will show the whole file.</li>
-</ul>
-<p>&nbsp;</p>
-  <a name="m"><h3>m. Check DB (SQL) Errors</h3></a>
-<p>Any error in SQL operations with Mysql database, will create a file in Mysql Host showing problems in <strong>'/var/log/ansible-mysql-errors.log'</strong>. This option will check it.</p>
-<p>Before check error file, script ask about a required parameter:</p>
-<ul>
-<li>View summary or details. 'summary' will show just lines where errors were produced, and 'details' will show the whole file.</li>
-</ul>
-<p>&nbsp;</p>
-  <a name="c"><h3>c. Clean System & DB Errors</h3></a>
-<p>If error files have been checked and solved, this option permit delete both files.</p>
-<p>&nbsp;</p>
-  <a name="l"><h3>l. List Servers & Nodes</h3></a>
-<p>This option show servers' list (Control Server, Nagios Server, Munin Server, Web Server, Openvas Server and Grafana & InfluxDB Server), nodes' list (Linux/Unix) and windows nodes' list.</p>
-<p>&nbsp;</p>
-  <a name="s"><h3>s. View System Configuration</h3></a>
-<p>This option show the whole list of parameters introduced in the configuration system.</p>
-<p>&nbsp;</p>
-  <a name="x"><h3>x. View Executions List</h3></a>
-<p>This option show a list of executions finished.</p>
-<p>&nbsp;</p>
-  <a name="r"><h3>r. Log Running Executions (Crt+C to Exit)</h3></a>
-<p>Temporal logs of running executions are created in <strong>'/var/log/ansible'</strong> directory with <strong>'tmp'</strong> extension and a name describing operation.</p>
-<p>Show running executions (as previous option) with an index number to choice, and it waits for a number to list the log file choiced (if no number is introduced, system log is shown).</p>
-<p>&nbsp;</p>
-  <a name="q"><h3>q. Quit Menu</h3></a>
-<p>Exit</p>
-</td></tr>
-</table>
-</div>
-</body>
-</html>
+######################################################
+                     Menu Guide 
+######################################################
+
+
+Execute the Control Menu '/etc/ansible/menu.py'
+
+
+Control Menu's options:
+
+
+ 1. (Re)Configure System                    
+ 
+    Configuration of System: Introduce parameters and start System
+    
+    See CONFIGURE file to get details about required parameters.
+
+
+ 2. Configure Extra variables
+
+    Configuration of extra variables: Modify extra parameters and reload System
+
+    See CONFIGEXTRAfile to get details about extra parameters.
+ 
+
+ 3. Add Node(s)                             
+
+    To configure Linux/Unix hosts as nodes (hosts accessed by Control Host).
+
+    SSH connection to hosts as 'root' are required. If connection is done, the 'remote user' will be created, Control Host will be able to access with 'remote user' without password (using authorized_keys) and sudo will be installed and configured to permit 'remote user' to execute every command with sudo.
+
+    After configuration the conection with 'remote user' will be tested, showing an 'OK' or error message.
+
+    We can repeat the same operation for several hosts until we decided to finish. 
+
+    In that moment script will start the 'Scanning Networks to discover hosts (nodes and outsiders)' operation to discover the hosts configured as new nodes and the 'Configuring nodes' operation to install and configure nodes (including new nodes).
+
+    When 'Getting data from nodes' (basic, packages and executables) operations were started by crontab, we would get information about new nodes (of course, we can start operations manually to get info immediatly)   
+
+
+ 4. Stop/Start/Restart System                             
+
+    Stop System deleting crontab entries -> This way no new operations will be started (but operations started are still runnnig)
+
+    Start System adding crontab entries -> This way operations will be started with their own frequency
+
+    Restart System deleting crontab entries and adding crontab entries again
+
+
+ 5. Scan Network                            
+
+    'Scanning Networks to discover hosts (nodes and outsiders)' operation will start, scanning 'working subnets' to discover hosts (Linux/Unix and Windows nodes if 'check windows nodes' was selected), trying to connect to them (with 'remote user' or 'windows user') and clasifying as nodes (if we are able to connect to them) or outsiders (if we can't do it), modifying the inventory of nodes.
+
+
+ 6. Install Nodes
+
+    'Configuring Nodes' operation will start, connecting to nodes (Linux/Unix nodes) to install required software (Munin and Nagios clients) and configure them. 
+
+    Before start operation, script ask about a required parameter:
+
+   	* Hostname or IP address to connect. If we don't introduce any information, script will start connecting to all nodes, in other case script will check if hostname or IP is a node before start.
+
+
+ 7. Get Data from Nodes               
+
+    'Getting (basic/packages/executables) data from nodes' operation will start, connecting to nodes (Linux/Unix nodes) to get (basic, packages and executables) information about them, saving on inventory database and updating web services.
+
+    Before start operation, script ask about two required parameters:
+
+    	* Type of information to get from nodes: basic, packages, executables or all (by default the parameter is all)
+     
+    	* Hostname or IP address to connect. If we don't introduce any information, script will start operation connecting to all nodes, in other case script will check if hostname or IP is a node before start. 
+
+
+ 8. Get Data from Windows Nodes            
+
+    'Getting data from windows nodes' operation will start, connecting to windows nodes to get information about them, saving on inventory database and updating web services (only if 'check windows nodes' was selected).
+
+
+ 9. Scan vulnerabilities
+
+    'Checking vulnerabilities (with Openvas) from hosts' operation will start, connecting to every host (outsiders, nodes and winNodes) scanning vulnerabilites, getting security information, making reports and updating wiki pages.
+
+    Before start operation, script ask about a required parameter:
+
+        * Hostnames List to scan. If we don't introduce any information, script will start scanning all hosts, in other case script will check if all hostnames of List are in inventory (as node, winNode or outsider) and starts scanning for them.
+
+    
+ e. Check System Errors                     
+
+    Any error connecting to nodes (Linux/Unix or Windows) or getting information about them, will create a file in Control Host showing problems in '/var/log/ansible/errors.log'. This option will check it.
+
+    Before check error file, script ask about a required parameter:
+
+    	* View summary or details. 'summary' will show just lines where errors were produced, and 'details' will show the whole file.
+
+
+ m. Check DB (SQL) Errors                   
+
+    Any error in SQL operations with Mysql database, will create a file in Mysql Host showing problems in '/var/log/ansible-mysql-errors.log'. This option will check it.
+
+    Before check error file, script ask about a required parameter:
+
+    	* View summary or details. 'summary' will show just lines where errors were produced, and 'details' will show the whole file.
+   
+
+ c. Clean System & DB Errors                
+
+    If error files have been checked and solved, this option permit delete both files.
+ 
+
+ l. List Servers & Nodes
+ 
+    This option show servers' list (Control Server, Nagios Server, Munin Server and Web Server), nodes' list (Linux/Unix) and windows nodes' list. 
+
+
+ s. View System Configuration
+
+    This option show the whole list of parameters introduced in the configuration system.
+
+
+ x. View Executions List         
+
+    This option show a list of executions finished.
+
+
+ r. Log Running Executions (Crt+C to Exit)           
+
+    Temporal logs of running executions are created in '/var/log/ansible' directory with 'tmp' extension and a name describing operation.
+
+    Show running executions (as previous option) with an index number to choice, and wait for a number to list (with 'tail' command) the log file choiced (if no number is introduced, system log is shown).
+
+
+ q. Quit Menu                               
+ 
+    Exit
+
+
+
+######################################################

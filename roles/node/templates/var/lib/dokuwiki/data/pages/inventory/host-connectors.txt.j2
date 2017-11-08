@@ -1,24 +1,17 @@
-{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
-{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
-{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
-{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
-{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
-{#                                                                              #}
-{#                                                                              #}
 [[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
 
 
-==== Host {{ inventory_hostname }}: Connectors ====
+==== Server {{ inventory_hostname }}: Connectors ====
 
 {% if hostvars[inventory_hostname]["connector"] is defined -%}
 {% for connector in hostvars[inventory_hostname]["connector"]|sort -%}
-^  {{ connector["Internal Reference Designator"]|default("") }}  ^^ 
+^  {{ connector["Internal Reference Designator"] }}  ^^ 
 ^ Handle | {{ connector["Handle"] }} |
-^ Internal Reference Designator | {{ connector["Internal Reference Designator"]|default("") }} |
-^ Internal Connector Type | {{ connector["Internal Connector Type"]|default("") }} |
-^ External Reference Designator | {{ connector["External Reference Designator"]|default("") }} |
-^ External Connector Type | {{ connector["External Connector Type"]|default("") }} |
-^ Port Type | {{ connector["Port Type"]|default("") }} |
+^ Internal Reference Designator | {{ connector["Internal Reference Designator"] }} |
+^ Internal Connector Type | {{ connector["Internal Connector Type"] }} |
+^ External Reference Designator | {{ connector["External Reference Designator"] }} |
+^ External Connector Type | {{ connector["External Connector Type"] }} |
+^ Port Type | {{ connector["Port Type"] }} |
 
 {% endfor %}
 {% endif %}

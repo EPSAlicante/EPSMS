@@ -1,21 +1,14 @@
-{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
-{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
-{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
-{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
-{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
-{#                                                                              #}
-{#                                                                              #}
 # Generating SQL for Connectors of {{ inventory_hostname }}
 
 {% if hostvars[inventory_hostname]["connector"] is defined %}
 
 {% for conn in hostvars[inventory_hostname]["connector"] -%}
 
-CHECK_CONNECTOR_{{ loop.index }}: SELECT * FROM Connector WHERE Server='{{ inventory_hostname }}' AND Handle='{{ conn["Handle"] }}' AND IntDesignator='{{ conn["Internal Reference Designator"]|default("") }}' AND IntType='{{ conn["Internal Connector Type"]|default("") }}' AND ExtDesignator='{{ conn["External Reference Designator"]|default("") }}' AND ExtType='{{ conn["External Connector Type"]|default("") }}' AND PortType='{{ conn["Port Type"]|default("") }}' AND Auto AND End IS NULL;
+CHECK_CONNECTOR_{{ loop.index }}: SELECT * FROM Connector WHERE Server='{{ inventory_hostname }}' AND Handle='{{ conn["Handle"] }}' AND IntDesignator='{{ conn["Internal Reference Designator"] }}' AND IntType='{{ conn["Internal Connector Type"] }}' AND ExtDesignator='{{ conn["External Reference Designator"] }}' AND ExtType='{{ conn["External Connector Type"] }}' AND PortType='{{ conn["Port Type"] }}' AND Auto AND End IS NULL;
 
-UPDATE_CONNECTOR_{{ loop.index }}: UPDATE Connector SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ conn["Handle"] }}' AND IntDesignator='{{ conn["Internal Reference Designator"]|default("") }}' AND IntType='{{ conn["Internal Connector Type"]|default("") }}' AND ExtDesignator='{{ conn["External Reference Designator"]|default("") }}' AND ExtType='{{ conn["External Connector Type"]|default("") }}' AND PortType='{{ conn["Port Type"]|default("") }}' AND Auto AND End IS NULL; 
+UPDATE_CONNECTOR_{{ loop.index }}: UPDATE Connector SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ conn["Handle"] }}' AND IntDesignator='{{ conn["Internal Reference Designator"] }}' AND IntType='{{ conn["Internal Connector Type"] }}' AND ExtDesignator='{{ conn["External Reference Designator"] }}' AND ExtType='{{ conn["External Connector Type"] }}' AND PortType='{{ conn["Port Type"] }}' AND Auto AND End IS NULL; 
 
-INSERT_CONNECTOR_{{ loop.index }}: INSERT INTO Connector (Handle,Server,IntDesignator,IntType,ExtDesignator,ExtType,PortType,Init,Checked,Auto) VALUES ('{{ conn["Handle"] }}','{{ inventory_hostname }}', '{{ conn["Internal Reference Designator"]|default("") }}', '{{ conn["Internal Connector Type"]|default("") }}', '{{ conn["External Reference Designator"]|default("") }}', '{{ conn["External Connector Type"]|default("") }}', '{{ conn["Port Type"]|default("") }}', NOW(), NOW(), 1);
+INSERT_CONNECTOR_{{ loop.index }}: INSERT INTO Connector (Handle,Server,IntDesignator,IntType,ExtDesignator,ExtType,PortType,Init,Checked,Auto) VALUES ('{{ conn["Handle"] }}','{{ inventory_hostname }}', '{{ conn["Internal Reference Designator"] }}', '{{ conn["Internal Connector Type"] }}', '{{ conn["External Reference Designator"] }}', '{{ conn["External Connector Type"] }}', '{{ conn["Port Type"] }}', NOW(), NOW(), 1);
 
 {% endfor %}
 

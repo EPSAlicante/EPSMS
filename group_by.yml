@@ -1,10 +1,4 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
 
 - name: Group by OS and version 
   group_by: key="{{ ansible_distribution }}-{{ '%s' % ((ansible_distribution_version + '.0')|replace('.','XXXXX',1)|replace('.','0')|replace('XXXXX','.')|int|abs) if ansible_distribution_version|replace('.','0')|int > 0 else '%s' %(ansible_distribution_version) }}"

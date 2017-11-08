@@ -4,19 +4,16 @@
     <meta charset="utf-8">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
-    body {font-size:12px;}    
     ul>li, a{cursor: pointer;}
-    select>option {font-size:12px;}
-    .waiting {cursor: wait;}
     </style>
     <title>AngularJS (Inventory)</title>
 </head>
-<body style="background:#A4BBC7">
+<body>
 
 <div ng-controller="dataCrtl as vm">
 <div class="container">
 <br/>
-    <div class="row" style="font-size:10px">
+    <div class="row">
         <div class="col-md-3">
 	    <label>Hardware <input type="checkbox" ng-model="vm.hardware"></label>&nbsp;
 	    <label>Software <input type="checkbox" ng-model="vm.software"></label>&nbsp;
@@ -24,7 +21,7 @@
 
 	</div>
         <div class="col-md-2">
-	    <label>Host:</label>
+	    <label>Server:</label>
 
 	</div>
         <div class="col-md-1">
@@ -78,10 +75,10 @@
 		<option ng-if="vm.software" value="/web/rest/private/software/woperatingsystem">Windows Operating System (soft)</option>
 		<option ng-if="vm.software" value="/web/rest/private/software/wdomain">Windows Domain (soft)</option>
                 <option ng-if="vm.security" value="/web/rest/private/security/packages">Linux Packages (security)</option>
-                <option ng-if="vm.security" value="/web/rest/private/security/exes">Linux Exes (security)</option>
-                <option ng-if="vm.security" value="/web/rest/private/security/exes/nopackage">Linux Exes with no Package (security)</option>
-                <option ng-if="vm.security" value="/web/rest/private/security/exes/setuid">Linux Exes with Setuid (security)</option>
-                <option ng-if="vm.security" value="/web/rest/private/security/exes/setgid">Linux Exes with Setgid (security)</option>
+                <option ng-if="vm.security" value="/web/rest/private/security/exes">Linux Executables (security)</option>
+                <option ng-if="vm.security" value="/web/rest/private/security/exes/nopackage">Linux Executables with no Package (security)</option>
+                <option ng-if="vm.security" value="/web/rest/private/security/exes/setuid">Linux Executables with Setuid (security)</option>
+                <option ng-if="vm.security" value="/web/rest/private/security/exes/setgid">Linux Executables with Setgid (security)</option>
                 <option ng-if="vm.security" value="/web/rest/private/security/users">Linux Users (security)</option>
 		<option ng-if="vm.security" value="/web/rest/private/security/waccounts">Windows Accounts (security)</option>
                 <option ng-if="vm.security" value="/web/rest/private/security/groups">Linux Groups (security)</option>
@@ -101,7 +98,7 @@
         </div>
         <div class="col-md-2">
             <select ng-model="vm.server" ng-change="vm.getData()" class="form-control">
-                <option value="ALL">All hosts</option>
+                <option value="ALL">All servers</option>
                 <option ng-repeat="item in vm.serversList | orderBy: 'Server' | unique:'Server'">{{item.Server}}</option>
             </select>
         </div>
@@ -120,7 +117,7 @@
             <input type="text" ng-model="vm.search" ng-change="vm.filter()" placeholder="Filter" class="form-control" />
         </div>
         <div class="col-md-3">
-            <h5>Filtered {{ vm.filtered.length }} of {{ vm.totalItems }}</h5>
+            <h4>Filtered {{ vm.filtered.length }} of {{ vm.totalItems }}</h4>
         </div>
     </div>
     <br/>
@@ -131,7 +128,7 @@
             <thead>
 	        <tr ng-repeat="item in vm.list | limitTo:1">
                     <th ng-repeat="(key, val) in item | orderBy: key" ng-if="vm.server == 'ALL' || key != 'Server'" ng-hide="vm.isHidden(vm.feature + '...' + key);">
-                    <a ng-click="vm.sort_by(key);"><i class="glyphicon glyphicon-sort"></i></a>&nbsp;{{key}}&nbsp;<a ng-click="vm.hide(vm.feature + '...' + key);">X</a>
+                    {{key}}&nbsp;<a ng-click="vm.sort_by(key);"><i class="glyphicon glyphicon-sort"></i></a>&nbsp;<a ng-click="vm.hide(vm.feature + '...' + key);">X</a>
                     </th>
                 </tr>
             </thead>
@@ -147,39 +144,29 @@
 			    <thead>
 	   	                <tr ng-repeat="subitem in val | limitTo:1">
 			            <th ng-hide="{{ !(subitem | isObject) }} || vm.isHidden(vm.feature + '...' + key + '...' + subkey)" ng-repeat="(subkey, subval) in subitem  | orderBy: subkey" ng-if="vm.server == 'ALL' || subkey != 'Server'">
-				    <a ng-click="vm.sortSub_by(subkey);"><i class="glyphicon glyphicon-sort"></i></a>&nbsp;{{subkey}}&nbsp;<a ng-click="vm.hide(vm.feature + '...' + key + '...' + subkey);">X</a>
+				    {{subkey}}&nbsp;<a ng-click="vm.sortSub_by(subkey);"><i class="glyphicon glyphicon-sort"></i></a>&nbsp;<a ng-click="vm.hide(vm.feature + '...' + key + '...' + subkey);">X</a>
 				    </th>
                 	        </tr>
 			    </thead>
 			    <tbody>
 		            	<tr ng-repeat="subdata in val | orderBy: vm.predicateSub :vm.reverseSub">
-				    <td ng-hide="{{ subdata | isObject }} || vm.isHidden(vm.feature + '...' + key + '...' + subkey)">
-                                        <div ng-hide="{{ subdata | isHTTP }}">{{ subdata }}</div>
-                                        <div ng-show="{{ subdata | isHTTP }}"><a href="{{ subdata }}" target="_blank">Link</a></div>
-				    </td>
+				    <td ng-hide="{{ subdata | isObject }} || vm.isHidden(vm.feature + '...' + key + '...' + subkey)">{{subdata}}</td>
 				    <td ng-hide="{{ !(subdata | isObject) }} || vm.isHidden(vm.feature + '...' + key + '...' + subkey)" ng-repeat="(subkey, subval) in subdata  | orderBy: subkey">
-		                        <div ng-hide="{{ subval | isArray }}">
-                            		    <div ng-hide="{{ subval | isHTTP }}">{{ subval }}</div>
-                            		    <div ng-show="{{ subval | isHTTP }}"><a href="{{ subval }}" target="_blank">Link</a></div>
-                        		</div>
+		                        <div ng-hide="{{ subval | isArray }}">{{subval}}</div>
 				        <div ng-show="{{ subval | isArray }}">
 				    	    <table class="table table-striped table-bordered">
 					    <thead>
 			   	                <tr ng-repeat="sub2item in subval | limitTo:1">
 					            <th ng-hide="{{ !(sub2item | isObject) }} || vm.isHidden(vm.feature + '...' + key + '...' + subkey + '...' + sub2key)" ng-repeat="(sub2key, sub2val) in sub2item  | orderBy: sub2key" ng-if="vm.server == 'ALL' || sub2key != 'Server'">
-						    <a ng-click="vm.sortSub2_by(sub2key);"><i class="glyphicon glyphicon-sort"></i></a>&nbsp;{{sub2key}}&nbsp;<a ng-click="vm.hide(vm.feature + '...' + key + '...' + subkey + '...' + sub2key);">X</a>
+						    {{sub2key}}&nbsp;<a ng-click="vm.sortSub2_by(sub2key);"><i class="glyphicon glyphicon-sort"></i></a>&nbsp;<a ng-click="vm.hide(vm.feature + '...' + key + '...' + subkey + '...' + sub2key);">X</a>
 						    </th>
 		                	        </tr>
 					    </thead>
 					    <tbody>
 				            	<tr ng-repeat="sub2data in subval | orderBy: vm.predicateSub2 :vm.reverseSub2">
-						    <td ng-hide="{{ sub2data | isObject }} || vm.isHidden(vm.feature + '...' + key + '...' + subkey + '...' + sub2key)">
-                                        		<div ng-hide="{{ sub2data | isHTTP }}">{{ sub2data }}</div>
-                                        		<div ng-show="{{ sub2data | isHTTP }}"><a href="{{ sub2data }}" target="_blank">Link</a></div>
-						    </td>
+						    <td ng-hide="{{ sub2data | isObject }} || vm.isHidden(vm.feature + '...' + key + '...' + subkey + '...' + sub2key)">{{sub2data}}</td>
 						    <td ng-hide="{{ !(sub2data | isObject) }} || vm.isHidden(vm.feature + '...' + key + '...' + subkey + '...' + sub2key)" ng-repeat="(sub2key, sub2val) in sub2data  | orderBy: sub2key">
-                                            		<div ng-hide="{{ sub2val | isHTTP }}">{{ sub2val }}</div>
-                                            		<div ng-show="{{ sub2val | isHTTP }}"><a href="{{ sub2val }}" target="_blank">Link</a></div>
+						    {{sub2val}}
 						    </td>
 					    	</tr>
 					    </tbody>
@@ -209,5 +196,5 @@
 <script src="js/angular.min.js"></script>
 <script src="js/ui-bootstrap-tpls-0.10.0.min.js"></script>
 <script src="app/app.js"></script>         
-</body>
+    </body>
 </html>

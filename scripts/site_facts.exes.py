@@ -1,10 +1,4 @@
 #!/usr/bin/python
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
 
 import subprocess
 import sys
@@ -40,8 +34,14 @@ def path(command1, command2=''):
 
 def formatCad(cad):
     try:
+#      if isinstance(cad,basestring):
+#        retCad = cad.replace("\\","\\\\").replace("\"","\\\"").replace("'","\\\"").replace("\(","\\(").replace("\)","\\)").replace("\[","\\[").replace("\]","\\]").replace("\{","\\{").replace("\}","\\}")
+#      else:
+#        retCad = cad
+
       retCad = json.dumps(cad.replace("'","\"")).replace("\\u","\\\\u")[1:-1]
 
+      #return retCad.encode('utf-8','replace')
       return retCad
 
     except:
@@ -55,7 +55,7 @@ def typeOS():
 
 def getPackageManager():
     # Getting Package Manager
-    packageManager = subprocess.Popen("((%s --version >/dev/null && echo 'rpm') || (%s --version >/dev/null && echo 'conary') || (%s --version >/dev/null && echo 'dpkg') || (%s --version >/dev/null && echo 'emerge') || (%s --version >/dev/null && echo 'pacman') || (%s >/dev/null && echo %s'-pkgtools') || (%s >/dev/null && echo 'pkgutil') || (%s --version >/dev/null && echo 'zypper') || (%s >/dev/null && echo 'slackpkg') || (%s >/dev/null && echo 'installpkg') ||  echo 'unknown') 2>%s" % (path('rpm'), path('conary'), path('dpkg'), path('equery'), path('pacman'), path('pkg_info'), typeOS(), path('pkgutil'), path('zypper'), path('slackpkg'), path('installpkg'), errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+    packageManager = subprocess.Popen("((%s --version >/dev/null && echo 'rpm') || (%s --version >/dev/null && echo 'conary') || (%s --version >/dev/null && echo 'dpkg') || (%s --version >/dev/null && echo 'emerge') || (%s --version >/dev/null && echo 'pacman') || (%s >/dev/null && echo %s'-pkgtools') || (%s >/dev/null && echo 'pkgutil') || (%s --version >/dev/null && echo 'zypper') || (%s >/dev/null && echo 'installpkg') ||  echo 'unknown') 2>%s" % (path('rpm'), path('conary'), path('dpkg'), path('equery'), path('pacman'), path('pkg_info'), typeOS(), path('pkgutil'), path('zypper'), path('installpkg'), errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
 
     return packageManager
 
@@ -108,7 +108,7 @@ def show_exes(type,dirExes,dirNoExes):
         elif type == 'emerge':
 	  package = subprocess.Popen("([ -r \"%s\" ] && %s -q belongs -e \"%s\"|cut -d'/' -f2) 2>%s" % (exeName, path('equery'), exeName, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
 
-        elif type == 'installpkg' or type == 'slackpkg':
+        elif type == 'installpkg':
 	  package = subprocess.Popen("([ -r \"%s\" ] && [ -d \"/var/log/packages\" ] && %s -l \"`echo \"%s\"|cut -c2-`\" /var/log/packages/*|%s 's@/var/log/packages/@@') 2>%s" % (exeName, grep, exeName, sed, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
 
         elif type == 'pacman':

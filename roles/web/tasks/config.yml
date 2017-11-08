@@ -1,24 +1,33 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
-
-# Web Server configuration
+# Configuración del servidor Web
 
 - name: Copy web.conf to /etc/httpd/conf.d (Centos)
   template: src=etc/httpd/conf.d/web.conf.j2 dest=/etc/httpd/conf.d/web.conf owner=root group=root mode=0644
-  notify: restart apache
   when: ansible_os_family == "RedHat" 
+
+#- name: Copy web.conf to /etc/apache2/sites-available (Debian)
+#  template: src=etc/apache2/sites-available/web.j2 dest=/etc/apache2/sites-available/web owner=root group=root mode=0644
+#  when: ansible_os_family == "Debian"
+
+#- name: Enable web in apache (Debian)
+#  shell: a2ensite web 
+#  notify: restart apache 
+#  when: ansible_os_family == "Debian"
 
 - name: Create Web directory
   file: path={{ webHtml }} state=directory owner={{ sshUserNodes }} group=root mode=0755
 
+#- name: Add 'Defaults:sshUser !requiretty' in /etc/sudoers
+#  lineinfile: 'name=/etc/sudoers state=present regexp="^Defaults:{{ sshUserNodes }} !requiretty" line="Defaults:{{ sshUserNodes }} !requiretty"'
+#  when: sshUserNodes != "root" 
+
 - name: Be sure rsync is installed (yum)
   yum: pkg=rsync state=installed
   when: ansible_pkg_mgr == "yum"
+
+#- name: Be sure rsync is installed (apt)
+#  apt: pkg=rsync state=installed update_cache=yes force=yes
+#  when: ansible_pkg_mgr == "apt"
 
 - name: Rsync web pages
   shell: rsync -arvce "ssh -o StrictHostKeyChecking=no" --delete --force {{ webFiles }}{{ webHtml }}/ {{ sshUserNodes }}@{{ hostWeb }}:{{ webHtml }}/ executable=/bin/bash

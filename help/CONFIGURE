@@ -1,176 +1,146 @@
-<html>
-<head>
-<title>Configuration</title>
-</head>
-<body style="background:#A4BBC7">
-<div align="center">
-<table width="80%">
-<tr><td>
-<center><h1>Configuration</h1></center>
-<p>&nbsp;</p>
-<p>We can configure system executing '/etc/ansible/configure.py' python script, or from menu <strong>'/etc/ansible/menu.py'</strong> choice <strong>'option 1. Configure System'</strong>.</p>
-<p>Configuration start with several questions about basic parameters of system.</p>
-<p>These are <strong>required parameters</strong>:</p>
-<h2>Remote User to connect</h2>
-<p>Linux/Unix user to connect to remote hosts. This user needs access with no password and posibility to execute commands by sudo.</p>
-<p>It could be created later automatically (you don't have to do it manually).</p>
-<p>This user could be 'root', but it's preferable to choice another user with no privileges for security reasons.</p>
-<p>Script discovers the local IPs (where the control software will be installed) and let you to choice one of them (fqdn of selected IP necessary) and tries to connect with 'remote User' (previously declared).</p>
-<p>If connection is not possible, script will show you the connection error and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.</p>
-<p>The connection will be tested again. If everything is OK, script will check Operating System, because Control Host has to be CentOS 6.</p>
-<p>&nbsp;</p>
-<h2>Working subnets</h2>
-<p>Nets and/or subnets where Control Host will work (discovering new hosts and connect to them).</p>
-<p>Every Host outside these subnets can't be accesible by Control Host. You can declare Hosts individually with an IP and mask of '/32'.</p>
-<p>&nbsp;</p>
-<h2>IP's to be excluded</h2>
-<p>Probably you have declared a subnet but you want to exclude some IP's, for security or other reasons (localhost is always included).</p>
-<p>&nbsp;</p>
-<h2>Mysql Host</h2>
-<p>Host's IP address (with fqdn) where Mysql DataBase will be installed (it could be the same Control Host, or could be another host).</p>
-<p>IP address has to be inside 'working subnets' (previosly declared). See <a href="faq.html#A2">requirements</a> before continuing.</p>
-<p>Script tries to connect with 'remote User' (previously declared).</p>
-<p>If connection is not possible, script will show you the connection error and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.</p>
-<p>The connection will be tested again. If everything is OK, script will check Operating System, because host has to be CentOS 6.</p>
-<p>IP reconfiguration to select a different Host is possible. Old Mysql Service (with data) will not be removed, so you can export data to new Host. Remember stop and disable old service to avoid confusion.</p>
-<p>&nbsp;</p>
-<h2>Nagios Host</h2>
-<p>Host's IP address (with fqdn) where Nagios Service will be installed (it could be the same Control Host, or could be another host).</p>
-<p>IP address has to be inside 'working subnets' (previosly declared). See <a href="faq.html#A2">requirements</a> before continuing.</p>
-<p>Script tries to connect with 'remote User' (previously declared).</p>
-<p>If connection is not possible, script will show you the connection error and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.</p>
-<p>The connection will be tested again. If everything is OK, script will check Operating System, because host has to be CentOS 6.</p>
-<p>IP reconfiguration to select a different Host is possible. Old Nagios Service will not be removed, it will keep working with old configuration (hosts and services) and transferring data to Influx Database (using Graphios Service). Remember stop and disable old services (Nagios and Graphios) to avoid confusion.</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<h2>Munin Host</h2>
-<p>Host's IP address (with fqdn) where Munin Service will be installed (it could be the same Control Host, or could be another host).</p>
-<p>IP address has to be inside 'working subnets' (previosly declared). See <a href="faq.html#A2">requirements</a> before continuing.</p>
-<p>Script tries to connect with 'remote User' (previously declared).</p>
-<p>If connection is not possible, script will show you the connection error and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.</p>
-<p>The connection will be tested again. If everything is OK, script will check Operating System, because host has to be CentOS 6.</p>
-<p>IP reconfiguration to select a different Host is possible. Old Munin Service will not be removed, it will keep working with old configuration (hosts and plugins) and transferring data to Influx Database (using Munin-InfluxDB software). Remember stop and disable old Munin service and remove Munin-Influxdb entry on crontab to avoid confusion.</p>
-<p>&nbsp;</p>
-<h2>Web Host</h2>
-<p>Host's IP address (with fqdn) where Web Services (DokuWiki, PhpMyAdmin, REST API, PHP and Angulajs Apps) will be installed (it could be the same Control Host, or could be another host).</p>
-<p>IP address has to be inside 'working subnets' (previosly declared). See <a href="faq.html#A2">requirements</a> before continuing.</p>
-<p>Script tries to connect with 'remote User' (previously declared).</p>
-<p>If connection is not possible, script will show you the connection error and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.</p>
-<p>The connection will be tested again. If everything is OK, script will check Operating System, because host has to be CentOS 6.</p>
-<p>IP reconfiguration to select a different Host is possible. Old Web Service will not be removed. Remember stop and disable old service (apache software) to avoid confusion.</p>
-<p>&nbsp;</p>
-<h2>Grafana Host</h2>
-<p>Host's IP address (with fqdn) where Grafana & InfluxDB Services will be installed (it could be the same Control Host, or could be another host).</p>
-<p>IP address has to be inside 'working subnets' (previosly declared). See <a href="faq.html#A2">requirements</a> before continuing.</p>
-<p>Script tries to connect with 'remote User' (previously declared).</p>
-<p>If connection is not possible, script will show you the connection error and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.</p>
-<p>The connection will be tested again. If everything is OK, script will check Operating System, because host has to be CentOS 6.</p>
-<p>IP reconfiguration to select a different Host is possible. Old Grafana & InfluxDB Services will not be removed, so you can export data from InfluxDB to new Host. Remember stop and disable old services (Grafana and InfluxDB) to avoid confusion.</p>
-<p>&nbsp;</p>
-<h2>Openvas Host</h2>
-<p>Host's IP address (with fqdn) where Openvas Service will be installed (it could be the same Control Host, or could be another host).</p>
-<p>IP address has to be inside 'working subnets' (previosly declared). See <a href="faq.html#A2">requirements</a> before continuing.</p>
-<p>We should check SELinux to disable it if necessary (with SELinux enabled, Openvas will be installed but it won't be able to scan ports).</p>
-<p>Script tries to connect with 'remote User' (previously declared).</p>
-<p>If connection is not possible, script will show you the connection error and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.</p>
-<p>The connection will be tested again. If everything is OK, script will check Operating System, because host has to be CentOS 6.</p>
-<p>IP reconfiguration to select a different Host is possible. Old Openvas Service will not be removed. Remember stop and disable old service to avoid confusion.</p>
-<p>&nbsp;</p>
-<h2>Password Admin user</h2>
-<p>Password to access Servers as Admin user.</p>
-<p>&nbsp;</p>
-<h2>Password Mysql user root</h2>
-<p>Password to access Mysql databases as 'root' user (just to manage databases)</p>
-<p>&nbsp;</p>
-<h2>Hosts administrators</h2>
-<p>IP addresses allowed to access Mysql databases and web services as admin user (leave empty to allow access from everywhere).</p>
-<p>&nbsp;</p>
-<h2>Frequency to check Installed Software or fixed time</h2>
-<p>How often (in hours) or a fixed time (00:00 to 23:59) Control Host will check installed software in servers and nodes.</p>
-<p>&nbsp;</p>
-<h2>Frequency to check new hosts in subnets</h2>
-<p>How often (in hours) or a fixed time (00:00 to 23:59) Control Host will check (with nmap software) 'working subnets' tryng to discover new hosts (outsiders, nodes and winNodes).</p>
-<p>&nbsp;</p>
-<h2>Frequency to check vulnerabilities on all hosts</h2>
-<p>How often (in months) Control Host will check (with Openvas software) vulnerabilites on every host detected in 'working subnets' (outsiders, nodes and winNodes).</p>
-<p>By default checking will be done at 02:30 of first day.</p>
-<p>Modifications are allowed updating 'extra' variables in '/etc/ansible/config_files/extra.conf' and reconfigure system again.</p>
-<p>&nbsp;</p>
-<h2>Frequency to get Info from Nodes</h2>
-<p>How often (in hours) or a fixed time (00:00 to 23:59) Control Host will connect to nodes to get basic information and updating database and web services.</p>
-<p>&nbsp;</p>
-<h2>Frequency to get Info Packages from Nodes</h2>
-<p>How often (in hours) or a fixed time (00:00 to 23:59) Control Host will connect to nodes to get packages information and updating database and web services.</p>
-<p>&nbsp;</p>
-<h2>Frequency to get Info Executables from Nodes</h2>
-<p>How often (in hours) or a fixed time (00:00 to 23:59) Control Host will connect to nodes to get executables information and updating database and web services.</p>
-<p>&nbsp;</p>
-<h2>Do you want to configure hosts as nodes?</h2>
-<p>Script ask to connect hosts as 'root' useri (SSH), configure and enable them to connect as 'remote user' (host have to belong to 'working subnets' to be nodes).</p>
-<p>&nbsp;</p>
-<h2>Do you want to check windows hosts as nodes?</h2>
-<p>Script ask to discover windows hosts (with Windows Operating System) on 'working subnets'.</p>
-<p>&nbsp;</p>
-<h2>Remote user to connect to Windows nodes</h2>
-<p>Windows user to connect to windows remote hosts (only if 'check windows nodes' was selected).</p>
-<p>This user could be 'administrator', but it's preferable to choice another user with no privileges for security reasons.</p>
-<p>&nbsp;</p>
-<h2>Password Windows User Nodes</h2>
-<p>Windows user Password to connect to windows remote hosts (only if 'check windows nodes' was selected).</p>
-<p>&nbsp;</p>
-<h2>Frequency to get Info from Windows Nodes</h2>
-<p>How often (in hours) or a fixed time (00:00 to 23:59) Control Host will connect to Windows nodes (nodes with Windows Operating System) to get information and updating database and web services (only if 'check windows nodes' was selected).</p>
-<p>&nbsp;</p>
-<p>Before finish, script will ask to configure hosts as nodes.</p>
-<p>If we want to configure a host as node, we type the IP or hostame and script will ask for password of 'root' user to connect by ssh and configure.</p>
-<p>At this point we can configure all hosts we want.</p>
-<p>After questions and node's configuration, answers will be shown in a summary screen and ask to continue or cancel the script.</p>
-<p>If continue answer has been selected, script will start operations to deploy the necessary infrastructure, installing and configuring Mysql database and web services.</p>
-<p>These are the <strong>operations to do</strong>:</p>
-<h2>Deleting Ansible crontab entries</h2>
-<p>If we are reconfiguring the system (it was deploying earlier), there are some entries on crontab to repeat operations. We need to delete them to reconfigure.</p>
-<p>&nbsp;</p>
-<h2>Configuring Control server</h2>
-<p>Install and configure Control Host (local host) to be able to manage system.</p>
-<p>&nbsp;</p>
-<h2>Configuring Mysql Server</h2>
-<p>Install and configure Mysql Host: installing Mysql Server, configuring Mysql and creating 'inventory' database.</p>
-<p>&nbsp;</p>
-<h2>Configuring Web Server</h2>
-<p>Install and configure Web Host: installing Apache Server, Dokuwiki, REST API, Web applications and configuring them.</p>
-<p>&nbsp;</p>
-<h2>Configuring Munin Server</h2>
-<p>Install and configure Munin Host: installing Munin Server and configuring Munin.</p>
-<p>&nbsp;</p>
-<h2>Configuring Nagios Server</h2>
-<p>Install and configure Nagios Host: installing Nagios Server and configuring Nagios</p>
-<p>&nbsp;</p>
-<h2>Configuring Grafana Server</h2>
-<p>Install and configure Grafana Host: installing Grafana Server and configuring Grafana and InfluxDB</p>
-<p>&nbsp;</p>
-<h2>Scanning Networks to discover hosts (nodes and outsiders)</h2>
-<p>Scan 'working subnets' to discover hosts (Linux/Unix and Windows nodes if 'check windows nodes' was selected), trying to connect to them (with 'remote user' or 'windows user') and clasifying as nodes (if we are able to connect to them) or outsiders (if we can't do it), modifying the inventory of nodes.</p>
-<p>&nbsp;</p>
-<h2>Configuring Nodes</h2>
-<p>Connect to nodes (Linux/Unix nodes) to install required software (Munin and Nagios clients) and configure them.</p>
-<p>&nbsp;</p>
-<h2>Getting basic data from nodes</h2>
-<p>Connect to nodes (Linux/Unix nodes) to get basic information about them (everything but packages and executables, because the amount of time we needed to get info about them), saving on inventory database and updating web services.</p>
-<p>&nbsp;</p>
-<h2>Getting data from windows nodes</h2>
-<p>Connect to windows nodes to get information about them, saving on inventory database and updating web services (only if 'check windows nodes' was selected).</p>
-<p>&nbsp;</p>
-<h2>Configuring Openvas Server</h2>
-<p>Install and configure Openvas Host: installing Openvas Server and configuring Openvas</p>
-<p>&nbsp;</p>
-<h2>Configuring Grafana Dashboards</h2>
-<p>Configure a dahsboard for every host in Grafana Server</p>
-<p>&nbsp;</p>
-<h2>Adding Ansible crontab entries</h2>
-<p>Adding entries to crontab with the operations done (and two more getting information from Linux/Unix nodes about packages and executables) to repeat everyone with the frequency asked before.</p>
-<p>&nbsp;</p>
-</td></tr>
-</table>
-</div>
-</body>
-</html>
+######################################################
+                 Configuration Guide 
+######################################################
+
+
+We can configure system executing '/etc/ansible/configure.py' python script, or from menu '/etc/ansible/menu.py' choice 'option 1. Configure System'.
+
+Configuration start with several questions about basic parameters of system.
+
+  
+These are required parameters:
+
+
+* 'Remote User to connect' -> Linux/Unix user to connect to remote hosts. This user needs access with no password and posibility to execute commands by sudo. It could be created later automatically (you don't have to do it manually). This user could be 'root', but it's preferable to choice another user with no privileges for security reasons.
+
+
+* Script discovers the local IP (where the control software will be installed) and tries to connect with 'remote User' (previously declared). 
+  If connection is not possible, script will show you the error connection and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.
+  The connection will be tested again. If everything is OK, script will check Operating System, because Control Host has to be CentOS 6.
+
+
+* 'Working subnets' -> Nets and/or subnets where Control Host will work (discovering new hosts and connect to them). Every Host outside these subnets can't be accesible by Control Host. 
+  You can declare Hosts individually with an IP and mask of '/32'.
+
+
+* 'IP's to be excluded' -> Probably you have declared a subnet but you want to exclude some IP's (for security or other reasons). 
+
+
+* 'Mysql Host' -> Host's IP address where Mysql DataBase will be installed (it could be the same Control Host, or could be another host). IP address has to be inside 'working subnets' (previosly declared). 
+  Script tries to connect with 'remote User' (previously declared). If connection is not possible, script will show you the error connection and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.
+  The connection will be tested again. If everything is OK, script will check Operating System, because host has to be CentOS 6.
+
+
+* 'Nagios Host' -> Host's IP address where Nagios Service will be installed (it could be the same Control Host, or could be another host). IP address has to be inside 'working subnets' (previosly declared). 
+  Script tries to connect with 'remote User' (previously declared). If connection is not possible, script will show you the error connection and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.
+  The connection will be tested again. If everything is OK, script will check Operating System, because host has to be CentOS 6. 
+
+
+* 'Munin Host' -> Host's IP address where Munin Service will be installed (it could be the same Control Host, or could be another host). IP address has to be inside 'working subnets' (previosly declared). 
+  Script tries to connect with 'remote User' (previously declared). If connection is not possible, script will show you the error connection and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.
+  The connection will be tested again. If everything is OK, script will check Operating System, because host has to be CentOS 6. 
+
+
+* 'Web Host' -> Host's IP address where Web Services (DokuWiki, PhpMyAdmin, REST API, PHP and Angulajs Apps) will be installed (it could be the same Control Host, or could be another host). IP address has to be inside 'working subnets' (previosly declared). 
+  Script tries to connect with 'remote User' (previously declared). If connection is not possible, script will show you the error connection and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.
+  The connection will be tested again. If everything is OK, script will check Operating System, because host has to be CentOS 6. 
+
+
+* 'Openvas Host' -> Host's IP address where Openvas Service will be installed (it could be the same Control Host, or could be another host). IP address has to be inside 'working subnets' (previosly declared).
+  Script tries to connect with 'remote User' (previously declared). If connection is not possible, script will show you the error connection and ask you to connect with 'root' user and configure and enable host to connect with 'remote user'.
+  The connection will be tested again. If everything is OK, script will check Operating System, because host has to be CentOS 6.
+
+
+* 'Password Openvas user' -> Password to access Openvas as Admin user (by default user is 'admin', but can be changed in extra variables file)
+
+
+* 'Password Mysql user root' -> Password to access Mysql databases as 'root' user (just to manage databases)
+
+
+* 'Password Mysql user inventory' -> Password to access Mysql 'inventory' database as 'inventory' user. That's user declared to insert and get data about the Inventory. Every connection will use this user.
+
+
+* 'Password Web user admin' -> Password to access every web service (with user 'admin'): Nagios service, Munin service, Dokuwiki service, REST API and Web Applications.
+
+
+* 'Hosts administrators' -> IP addresses permitted to access Mysql databases and web services.
+
+
+* 'Frequency to check Installed Software or fixed time' -> How often (in hours) or a fixed time (00:00 to 23:59) Control Host will check installed software in nodes.
+
+
+* 'Frequency to check new hosts in subnets' -> How often (in hours) or a fixed time (00:00 to 23:59) Control Host will check (with nmap software) 'working subnets' tryng to discover new hosts (outsiders, nodes and winNodes).
+
+
+* 'Frequency to check vulnerabilities on all hosts' -> How often (in months) Control Host will check (with Openvas software) vulnerabilites on every host detected in 'working subnets' (outsiders, nodes and winNodes). By default checking will be done at 02:30 of first day. Modifications are allowed updating 'extra' variables in '/etc/ansible/config_files/extra.conf' and reconfigure system again.
+
+* 'Frequency to get Info from Nodes' -> How often (in hours) or a fixed time (00:00 to 23:59) Control Host will connect to nodes to get basic information and updating database and web services.
+
+
+*  'Frequency to get Info Packages from Nodes' -> How often (in hours) or a fixed time (00:00 to 23:59) Control Host will connect to nodes to get packages information and updating database and web services.
+
+ 
+* 'Frequency to get Info Executables from Nodes' -> How often (in hours) or a fixed time (00:00 to 23:59) Control Host will connect to nodes to get executables information and updating database and web services.
+
+
+* 'Do you want to configure hosts as nodes?' -> Script ask to connect hosts as 'root' user and configure and enable them to connect as 'remote user'.  
+
+
+* 'Do you want to check windows hosts as nodes?' ->  Script ask to discover windows hosts (with Windows Operating System) on 'working subnets'.
+
+
+* 'Remote user to connect to Windows nodes' -> Windows user to connect to windows remote hosts (only if 'check windows nodes' was selected). This user could be 'administrator', but it's preferable to choice another user with no privileges for security reasons.
+
+
+* 'Password Windows User Nodes' -> Windows user Password to connect to windows remote hosts (only if 'check windows nodes' was selected).
+
+
+* 'Frequency to get Info from Windows Nodes' -> How often (in hours) or a fixed time (00:00 to 23:59) Control Host will connect to Windows nodes (nodes with Windows Operating System) to get information and updating database and web services (only if 'check windows nodes' was selected).
+
+
+Before finish, script will ask to configure hosts as nodes. If we want to configure a host as node, we type the IP or hostame and script will ask for password of 'root' user to connect by ssh and configure. At this point we can configure all hosts we want.
+
+After questions and node's configuration, answers will be shown in a summary screen and ask to continue or cancel the script.
+
+
+If continue answer has been selected, script will start operations to deploy the necessary infrastructure, installing and configuring Mysql database and web services. These are the operations to do:
+
+
+* 'Deleting Ansible crontab entries' -> If we are reconfiguring the system (it was deploying earlier), there are some entries on crontab to repeat operations. We need to delete them to reconfigure.
+
+	
+* 'Configuring Control server' -> Install and configure Control Host (local host) to be able to manage system.
+
+
+* 'Configuring Mysql Server' -> Install and configure Mysql Host: installing Mysql Server, configuring Mysql and creating 'inventory' database.
+
+
+* 'Configuring Web Server' -> Install and configure Web Host: installing Apache Server, Dokuwiki, REST API, Web applications and configuring them.
+
+
+* 'Configuring Munin Server' -> Install and configure Munin Host: installing Munin Server and configuring Munin.
+
+
+* 'Configuring Nagios Server' -> Install and configure Nagios Host: installing Nagios Server and configuring Nagios 
+
+
+* 'Configuring Openvas Server' -> Install and configure Openvas Host: installing Openvas Server and configuring Openvas
+
+
+* 'Scanning Networks to discover hosts (nodes and outsiders)' -> Scan 'working subnets' to discover hosts (Linux/Unix and Windows nodes if 'check windows nodes' was selected), trying to connect to them (with 'remote user' or 'windows user') and clasifying as nodes (if we are able to connect to them) or outsiders (if we can't do it), modifying the inventory of nodes.
+
+
+* 'Configuring Nodes' ->  Connect to nodes (Linux/Unix nodes) to install required software (Munin and Nagios clients) and configure them.
+
+
+* 'Getting basic data from nodes' -> Connect to nodes (Linux/Unix nodes) to get basic information about them (everything but packages and executables, because the amount of time we needed to get info about them), saving on inventory database and updating web services.
+
+
+* 'Getting data from windows nodes' -> Connect to windows nodes to get information about them, saving on inventory database and updating web services (only if 'check windows nodes' was selected).
+
+	 
+* 'Adding Ansible crontab entries' -> Adding entries to crontab with the operations done (and two more getting information from Linux/Unix nodes about packages and executables) to repeat everyone with the frequency asked before.
+
+
+
+######################################################

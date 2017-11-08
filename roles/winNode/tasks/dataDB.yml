@@ -1,11 +1,4 @@
 ---
-# The source code packaged with this file is Free Software, Copyright (C) 2016 by
-# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
-# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
-# You can get copies of the licenses here: http://www.affero.org/oagpl.html
-# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
-
-
 # Getting data from Windows nodes
 
 - name: Getting Path Data from nodes
@@ -104,7 +97,7 @@
   when: winFacts|success
 
 - name: Commit changes of host-items.txt & update (in Wiki Server)
-  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp inventory:{{ inventory_hostname|lower }}-{{ item }}) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ inventory_hostname|lower }}-{{ item }}.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ inventory_hostname|lower }}-{{ item }}.txt.* || true)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" commit /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp inventory:{{ inventory_hostname|lower }}-{{ item }}) || (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}-{{ item }}.txt.tmp inventory:{{ inventory_hostname|lower }}-{{ item }})
   with_items:
     - system
     - processors
@@ -133,14 +126,14 @@
   delegate_to: "{{ hostWeb }}"
   changed_when: False
   ignore_errors: yes
-  when: winFacts|success and passwdAdmin|default("") != ""
+  when: winFacts|success and passwdMysqlInventory|default("") != ""
 
 - name: Commit changes of host.txt & update (in Wiki Server)
-  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}.txt.tmp inventory:{{ inventory_hostname|lower }}) && chmod 0464 /var/lib/dokuwiki/data/pages/inventory/{{ inventory_hostname|lower }}.txt && (chmod 0464 /var/lib/dokuwiki/data/attic/inventory/{{ inventory_hostname|lower }}.txt.* || true)
+  shell: (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" commit /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}.txt.tmp inventory:{{ inventory_hostname|lower }}) || (/usr/bin/php /usr/share/dokuwiki/bin/dwpage.php commit -m "Ansible check at $(date '+%Y-%m-%d %H:%M:%S')" /var/lib/dokuwiki/data/pages/inventory/.{{ inventory_hostname|lower }}.txt.tmp inventory:{{ inventory_hostname|lower }})
   delegate_to: "{{ hostWeb }}"
   changed_when: False
   ignore_errors: yes
-  when: winFacts|success and passwdAdmin|default("") != ""
+  when: winFacts|success and passwdMysqlInventory|default("") != ""
 
 - name: Get userApache in Web Server
   shell: stat -c "%U" /var/lib/dokuwiki/data executable=/bin/bash
@@ -151,7 +144,7 @@
   when: winFacts|success
 
 - name: Change owner of /var/lib/dokuwiki/data to userApache
-  shell: "find /var/lib/dokuwiki/data ! -user {{ userApacheServer.stdout }} -exec chown {{ userApacheServer.stdout }} {} \\; executable=/bin/bash"
+  shell: chown -R {{ userApacheServer.stdout }} /var/lib/dokuwiki/data executable=/bin/bash
   delegate_to: "{{ hostWeb }}"
   changed_when: False
   ignore_errors: yes

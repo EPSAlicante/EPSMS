@@ -40,7 +40,7 @@ $sqlFilterNew = " Auto and " . $sqlFilterNew;
 $sqlFilterOld = " Auto and " . $sqlFilterOld;
 
 
-if ($s=="All Hosts") {
+if ($s=="All Servers") {
 
   $sql = "Select Init as TimeUpdate, Server, Concat('New baseboard (', Handle, '): ', ProductName) as Event from Baseboard where " . $sqlFilterNew;
   $sql = $sql . " UNION Select End as TimeUpdate, Server, Concat('Deleted baseboard (', Handle, '): ', ProductName) as Event from Baseboard where " . $sqlFilterOld;
@@ -295,13 +295,13 @@ $resultUpdate = mysql_query($sql);
 $nrowsUpdate = mysql_num_rows($resultUpdate);
 
 
-if ($s == "All Hosts") {
+if ($s == "All Servers") {
 
   echo "<table border='1' cellpadding='5' style='background:#75B9E4'>
   <caption><H2>Last Events ($s)</H2></caption>
   <tr style='background:#2D7297; color:white'>
   <th>Time</th>
-  <th>Host</th>
+  <th>Server</th>
   <th>Event</th>
   </tr>";
 

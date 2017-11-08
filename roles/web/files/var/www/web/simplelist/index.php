@@ -5,7 +5,7 @@
 <body style="background:#A4BBC7">
 
 <div align="center">
-<H1>SIMPLE LIST (list of tables data)</H1>
+<H1>SIMPLE LIST (list of tables' data)</H1>
 <form>
 <div id="combos">
 <table border='0' cellpadding='10'>
