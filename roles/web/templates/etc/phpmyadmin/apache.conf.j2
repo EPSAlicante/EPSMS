@@ -1,3 +1,12 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Made by EPS Monitoring System
+
 # phpMyAdmin default Apache configuration
 
 Alias /phpmyadmin /usr/share/phpmyadmin
@@ -6,15 +15,33 @@ Alias /phpmyadmin /usr/share/phpmyadmin
 	Options FollowSymLinks
 	DirectoryIndex index.php
 
-        Order deny,allow
-	Deny from all
-	{% for admins in hostsAdmins -%}
-	Allow from {{ admins }}/32
-	{% endfor %}
+        Order Deny,Allow
+        Deny from ALL
+{% if hostsAdmins|count > 0 %}
+        {% for host in hostsAdmins -%}
+        Allow from {{ host }}/32
+        {% endfor %}
+{% else %}
+        Allow from ALL
+{% endif %}
+
+{% if readUser != "" -%}
+  {% if hostsReadUser is defined and hostsReadUser|count > 0 %}
+     {% for host in hostsReadUser -%}
+        Allow from {{ host }}/32
+     {% endfor %}
+  {% else %}
+        Allow from ALL
+  {% endif %}
+{% endif %}
+
 	AuthType Basic
 	AuthName "Authentication Required"
 	AuthUserFile "{{ pathApache }}/.passwdFile"
 	Require user admin
+{% if readUser != "" %}
+        Require user {{ readUser }}
+{% endif %}
 
 	<IfModule mod_php5.c>
 		AddType application/x-httpd-php .php
@@ -29,22 +56,34 @@ Alias /phpmyadmin /usr/share/phpmyadmin
 
 # Authorize for setup
 <Directory /usr/share/phpmyadmin/setup>
-    Order deny,allow
+    Order Deny,Allow
     Deny from all
-    {% for admins in hostsAdmins -%}
-    Allow from {{ admins }}/32
+{% if hostsAdmins|count > 0 %}
+    {% for host in hostsAdmins -%}
+    Allow from {{ host }}/32
     {% endfor %}
+{% else %}
+    Allow from ALL
+{% endif %}
+
+{% if readUser != "" -%}
+  {% if hostsReadUser is defined and hostsReadUser|count > 0 %}
+    {% for host in hostsReadUser -%}
+    Allow from {{ host }}/32
+    {% endfor %}
+  {% else %}
+    Allow from ALL
+  {% endif %}
+{% endif %}
+
     AuthType Basic
     AuthName "Authentication Required"
     AuthUserFile "{{ pathApache }}/.passwdFile"
     Require user admin
+{% if readUser != "" %}
+    Require user {{ readUser }}
+{% endif %}
 
-   # <IfModule mod_authn_file.c>
-   # AuthType Basic
-   # AuthName "phpMyAdmin Setup"
-   # AuthUserFile /etc/phpmyadmin/htpasswd.setup
-   # </IfModule>
-   # Require valid-user
 </Directory>
 
 # Disallow web access to directories that don't need it

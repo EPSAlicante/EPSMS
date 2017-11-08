@@ -25,7 +25,7 @@ class Rest_Security
 
         // GET /security/inports
         static public function getSecurityInPorts() {
-          $query = "SELECT Server, Protocol, Port, IP4, BindIP4 as 'Bind IP4', IP6, BindIP6 as 'Bind IP6', Process FROM ServerPort WHERE Auto and End is Null and Access='IN' Order by Server, Protocol, Port";
+          $query = "SELECT C.Server, Protocol, Port, IP4, BindIP4 as 'Bind IP4', IP6, BindIP6 as 'Bind IP6', Process FROM ServerPort as C, Server as S WHERE C.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is Null and Access='IN' Order by C.Server, Protocol, Port";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -39,7 +39,7 @@ class Rest_Security
 
         // GET /security/outports
         static public function getSecurityOutPorts() {
-          $query = "SELECT Server, Protocol, Port FROM ServerPort WHERE Auto and End is Null and Access='OUT' Order by Server, Protocol, Port";
+          $query = "SELECT C.Server, Protocol, Port FROM ServerPort as C, Server as S WHERE C.Server=S.Name and S.Auto and S.End is Null and C.Auto and C.End is Null and Access='OUT' Order by C.Server, Protocol, Port";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -53,7 +53,7 @@ class Rest_Security
 
         // GET /security/packages
         static public function getSecurityPackages() {
-          $query = "SELECT Server, Name, Version, Size FROM Package WHERE Auto and End is Null Order by Server, Name, Version";
+          $query = "SELECT C.Server, C.Name, Version, Size FROM Package as C, Server as S WHERE C.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is Null Order by C.Server, C.Name, Version";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -67,7 +67,7 @@ class Rest_Security
 
         // GET /security/exes
         static public function getSecurityExes() {
-          $query = "SELECT Server, Name, Package, FileSize as 'File Size', FileUser as 'File User', FileGroup as 'File Group', FilePerms as 'File Perms', Signature FROM Exe WHERE Auto and End is Null Order by Server, Name, Signature";
+          $query = "SELECT C.Server, C.Name, Package, FileSize as 'File Size', FileUser as 'File User', FileGroup as 'File Group', FilePerms as 'File Perms', Signature FROM Exe as C, Server as S WHERE C.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is Null Order by C.Server, C.Name, Signature";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -81,7 +81,7 @@ class Rest_Security
 
         // GET /security/exes/nopackage
         static public function getSecurityExesNoPackage() {
-          $query = "SELECT Server, Name, FileSize as 'File Size', FileUser as 'File User', FileGroup as 'File Group', FilePerms as 'File Permssions' from Exe where Auto and End is null and Package='' order by Server, Name, Signature";
+          $query = "SELECT C.Server, C.Name, FileSize as 'File Size', FileUser as 'File User', FileGroup as 'File Group', FilePerms as 'File Permssions' from Exe as C, Server as S where C.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is null and Package='' order by C.Server, C.Name, Signature";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -95,7 +95,7 @@ class Rest_Security
 
         // GET /security/exes/setuid
         static public function getSecurityExesSetuid() {
-          $query = "SELECT Server, Name, Package, FileSize as 'File Size', FileUser as 'File User', FileGroup as 'File Group', FilePerms as 'File Permissions' from Exe where Auto and End is null and FilePerms like '-__s%' order by Server, Name, Signature";
+          $query = "SELECT C.Server, C.Name, Package, FileSize as 'File Size', FileUser as 'File User', FileGroup as 'File Group', FilePerms as 'File Permissions' from Exe as C, Server as S where S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is null and FilePerms like '-__s%' order by C.Server, C.Name, Signature";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -109,7 +109,7 @@ class Rest_Security
 
         // GET /security/exes/setgid
         static public function getSecurityExesSetgid() {
-          $query = "SELECT Server, Name, Package, FileSize as 'File Size', FileUser as 'File User', FileGroup as 'File Group', FilePerms as 'File Permissions' from Exe where Auto and End is null and FilePerms like '-_____s%' order by Server, Name, Signature";
+          $query = "SELECT C.Server, C.Name, Package, FileSize as 'File Size', FileUser as 'File User', FileGroup as 'File Group', FilePerms as 'File Permissions' from Exe as C, Server as S where C.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is null and FilePerms like '-_____s%' order by C.Server, C.Name, Signature";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -123,7 +123,7 @@ class Rest_Security
 
         // GET /security/users
         static public function getSecurityUsers() {
-          $query = "SELECT Server, Name, UID, GID, PasswdType as 'Password Type', LastChange as 'Last Change', Description, Home, Shell FROM LocalUser WHERE Auto and End is Null Order by Server, UID";
+          $query = "SELECT C.Server, C.Name, UID, GID, PasswdType as 'Password Type', LastChange as 'Last Change', Description, Home, Shell FROM LocalUser as C, Server as S WHERE C.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is Null Order by C.Server, UID";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -137,7 +137,7 @@ class Rest_Security
 
         // GET /security/waccounts
         static public function getSecurityWAccounts() {
-          $query = "SELECT Server, Domain, Name, SystemAccount as 'System Account', Caption, AccountType as 'Account Type', Disabled, FullName as 'Full Name', LocalAccount as 'Local Account', Lockout, PasswordChangeable as 'Password Changeable', PasswordExpires as 'Password Expires', PasswordRequired as 'Password Required', SID, SIDType as 'SID Type' FROM WinAccount WHERE Auto and End is Null Order by Server, Domain, Name";
+          $query = "SELECT C.Server, C.Domain, C.Name, SystemAccount as 'System Account', Caption, AccountType as 'Account Type', Disabled, FullName as 'Full Name', LocalAccount as 'Local Account', Lockout, PasswordChangeable as 'Password Changeable', PasswordExpires as 'Password Expires', PasswordRequired as 'Password Required', SID, SIDType as 'SID Type' FROM WinAccount as C, Server as S WHERE C.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and C.Auto and C.End is Null Order by C.Server, C.Domain, C.Name";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -151,7 +151,7 @@ class Rest_Security
 
         // GET /security/groups
         static public function getSecurityGroups() {
-          $query = "SELECT Server, Name, GID FROM LocalGroup WHERE Auto and End is Null ORDER BY Server, GID";
+          $query = "SELECT C.Server, C.Name, GID FROM LocalGroup as C, Server as S WHERE C.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is Null ORDER BY C.Server, GID";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -167,7 +167,7 @@ class Rest_Security
 
         // GET /security/wgroups
         static public function getSecurityWGroups() {
-          $query = "SELECT Server, Domain, Name, Caption, LocalAccount as 'Local Account', SID, SIDType as 'SID Type' FROM WinGroup WHERE Auto and End is Null ORDER BY Server, Domain, Name";
+          $query = "SELECT C.Server, C.Domain, C.Name, Caption, LocalAccount as 'Local Account', SID, SIDType as 'SID Type' FROM WinGroup as C, Server as S WHERE C.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and C.Auto and C.End is Null ORDER BY C.Server, C.Domain, C.Name";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -183,7 +183,7 @@ class Rest_Security
 
         // GET /security/sudo
         static public function getSecuritySudo() {
-          $query = "SELECT Server FROM SudoUserSpec WHERE Auto and End is Null GROUP BY Server ORDER BY Server";
+          $query = "SELECT C.Server FROM SudoUserSpec as C, Server as S WHERE C.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is Null GROUP BY C.Server ORDER BY C.Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -207,7 +207,7 @@ class Rest_Security
 
         // GET /security/crontab
         static public function getSecurityCrontab() {
-          $query = "SELECT Server, User, Minute, Hour, Day, Month, DayWeek, Command FROM Crontab WHERE Auto and End is Null Order by Server, Num";
+          $query = "SELECT C.Server, User, Minute, Hour, Day, Month, DayWeek, Command FROM Crontab as C, Server as S WHERE C.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is Null Order by C.Server, Num";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -221,7 +221,7 @@ class Rest_Security
 
         // GET /security/iptables
         static public function getSecurityIPtables() {
-          $query = "SELECT Server, IPTable, Chain, Policy FROM IPTablesPolicy WHERE Auto and End is Null ORDER BY Server, IPTable, Chain";
+          $query = "SELECT C.Server, IPTable, Chain, Policy FROM IPTablesPolicy as C, Server as S WHERE C.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is Null ORDER BY C.Server, IPTable, Chain";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -237,7 +237,7 @@ class Rest_Security
 
         // GET /security/wrappers
         static public function getSecurityWrappers() {
-          $query = "SELECT Server, Type, Service FROM TCPWrappers WHERE Auto and End is Null ORDER BY Server, Type, Service";
+          $query = "SELECT C.Server, Type, Service FROM TCPWrappers as C, Server as S WHERE C.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is Null ORDER BY C.Server, Type, Service";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -253,7 +253,7 @@ class Rest_Security
 
         // GET /security/pamaccess
         static public function getSecurityPAMaccess() {
-          $query = "SELECT Server FROM PAMAccessRule WHERE Auto and End is Null GROUP BY Server ORDER BY Server";
+          $query = "SELECT C.Server FROM PAMAccessRule as C, Server as S WHERE C.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and C.Auto and C.End is Null GROUP BY C.Server ORDER BY C.Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -271,7 +271,7 @@ class Rest_Security
 
         // GET /security/wdrivers
         static public function getSecurityWDrivers() {
-          $query = "SELECT Server, Name, Caption, ErrorControl as 'Error Control', PathName as 'Path Name', ServiceType as 'Service Type', StartMode as 'Start Mode', State, TagId as 'Tag ID' FROM WinDriver WHERE Auto and End is Null Order by Server, Name";
+          $query = "SELECT C.Server, C.Name, Caption, ErrorControl as 'Error Control', PathName as 'Path Name', ServiceType as 'Service Type', StartMode as 'Start Mode', State, TagId as 'Tag ID' FROM WinDriver as C, Server as S WHERE C.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and C.Auto and C.End is Null Order by C.Server, C.Name";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -285,7 +285,7 @@ class Rest_Security
 
         // GET /security/wservices
         static public function getSecurityWServices() {
-          $query = "SELECT Server, Name, Caption, ErrorControl as 'Error Control', PathName as 'Path Name', ProcessId as 'Process ID', StartMode as 'Start Mode', State, TagId as 'Tag ID' FROM WinService WHERE Auto and End is Null Order by Server, Name";
+          $query = "SELECT C.Server, C.Name, Caption, ErrorControl as 'Error Control', PathName as 'Path Name', ProcessId as 'Process ID', StartMode as 'Start Mode', State, TagId as 'Tag ID' FROM WinService as C, Server as S WHERE C.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and C.Auto and C.End is Null Order by C.Server, C.Name";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -299,7 +299,7 @@ class Rest_Security
 
         // GET /security/wshares
         static public function getSecurityWShares() {
-          $query = "SELECT Server, Name, Caption, PathShare as 'Path Share', TypeShare as 'Type Share' FROM WinShare WHERE Auto and End is Null Order by Server, Name";
+          $query = "SELECT C.Server, C.Name, Caption, PathShare as 'Path Share', TypeShare as 'Type Share' FROM WinShare as C, Server as S WHERE C.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and C.Auto and C.End is Null Order by C.Server, C.Name";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -313,7 +313,7 @@ class Rest_Security
 
         // GET /security/openvas
         static public function getSecurityOpenvas() {
-	  $query = "SELECT O.Server, O.IP, StartScan as 'Start Scan', CVSS, Severity, TotalHigh as 'Total High', TotalMedium as 'Total Medium', TotalLow as 'Total Low', TotalLog as 'Total Log', TotalFalsePositive as 'Total False Positive', ReportHTML as 'Report HTML', ReportPDF as 'Report PDF', ReportTXT as 'Report TXT', ReportXML as 'Report XML' FROM OpenvasHost as O, Server as S WHERE O.Server=S.Name and O.Auto and S.Auto and S.End is Null Order by O.Server, O.StartScan desc";
+	  $query = "SELECT C.Server, C.IP, StartScan as 'Start Scan', CVSS, Severity, TotalHigh as 'Total High', TotalMedium as 'Total Medium', TotalLow as 'Total Low', TotalLog as 'Total Log', TotalFalsePositive as 'Total False Positive', ReportHTML as 'Report HTML', ReportPDF as 'Report PDF', ReportTXT as 'Report TXT', ReportXML as 'Report XML' FROM OpenvasHost as C, Server as S WHERE C.Server=S.Name and S.Auto and S.End is Null and C.Auto and C.End is Null Order by C.Server, StartScan desc";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {

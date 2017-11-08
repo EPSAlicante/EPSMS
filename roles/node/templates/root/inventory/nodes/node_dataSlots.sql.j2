@@ -1,14 +1,21 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
 # Generating SQL for Slots of {{ inventory_hostname }}
 
 {% if hostvars[inventory_hostname]["slot"] is defined %}
 
 {% for slot in hostvars[inventory_hostname]["slot"] -%}
 
-CHECK_SLOT_{{ loop.index }}: SELECT * FROM Slot WHERE Server='{{ inventory_hostname }}' AND Handle='{{ slot["Handle"] }}' AND Designation='{{ slot["Designation"] }}' AND SlotType='{{ slot["Type SlotType"] }}' AND SlotBusWidth='{{ slot["Type SlotBusWidth"] }}' AND CurrentUsage='{{ slot["Current Usage"] }}' AND SlotLength='{{ slot["SlotLength"] }}' AND SlotId='{{ slot["SlotId"] }}' AND Auto AND End IS NULL;
+CHECK_SLOT_{{ loop.index }}: SELECT * FROM Slot WHERE Server='{{ inventory_hostname }}' AND Handle='{{ slot["Handle"] }}' AND Designation='{{ slot["Designation"]|default("") }}' AND SlotType='{{ slot["Type SlotType"]|default("") }}' AND SlotBusWidth='{{ slot["Type SlotBusWidth"]|default("") }}' AND CurrentUsage='{{ slot["Current Usage"]|default("") }}' AND SlotLength='{{ slot["SlotLength"]|default("") }}' AND SlotId='{{ slot["SlotId"]|default("") }}' AND Auto AND End IS NULL;
 
-UPDATE_SLOT_{{ loop.index }}: UPDATE Slot SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ slot["Handle"] }}' AND Designation='{{ slot["Designation"] }}' AND SlotType='{{ slot["Type SlotType"] }}' AND SlotBusWidth='{{ slot["Type SlotBusWidth"] }}' AND CurrentUsage='{{ slot["Current Usage"] }}' AND SlotLength='{{ slot["SlotLength"] }}' AND SlotId='{{ slot["SlotId"] }}' AND Auto AND End IS NULL; 
+UPDATE_SLOT_{{ loop.index }}: UPDATE Slot SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ slot["Handle"] }}' AND Designation='{{ slot["Designation"]|default("") }}' AND SlotType='{{ slot["Type SlotType"]|default("") }}' AND SlotBusWidth='{{ slot["Type SlotBusWidth"]|default("") }}' AND CurrentUsage='{{ slot["Current Usage"]|default("") }}' AND SlotLength='{{ slot["SlotLength"]|default("") }}' AND SlotId='{{ slot["SlotId"]|default("") }}' AND Auto AND End IS NULL; 
 
-INSERT_SLOT_{{ loop.index }}: INSERT INTO Slot (Handle,Server,Designation,SlotType,SlotBusWidth,CurrentUsage,SlotLength,SlotId,Init,Checked,Auto) VALUES ('{{ slot["Handle"] }}','{{ inventory_hostname }}', '{{ slot["Designation"] }}', '{{ slot["Type SlotType"] }}', '{{ slot["Type SlotBusWidth"] }}', '{{ slot["Current Usage"] }}', '{{ slot["SlotLength"] }}', '{{ slot["SlotId"] }}', NOW(), NOW(), 1);
+INSERT_SLOT_{{ loop.index }}: INSERT INTO Slot (Handle,Server,Designation,SlotType,SlotBusWidth,CurrentUsage,SlotLength,SlotId,Init,Checked,Auto) VALUES ('{{ slot["Handle"] }}','{{ inventory_hostname }}', '{{ slot["Designation"]|default("") }}', '{{ slot["Type SlotType"]|default("") }}', '{{ slot["Type SlotBusWidth"]|default("") }}', '{{ slot["Current Usage"]|default("") }}', '{{ slot["SlotLength"]|default("") }}', '{{ slot["SlotId"]|default("") }}', NOW(), NOW(), 1);
 
 {% endfor %}
 

@@ -1,18 +1,25 @@
-[[ Servers | Back to Servers page]]
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+[[ Servers | Back to Main page]]
 
 
 ==== INVENTORY (WINDOWS NODES) ====
 
 {% for group in network|groupby('type') -%}
-{% if group.grouper == "winNode" -%}
-^  WINDOWS NODES ({{ group.list|count }} servers)  ^
-<sortable 1 1=alpha 2=alpha 3=nosort 4=alpha 5=alpha 6=nosort 7=nosort 8=nosort>
-^  Server  ^  IP  ^  Type  ^  Live since  ^  Vulnerability (Last Scan)  ^  Nagios  ^  Munin  ^  Notes  ^
-{% for host in group.list -%}
-| [[{{ "%s" % host.name if host.type=="node" else "%s-portsext" % host.name }} | {{ host.name }}]] | {{ host.IP }} |  {{ host.type }}  |  [[ {{ "%s-hostslast" % host.name }} |  {% for i in hostvars[inventory_hostname]["%s-last" % (host.name)] -%}{% if loop.first -%}{{ i.Date }}{% endif -%}{% endfor -%} ]]  |  {% for i in hostvars[inventory_hostname]["%s-openvas" % (host.name)] -%}{% if loop.first -%}{{ "  [[ %s-openvas | %s (%s) %s ]]  " % (host.name, i.Severity, i.CVSS, i.Date) }}{% endif -%}{% endfor -%}  |  [[ https://{{ hostnameNagios }}/nagios/cgi-bin/status.cgi?host={{ host.name }} | View ]]  |  {% for m in muninName.results -%}{% if m.stdout|lower==host.name|lower -%}[[ https://{{ hostnameMunin }}/munin-cgi/munin-cgi-html/{{ ansible_domain }}/{{ m.stdout }}/index.html | View ]]{% endif -%}{% endfor -%}  |  [[{{ host.name }}-notes | + ]]  |
+{% if group[0] == "winNode" -%}
+^  WINDOWS NODES ({{ group[1]|count }} hosts)  ^
+<sortable 1 1=alpha 2=alpha 3=nosort 4=alpha 5=alpha 6=nosort 7=nosort 8=nosort 9=nosort>
+^  Host  ^  IP  ^  Type  ^  Live since  ^  Vulnerability (Last Scan)  ^  Nagios  ^  Munin  ^  Grafana  ^  Notes  ^
+{% for host in group[1] -%}
+| [[{{ "%s" % host.name if host.type=="node" else "%s-portsext" % host.name }} | {{ host.name }}]] | {{ host.IP }} |  {{ host.type }}  |  [[ {{ "%s-hostslast" % host.name }} |  {% for i in hostvars[inventory_hostname]["%s-last" % (host.name)] -%}{% if loop.first -%}{{ i.Date }}{% endif -%}{% endfor -%} ]]  |  {% for i in hostvars[inventory_hostname]["%s-openvas" % (host.name)] -%}{% if loop.first -%}{{ "  [[ %s-openvas | %s (%s) %s ]]  " % (host.name, i.Severity, i.CVSS, i.Date) }}{% endif -%}{% endfor -%}  |  [[ https://{{ hostnameNagios }}/nagios/cgi-bin/status.cgi?host={{ host.name }} | View ]]  |  {% for m in muninName.results -%}{% if m.stdout|lower==host.name|lower -%}[[ https://{{ hostnameMunin }}/munin-cgi/munin-cgi-html/{{ "%s" % host.domain if host.domain !="" else ansible_domain }}/{{ m.stdout }}/index.html | View ]]{% endif -%}{% endfor -%}  |  {% for g in grafanaName.results -%}{% if g.stdout|lower==host.name|lower -%}[[ https://{{ hostnameWeb }}/grafana/dashboard/db/eps-ms-{{ host.name|replace(".","-") }} | View ]]{% endif -%}{% endfor -%}  |  [[{{ host.name }}-notes | + ]]  |
 {% endfor %}
 </sortable>
 {% endif %}
 {% endfor %}
 
-[[ Servers | Back to Servers page]]
+[[ Servers | Back to Main page]]

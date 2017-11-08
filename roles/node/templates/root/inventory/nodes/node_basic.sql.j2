@@ -1,8 +1,15 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
 # Generating SQL for Node {{ inventory_hostname }}
 
-CHECK_NODE: SELECT Name FROM Server WHERE Name='{{ inventory_hostname }}' AND IP='{{ hostvars[inventory_hostname]["nodeIP"][0]["IP"] }}' AND Node=1 AND Auto AND End IS NULL ORDER BY Init LIMIT 1; 
+CHECK_NODE: SELECT Name FROM Server WHERE Name='{{ inventory_hostname }}' AND IP='{{ hostvars[inventory_hostname]["nodeIP"][0]["IP"] }}' AND Auto AND End IS NULL ORDER BY Init LIMIT 1; 
 
-UPDATE_NODE: UPDATE Server SET Checked=NOW() WHERE Name='{{ inventory_hostname }}' AND IP='{{ hostvars[inventory_hostname]["nodeIP"][0]["IP"] }}' AND Node=1 AND Auto AND End IS NULL ORDER BY Init LIMIT 1;
+UPDATE_NODE: UPDATE Server SET Checked=NOW() WHERE Name='{{ inventory_hostname }}' AND IP='{{ hostvars[inventory_hostname]["nodeIP"][0]["IP"] }}' AND Auto AND End IS NULL ORDER BY Init LIMIT 1;
 
-INSERT_NODE: INSERT INTO Server (Name, IP, ShortName, Domain, Init, Checked, Node, Auto) VALUES ('{{ inventory_hostname }}', '{{ hostvars[inventory_hostname]["nodeIP"][0]["IP"] }}', '{{ hostvars[inventory_hostname]["ansible_hostname"] }}', '{{ hostvars[inventory_hostname]["ansible_domain"] }}', NOW(), NOW(), 1, 1); 
+INSERT_NODE: INSERT INTO Server (Name, IP, ShortName, Domain, Init, Checked, Node, Auto) VALUES ('{{ inventory_hostname }}', '{{ hostvars[inventory_hostname]["nodeIP"][0]["IP"] }}', '{{ inventory_hostname_short }}', '{{ hostvars[inventory_hostname]["ansible_domain"] }}', NOW(), NOW(), 1, 1); 
 

@@ -1,17 +1,24 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
 [[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
 
 
-==== Server {{ inventory_hostname }}: Slots ====
+==== Host {{ inventory_hostname }}: Slots ====
 
 {% if hostvars[inventory_hostname]["slot"] is defined -%}
 {% for slot in hostvars[inventory_hostname]["slot"]|sort -%}
-^  {{ slot["Designation"] }}  ^^ 
+^  {{ slot["Designation"]|default("") }}  ^^ 
 ^ Handle | {{ slot["Handle"] }} |
-^ Designation | {{ slot["Designation"] }} |
-^ Type SlotType | {{ slot["Type SlotType"] }} |
-^ Type SlotBusWidth | {{ slot["Type SlotBusWidth"] }} |
-^ Current Usage | {{ slot["Current Usage"] }} |
-^ SlotId | {{ slot["SlotId"] }} |
+^ Designation | {{ slot["Designation"]|default("") }} |
+^ Type SlotType | {{ slot["Type SlotType"]|default("") }} |
+^ Type SlotBusWidth | {{ slot["Type SlotBusWidth"]|default("") }} |
+^ Current Usage | {{ slot["Current Usage"]|default("") }} |
+^ SlotId | {{ slot["SlotId"]|default("") }} |
 
 {% endfor %}
 {% endif %}

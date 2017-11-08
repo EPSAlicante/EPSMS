@@ -1,4 +1,10 @@
 #!/usr/bin/python
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
 
 import subprocess
 import sys
@@ -9,6 +15,7 @@ import readline
 # Configuration Files
 pathAnsible = "/etc/ansible"
 pathConfig = "%s/group_vars/all" % (pathAnsible)
+pathConfigFileMain = "%s/config_files/main.conf" % (pathAnsible)
 pathDirectoryErrors = "/var/log/ansible"
 pathFileErrors = "%s/errors.log" % (pathDirectoryErrors)
 pathFileMysqlErrors = "%s/mysql-errors.log" % (pathDirectoryErrors)
@@ -73,12 +80,17 @@ def getValueFromFile(file, label, separator):
 
 def printMenu():
 
-    print "################ CONTROL MENU ###################"
+    subnets = getValueFromFile(pathConfigFileMain, 'subnets:', ':')
+
+    print "############ EPS MONITORING SYSTEM ##############"
     print "##                                             ##"
     print "##  0. Help                                    ##"
-    print "##  1. (Re)Configure System                    ##"
+    if subnets:
+      print "##  1. Reconfigure System                      ##"
+    else:
+      print "##  1. Configure System                        ##"
     print "##  2. Configure Extra Variables               ##"
-    print "##  3. Add Node(s)                             ##"
+    print "##  3. Prepare Host(s) to be Node(s)           ##"
     print "##  4. Stop/Start/Restart System               ##"
     print "##  5. Scan Network                            ##"
     print "##  6. Install Node(s)                         ##"
@@ -135,6 +147,17 @@ def execOption(opt):
 	print
 	sshUserNodes = raw_input('System not configured yet. What user will you use? ')
       if sshUserNodes: 
+	# Get subnets
+	subnets = getValueFromFile(pathConfigFileMain, 'subnets:', ':')
+	exclude = getValueFromFile(pathConfigFileMain, 'exclude:', ':')
+	print
+	print "** Prepare hosts as nodes **"
+        print
+	print "Remember that host has to belong to 'working subnets' and musn't belong to 'exclude' (both defined at configuration)"
+	print
+	print "Working Subnets: %s" % (subnets)
+	print
+	print "Exclude: %s" % (exclude)
         # Repeat loop until user decide to finish ('again' variable)
         again = "y"
 	# This variable will be 0 if any of configurations is OK 
@@ -165,7 +188,8 @@ def execOption(opt):
 	# If any of configurations was OK then will refresh inventory scanning subnets 
         if retCodeTotal == 0 and systemConfigured == "yes":
           print "Scanning subnet to add host to inventory..."
-          retCode = subprocess.call("ansible-playbook %s/outsiders.yml -t dataDB; ansible-playbook %s/nodes.yml -t install" % (pathAnsible,pathAnsible), shell=True)
+          #retCode = subprocess.call("ansible-playbook %s/outsiders.yml -t dataDB; ansible-playbook %s/nodes.yml -t install" % (pathAnsible,pathAnsible), shell=True)
+	  retCode = subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); (ansible-playbook %s/outsiders.yml -t dataDB; ansible-playbook %s/nodes.yml -t install) 2>&1|tee /var/log/ansible/.addNodes.$timestamp.log.tmp; ret=${PIPESTATUS[0]}; [ $ret -gt 0 ] && ((echo; echo \"### ERRORS Add Nodes (menu) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.addNodes.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.addNodes.$timestamp.log.tmp; echo \"### Add Nodes (menu) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log; echo $ret" % (pathAnsible,pathAnsible), shell=True)
           print
 	  
       else:
@@ -178,6 +202,7 @@ def execOption(opt):
       sshUserNodes = getValueFromFile(pathConfig, 'sshUserNodes:', ':')      
       if sshUserNodes:
         try:
+          print
           operation = raw_input('Operation (stop, start or restart): ')
 
           if operation == "stop":
@@ -185,19 +210,22 @@ def execOption(opt):
             print
             print "ansible-playbook %s/ansible.yml -t cronStop" % (pathAnsible)
             print
-            retCode = subprocess.call("ansible-playbook %s/ansible.yml -t cronStop" % (pathAnsible), shell=True)
+            #retCode = subprocess.call("ansible-playbook %s/ansible.yml -t cronStop" % (pathAnsible), shell=True)
+	    retCode = subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/ansible.yml -t cronStop 2>&1|tee /var/log/ansible/.ansible.$timestamp.log.tmp; ret=${PIPESTATUS[0]}; [ $ret -gt 0 ] && ((echo; echo \"### ERRORS System Stop (menu) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.ansible.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.ansible.$timestamp.log.tmp; echo \"### System Stop (menu) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log; echo $ret" % (pathAnsible), shell=True)
           elif operation == "start":
             # Start System
             print
             print "ansible-playbook %s/ansible.yml -t cronStart" % (pathAnsible)
             print
-            retCode = subprocess.call("ansible-playbook %s/ansible.yml -t cronStart" % (pathAnsible), shell=True)
+            #retCode = subprocess.call("ansible-playbook %s/ansible.yml -t cronStart" % (pathAnsible), shell=True)
+	    retCode = subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/ansible.yml -t cronStart 2>&1|tee /var/log/ansible/.ansible.$timestamp.log.tmp; ret=${PIPESTATUS[0]}; [ $ret -gt 0 ] && ((echo; echo \"### ERRORS System Start (menu) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.ansible.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.ansible.$timestamp.log.tmp; echo \"### System Start (menu) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log; echo $ret" % (pathAnsible), shell=True)
           elif operation == "restart":
             # Start System
             print
             print "ansible-playbook %s/ansible.yml -t cronStop && ansible-playbook %s/ansible.yml -t cronStart" % (pathAnsible,pathAnsible)
             print
-            retCode = subprocess.call("ansible-playbook %s/ansible.yml -t cronStop && ansible-playbook %s/ansible.yml -t cronStart" % (pathAnsible,pathAnsible), shell=True)
+            #retCode = subprocess.call("ansible-playbook %s/ansible.yml -t cronStop && ansible-playbook %s/ansible.yml -t cronStart" % (pathAnsible,pathAnsible), shell=True)
+	    retCode = subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); (ansible-playbook %s/ansible.yml -t cronStop && ansible-playbook %s/ansible.yml -t cronStart) 2>&1|tee /var/log/ansible/.ansible.$timestamp.log.tmp; ret=${PIPESTATUS[0]}; ret=${PIPESTATUS[0]}; [ $ret -gt 0 ] && ((echo; echo \"### ERRORS System Restart (menu) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.ansible.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.ansible.$timestamp.log.tmp; echo \"### System Restart (menu) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log; echo $ret" % (pathAnsible,pathAnsible), shell=True)
 
           else:
             print >> sys.stderr
@@ -221,7 +249,8 @@ def execOption(opt):
       if sshUserNodes:
         print
         print "ansible-playbook %s/outsiders.yml -t dataDB" % (pathAnsible) 
-	retCode = subprocess.call("ansible-playbook %s/outsiders.yml -t dataDB" % (pathAnsible), shell=True)
+	#retCode = subprocess.call("ansible-playbook %s/outsiders.yml -t dataDB" % (pathAnsible), shell=True)
+	retCode = subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/outsiders.yml -t dataDB 2>&1|tee /var/log/ansible/.outsiders.$timestamp.log.tmp; ret=${PIPESTATUS[0]}; [ $ret -gt 0 ] && ((echo; echo \"### ERRORS Scan Network (menu) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.outsiders.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.outsiders.$timestamp.log.tmp; echo \"### Scan Network (menu) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log; echo $ret" % (pathAnsible), shell=True)
       else:
         print >> sys.stderr, "System not configured, select option 1"
         print >> sys.stderr
@@ -237,11 +266,12 @@ def execOption(opt):
           nodeName = raw_input('Node (hostname) or All (enter): ').lower()
 
           if nodeName:
-            nodeInventory = subprocess.Popen("(cat %s/nodes|grep -e '^%s$' -e '^%s\\.'|head -1) 2>/dev/null" % (pathInventory,nodeName,nodeName), shell=True, stdout=subprocess.PIPE).stdout.read()
+            nodeInventory = subprocess.Popen("(cat %s/nodes|grep -e '^%s$' -e '^%s\\.'|head -1) 2>/dev/null" % (pathInventory,nodeName,nodeName), shell=True, stdout=subprocess.PIPE).stdout.read().strip()
             if nodeInventory != "":
               print
               print "ansible-playbook %s/nodes.yml -t install --limit %s" % (pathAnsible,nodeInventory)
-              retCode = subprocess.call("ansible-playbook %s/nodes.yml -t install --limit %s" % (pathAnsible,nodeInventory), shell=True)
+              #retCode = subprocess.call("ansible-playbook %s/nodes.yml -t install --limit %s" % (pathAnsible,nodeInventory), shell=True)
+	      retCode = subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/nodes.yml -t install --limit %s 2>&1|tee /var/log/ansible/.nodesInstall.$timestamp.log.tmp; ret=${PIPESTATUS[0]}; [ $ret -gt 0 ] && ((echo; echo \"### ERRORS Install Node %s (menu) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.nodesInstall.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.nodesInstall.$timestamp.log.tmp; echo \"### Install Node %s (menu) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log; echo $ret" % (pathAnsible,nodeInventory,nodeInventory,nodeInventory), shell=True)
             else:
               print >> sys.stderr
               print >> sys.stderr, "Hostname %s is not a node" % (nodeName)
@@ -250,7 +280,8 @@ def execOption(opt):
           else:
             print
             print "ansible-playbook %s/nodes.yml -t install" % (pathAnsible)
-            retCode = subprocess.call("ansible-playbook %s/nodes.yml -t install" % (pathAnsible), shell=True)
+            #retCode = subprocess.call("ansible-playbook %s/nodes.yml -t install" % (pathAnsible), shell=True)
+	    retCode = subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/nodes.yml -t install 2>&1|tee /var/log/ansible/.nodesInstall.$timestamp.log.tmp; ret=${PIPESTATUS[0]}; [ $ret -gt 0 ] && ((echo; echo \"### ERRORS Install Nodes (menu) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.nodesInstall.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.nodesInstall.$timestamp.log.tmp; echo \"### Install Nodes (menu) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log; echo $ret" % (pathAnsible), shell=True)
 
         except KeyboardInterrupt:
           nodeName = ""
@@ -277,7 +308,7 @@ def execOption(opt):
         elif typeList == 'e':
           paramData = '-t dataExesDB'
         elif typeList == 'a':
-          paramData = ''
+          paramData = '-t data'
         else:
           # By default 'all'
           paramData = ''
@@ -288,11 +319,12 @@ def execOption(opt):
           nodeName = raw_input('Node (hostname) or All (enter): ').lower()
 
           if nodeName:
-	    nodeInventory = subprocess.Popen("(cat %s/nodes|grep -e '^%s$' -e '^%s\\.'|head -1) 2>/dev/null" % (pathInventory,nodeName,nodeName), shell=True, stdout=subprocess.PIPE).stdout.read()
+	    nodeInventory = subprocess.Popen("(cat %s/nodes|grep -e '^%s$' -e '^%s\\.'|head -1) 2>/dev/null" % (pathInventory,nodeName,nodeName), shell=True, stdout=subprocess.PIPE).stdout.read().strip()
  	    if nodeInventory != "": 
               print
               print "ansible-playbook %s/nodes.yml %s --limit %s" % (pathAnsible,paramData,nodeInventory)
-	      retCode = subprocess.call("ansible-playbook %s/nodes.yml %s --limit %s" % (pathAnsible,paramData,nodeInventory), shell=True)
+	      #retCode = subprocess.call("ansible-playbook %s/nodes.yml %s --limit %s" % (pathAnsible,paramData,nodeInventory), shell=True)
+	      retCode = subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/nodes.yml %s --limit %s 2>&1|tee /var/log/ansible/.nodesData.$timestamp.log.tmp; ret=${PIPESTATUS[0]}; [ $ret -gt 0 ] && ((echo; echo \"### ERRORS %s Data from Node %s (menu) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.nodesData.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.nodesData.$timestamp.log.tmp; echo \"### %s Data from Node %s (menu) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log; echo $ret" % (pathAnsible,paramData,nodeInventory,"Basic" if typeList == "b" else "Packages" if typeList == "p" else "Exes" if typeList == "e" else "All",nodeInventory,"Basic" if typeList == "b" else "Packages" if typeList == "p" else "Exes" if typeList == "e" else "All",nodeInventory), shell=True)
 	    else:
 	      print >> sys.stderr
               print >> sys.stderr, "Hostname %s is not a node" % (nodeName)
@@ -301,7 +333,8 @@ def execOption(opt):
           else:
             print
             print "ansible-playbook %s/nodes.yml %s" % (pathAnsible,paramData)
-	    retCode = subprocess.call("ansible-playbook %s/nodes.yml %s" % (pathAnsible,paramData), shell=True) 
+	    #retCode = subprocess.call("ansible-playbook %s/nodes.yml %s" % (pathAnsible,paramData), shell=True) 
+	    retCode = subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/nodes.yml %s 2>&1|tee /var/log/ansible/.nodesData.$timestamp.log.tmp; ret=${PIPESTATUS[0]}; [ $ret -gt 0 ] && ((echo; echo \"### ERRORS %s Data from Nodes (menu) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.nodesData.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.nodesData.$timestamp.log.tmp; echo \"### %s Data from Nodes (menu) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log; echo $ret" % (pathAnsible,paramData,"Basic" if typeList == "b" else "Packages" if typeList == "p" else "Exes" if typeList == "e" else "All","Basic" if typeList == "b" else "Packages" if typeList == "p" else "Exes" if typeList == "e" else "All"), shell=True)
 
         except KeyboardInterrupt:
           nodeName = ""
@@ -357,12 +390,14 @@ def execOption(opt):
 	      cadList = cadList.replace(',', '\"},{\"Name\":\"')
               print
               print "ansible-playbook %s/openvas.yml -t dataDB --extra-vars '{\"serversList\":[%s]}'" % (pathAnsible,cadList)
-              retCode = subprocess.call("ansible-playbook %s/openvas.yml -t dataDB --extra-vars '{\"serversList\":[%s]}'" % (pathAnsible,cadList), shell=True)
+              #retCode = subprocess.call("ansible-playbook %s/openvas.yml -t dataDB --extra-vars '{\"serversList\":[%s]}'" % (pathAnsible,cadList), shell=True)
+	      retCode = subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/openvas.yml -t dataDB --extra-vars '{\"serversList\":[%s]}' 2>&1|tee /var/log/ansible/.openvas.$timestamp.log.tmp; ret=${PIPESTATUS[0]}; [ $ret -gt 0 ] && ((echo; echo \"### ERRORS Checking Vulnerabilities List (menu) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.openvas.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.openvas.$timestamp.log.tmp; echo \"### Checking Vulnerabilities List (menu) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log; echo $ret" % (pathAnsible,cadList), shell=True)
 
           else:
             print
             print "ansible-playbook %s/openvas.yml -t dataDB" % (pathAnsible)
-            retCode = subprocess.call("ansible-playbook %s/openvas.yml -t dataDB" % (pathAnsible), shell=True)
+            #retCode = subprocess.call("ansible-playbook %s/openvas.yml -t dataDB" % (pathAnsible), shell=True)
+	    retCode = subprocess.call("ini=$(date); timestamp=$(date +\"%%y%%m%%d-%%H%%M\"); ansible-playbook %s/openvas.yml -t dataDB 2>&1|tee /var/log/ansible/.openvas.$timestamp.log.tmp; ret=${PIPESTATUS[0]}; [ $ret -gt 0 ] && ((echo; echo \"### ERRORS Checking Vulnerabilities All (menu) - $ini TO $(date) ###\"; echo; cat /var/log/ansible/.openvas.$timestamp.log.tmp) >> /var/log/ansible/errors.log); rm -f /var/log/ansible/.openvas.$timestamp.log.tmp; echo \"### Checking Vulnerabilities All (menu) - $ini TO $(date) ###\" >> /var/log/ansible/summary.log; echo $ret" % (pathAnsible), shell=True)
 
         except KeyboardInterrupt:
           nodeName = ""
@@ -384,11 +419,11 @@ def execOption(opt):
           print
           typeList = raw_input('There are errors. View summary or details (s/d): ')
 	  if typeList == 's':
-	    #retCode = subprocess.call("less %s|grep '###'" % (pathFileErrors), shell=True)
-	    retCode = subprocess.call("grep -h -e '### ' -e '^fatal: ' -e '^failed: ' %s|sed '/### /{x;p;x;G;}'|sed '/^fatal:/G'|sed '/^failed:/G'|less" % (pathFileErrors), shell=True)
+	    #retCode = subprocess.call("less -R %s|grep '###'" % (pathFileErrors), shell=True)
+	    retCode = subprocess.call("grep -h -e '### ' -e 'fatal: ' -e 'failed: ' %s|sed '/### /{x;p;x;G;}'|sed '/fatal:/G'|sed '/failed:/G'|less -R" % (pathFileErrors), shell=True)
 	    print
 	  elif typeList == 'd':
-            retCode = subprocess.call("less %s" % (pathFileErrors), shell=True)
+            retCode = subprocess.call("less -R %s" % (pathFileErrors), shell=True)
 	    print
 	  else:
 	    print >> sys.stderr, "Error: available options 's' (summary) or 'd' (details)"
@@ -420,10 +455,10 @@ def execOption(opt):
             print
             typeList = raw_input('There are errors. View summary or details (s/d): ')
             if typeList == 's':
-              retCode = subprocess.call("ansible all -i %s, -u %s -s -m shell -a 'sudo cat %s'|grep '###'|less" % (hostMysql,sshUserNodes,pathFileMysqlErrors), shell=True)
+              retCode = subprocess.call("ansible all -i %s, -u %s -s -m shell -a 'sudo cat %s'|grep '###'|less -R" % (hostMysql,sshUserNodes,pathFileMysqlErrors), shell=True)
               print
             elif typeList == 'd':
-              retCode = subprocess.call("ansible all -i %s, -u %s -s -m shell -a 'sudo cat %s'|less" % (hostMysql,sshUserNodes,pathFileMysqlErrors), shell=True)
+              retCode = subprocess.call("ansible all -i %s, -u %s -s -m shell -a 'sudo cat %s'|less -R" % (hostMysql,sshUserNodes,pathFileMysqlErrors), shell=True)
               print
             else:
               print >> sys.stderr, "Error: available options 's' (summary) or 'd' (details)"
@@ -499,8 +534,8 @@ def execOption(opt):
       sshUserNodes = getValueFromFile(pathConfig, 'sshUserNodes:', ':')
       if sshUserNodes:
         ## List of servers & nodes ##
-        if os.access("%s/ansible" % (pathInventory), os.R_OK) and os.access("%s/mysql" % (pathInventory), os.R_OK) and os.access("%s/web" % (pathInventory), os.R_OK) and os.access("%s/nagios" % (pathInventory), os.R_OK) and os.access("%s/munin" % (pathInventory), os.R_OK) and os.access("%s/openvas" % (pathInventory), os.R_OK) and os.access("%s/nodes" % (pathInventory), os.R_OK) and os.access("%s/winNodes" % (pathInventory), os.R_OK) and os.access("%s/outsiders" % (pathInventory), os.R_OK):
-          retCode = subprocess.call("cat %(path)s/ansible %(path)s/mysql %(path)s/web %(path)s/nagios %(path)s/munin %(path)s/openvas %(path)s/nodes %(path)s/winNodes %(path)s/outsiders | less" % { 'path': pathInventory }, shell=True)
+        if os.access("%s/ansible" % (pathInventory), os.R_OK) and os.access("%s/mysql" % (pathInventory), os.R_OK) and os.access("%s/web" % (pathInventory), os.R_OK) and os.access("%s/nagios" % (pathInventory), os.R_OK) and os.access("%s/munin" % (pathInventory), os.R_OK) and os.access("%s/grafana" % (pathInventory), os.R_OK) and os.access("%s/openvas" % (pathInventory), os.R_OK) and os.access("%s/nodes" % (pathInventory), os.R_OK) and os.access("%s/winNodes" % (pathInventory), os.R_OK) and os.access("%s/outsiders" % (pathInventory), os.R_OK):
+          retCode = subprocess.call("cat %(path)s/ansible %(path)s/mysql %(path)s/web %(path)s/nagios %(path)s/munin %(path)s/grafana %(path)s/openvas %(path)s/nodes %(path)s/winNodes %(path)s/outsiders | less -R" % { 'path': pathInventory }, shell=True)
           print
         else:
           print >> sys.stderr, "System not configured, select option 1"
@@ -515,7 +550,7 @@ def execOption(opt):
       if sshUserNodes:
         ## View system configuration (variables) ##
         if os.access(pathConfig, os.R_OK):
-          retCode = subprocess.call("less %s" % (pathConfig), shell=True)
+          retCode = subprocess.call("less -R %s" % (pathConfig), shell=True)
           print
         else:
           print >> sys.stderr, "System not configured, select option 1"
@@ -530,7 +565,7 @@ def execOption(opt):
       if os.path.isdir(pathDirectoryErrors):
         # Check errors file
         if os.access(pathFileExesList, os.R_OK):
-          retCode = subprocess.call("less %s" % (pathFileExesList), shell=True)
+          retCode = subprocess.call("(tac %s|sed 's/^###/-------------------------------------------------------------------------------------\\n/g'|sed 's/###$//g'|less -R) 2>/dev/null" % (pathFileExesList), shell=True)
           print
         else:
           print
@@ -546,7 +581,7 @@ def execOption(opt):
       # Get sshUserNodes value
       sshUserNodes = getValueFromFile(pathConfig, 'sshUserNodes:', ':')
       if sshUserNodes:
-        totalExes = int(subprocess.Popen("(ls -la %s/.*.tmp|awk '{print $6,$7,$8,$5,substr($9,length(\"%s\")+2)}'|wc -l) 2> /dev/null" % (pathDirectoryErrors,pathDirectoryErrors), shell=True, stdout=subprocess.PIPE).stdout.read())
+        totalExes = int(subprocess.Popen("(ls -la %s/.*.tmp|awk '{print $6,$7,$8,$5,substr($9,length(\"%s\")+2)}'|wc -l) 2> /dev/null" % (pathDirectoryErrors,pathDirectoryErrors), shell=True, stdout=subprocess.PIPE).stdout.read().strip())
 	if totalExes > 0:
           # List running executions
 	  print
@@ -587,7 +622,7 @@ def execOption(opt):
 	# Selecting Log File
 	if numberExe != "":
           try:
-            retCode = subprocess.call("echo; echo '%s LOGS'; echo; grep '^TASK ' %s/%s; echo; tail -f %s/%s" % (exes[int(numberExe)],pathDirectoryErrors,exes[int(numberExe)],pathDirectoryErrors,exes[int(numberExe)]), shell=True)
+            retCode = subprocess.call("echo; echo '%s LOGS'; echo; grep '^TASK ' %s/%s; echo; tail -f -n 25 %s/%s" % (exes[int(numberExe)],pathDirectoryErrors,exes[int(numberExe)],pathDirectoryErrors,exes[int(numberExe)]), shell=True)
           except KeyboardInterrupt:
             print
 	else:
@@ -602,7 +637,7 @@ def execOption(opt):
     else:
       print "Option %s not valid" % (opt)
 
-    raw_input("Press Enter to show Control Menu ") 
+    raw_input("Press Enter to show Main Menu ") 
 
 
 

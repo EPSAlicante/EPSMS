@@ -1,4 +1,11 @@
 ---
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
 # Apache Server Installation 
 
 - name: Be sure apache is installed (yum)
@@ -6,19 +13,3 @@
   with_items: "{{ packageApache }}"
   when: ansible_pkg_mgr == "yum"
 
-#- name: Be sure apache is installed (apt)
-#  apt: pkg={{ item }} state=installed update_cache=yes force=yes
-#  with_items: "{{ packageApache }}"
-#  when: ansible_pkg_mgr == "apt"
-
-#- name: Install package python-pycurl, needed to add repository (apt)
-#  apt: pkg=python-pycurl state=installed update_cache=yes force=yes
-#  when: ansible_pkg_mgr == "apt"
-
-#- name: Add Backports repository (needed to install python-passlib) (apt)
-#  apt_repository: repo='deb http://backports.debian.org/debian-backports squeeze-backports main' state=present
-#  when: ansible_pkg_mgr == "apt"
-
-#- name: Be sure python-passlib is installed (apt)
-#  apt: pkg=python-passlib default_release=squeeze-backports state=installed update_cache=yes force=yes
-#  when: ansible_pkg_mgr == "apt"

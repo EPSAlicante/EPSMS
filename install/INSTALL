@@ -14,22 +14,45 @@ Files:
 
 Prerequisites:
 
- - Linux CentOS 6
+ - Linux CentOS 6 (64 bits)
 
- - Python 2.6 or higuer (not python 3.X)
+ - Python 2.6 or higher (not python 3.X)
 
- - EPEL repository
+ - Environment variable LANG to UTF-8 ('/etc/sysconfig/i18n' file in CentOS)
+
+ - EPEL repository enabled. If you are a beginner of CentOS distribution, these are the steps to use EPEL repository in your CentOS 6:
+
+        * Check if EPEL repository is installed
+
+          yum repolist
+
+        * Install EPEL repository
+
+          yum install epel-release
+
+        * If you have problems with GPG key, manually download 
+
+          cd /etc/pki/rpm-gpg
+          wget https://fedoraproject.org/static/0608B895.txt
+          mv 0608B895.txt RPM-GPG-KEY-EPEL-6
+          rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6
+	
+	* Set 'enabled=1' in epel repository file in '/etc/yum.repos.d/'
 
 
 Installation:
 
  - Execute install.py. 
 
- - Operating System and python version will be checked. 
+ - Operating System, architecture, python version, LANG environment variable and EPEL repository will be checked. 
 
- - If everything is OK 'ansible' software and dependencies will be installed.
+ - System will be updated before starting ansible installation
 
- - If 'ansible' installation is OK, '/etc/ansible' directory will be renamed to '/etc/ansible-datetime' and a new '/etc/ansible' directory will be created.
+ - After updating, tested ansible version and dependencies will be installed
+
+ - If installation is succesfull, ansible package will be excluded from /etc/yum.conf to avoid updates, maintaining tested version
+
+ - '/etc/ansible' directory will be renamed to '/etc/ansible-datetime' and a new '/etc/ansible' directory will be created.
 
  - Finally 'ansible.tgz' file will be unzipped to '/etc/ansible'
  

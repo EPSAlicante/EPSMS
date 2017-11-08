@@ -1,18 +1,16 @@
 ---
-# Instalación del servidor Munin 
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
 
-#- name: Install package python-pycurl, needed to add repository (apt)
-#  apt: pkg=python-pycurl state=installed update_cache=yes force=yes
-#  when: ansible_pkg_mgr == "apt"
-  
-#- name: Add Backports repository (needed to install Munin 2.X) (apt)
-#  apt_repository: repo='deb http://backports.debian.org/debian-backports squeeze-backports main' state=present
-#  when: ansible_pkg_mgr == "apt"
+
+# Munin Server installation 
 
 - name: Be sure munin is installed (yum)
-  yum: pkg=munin enablerepo={{ labelEpel }} state=installed
+  yum: pkg={{ item }} enablerepo={{ labelEpel }} state=installed
+  with_items: "{{ packageMunin }}"
+  register: instMunin
   when: ansible_pkg_mgr == "yum"
 
-#- name: Be sure munin is installed from backports (apt)
-#  apt: pkg=munin default_release=squeeze-backports state=installed update_cache=yes force=yes
-#  when: ansible_pkg_mgr == "apt"

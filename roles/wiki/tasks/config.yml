@@ -1,8 +1,18 @@
 ---
-# Configuración del servidor Wiki 
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Wiki Server configuration 
 
 - name: Copy local.php to /etc/dokuwiki/
   template: src=etc/dokuwiki/local.php.j2 dest=/etc/dokuwiki/local.php owner={{ userApache }} group={{ userApache }} mode=0644
+
+- name: Copy acl.auth.php to /etc/dokuwiki/
+  template: src=etc/dokuwiki/acl.auth.php.j2 dest=/etc/dokuwiki/acl.auth.php owner={{ userApache }} group={{ userApache }} mode=0644
 
 - name: Copy index.php to /usr/share/dokuwiki/
   copy: src=usr/share/dokuwiki/index.php dest=/usr/share/dokuwiki/index.php owner=root group=root mode=0644
@@ -11,32 +21,24 @@
   template: src=etc/httpd/conf.d/dokuwiki.conf.j2 dest=/etc/httpd/conf.d/dokuwiki.conf owner=root group=root mode=0644
   when: ansible_os_family == "RedHat" 
 
-#- name: Copy dokuwiki.conf to /etc/apache2/sites-available (Debian)
-#  template: src=etc/apache2/sites-available/dokuwiki.j2 dest=/etc/apache2/sites-available/dokuwiki owner=root group=root mode=0644
-#  when: ansible_os_family == "Debian"
-
-#- name: Enable dokuwiki in apache (Debian)
-#  shell: a2ensite dokuwiki 
-#  notify: restart apache 
-#  when: ansible_os_family == "Debian"
-
 - name: Create wiki directory (inventory)
   file: path=/var/lib/dokuwiki/data/pages/inventory owner={{ userApache }} group=root state=directory
 
 - name: Change owner of /var/lib/dokuwiki/data to userApache
-  shell: chown -R {{ userApache }} /var/lib/dokuwiki/data
+  shell: "find /var/lib/dokuwiki/data ! -user {{ userApache }} -exec chown {{ userApache }} {} \\; executable=/bin/bash" 
 
 - name: Create sortablejs directory (sortablejs plugin)
   file: path={{ pathPluginsWiki }}/sortablejs owner=root group=root state=directory 
 
-- name: Copy sortablejs/plugin.info.txt (sortablejs plugin)
-  copy: src=usr/share/dokuwiki/lib/plugins/sortablejs/plugin.info.txt dest={{ pathPluginsWiki }}/sortablejs owner=root group=root mode=0644
+- name: Copy files in sortablejs directory (sortablejs plugin)
+  copy: src=usr/share/dokuwiki/lib/plugins/sortablejs/ dest={{ pathPluginsWiki }}/sortablejs/ owner=root group=root mode=0644
 
-- name: Copy sortablejs/README.md (sortablejs plugin)
-  copy: src=usr/share/dokuwiki/lib/plugins/sortablejs/README.md dest={{ pathPluginsWiki }}/sortablejs owner=root group=root mode=0644
+- name: Create authhttp directory (authhttp plugin)
+  file: path={{ pathPluginsWiki }}/authhttp owner=root group=root state=directory
 
-- name: Copy sortablejs/script.js (sortablejs plugin)
-  copy: src=usr/share/dokuwiki/lib/plugins/sortablejs/script.js dest={{ pathPluginsWiki }}/sortablejs owner=root group=root mode=0644
+- name: Copy files in authhttp directoy (authhttp plugin)
+  copy: src=usr/share/dokuwiki/lib/plugins/authhttp/ dest={{ pathPluginsWiki }}/authhttp/ owner=root group=root mode=0644
 
-- name: Copy sortablejs/syntax.php (sortablejs plugin)
-  copy: src=usr/share/dokuwiki/lib/plugins/sortablejs/syntax.php dest={{ pathPluginsWiki }}/sortablejs owner=root group=root mode=0644
+- name: Copy usr/share/dokuwiki/lib/plugins/authhttp/conf/default.php.j2 to /usr/share/dokuwiki/lib/plugins/authhttp/conf
+  template: src=usr/share/dokuwiki/lib/plugins/authhttp/conf/default.php.j2 dest=/usr/share/dokuwiki/lib/plugins/authhttp/conf/default.php owner=root group=root mode=0644
+

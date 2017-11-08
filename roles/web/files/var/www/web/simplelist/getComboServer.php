@@ -15,9 +15,9 @@ $nrows = mysql_num_rows($result);
 
 if ($nrows > 0) {
 
-  echo "Select Server: ";
+  echo "Select Host: ";
   echo "<select name='servers' onchange='showTableServer(\"" . $q . "\",this.value)'>";
-  echo "<option value='X'>Select Server</option>";
+  echo "<option value='X'>Select Host</option>";
 
   while($row = mysql_fetch_array($result)) {
     echo "<option value='" . $row['Name'] . "'>" . $row['Name'] . "</option>";
@@ -26,7 +26,7 @@ if ($nrows > 0) {
   echo "</select>";
 
 } else {
-  echo "No servers";
+  echo "No hosts";
 }
 
 mysql_close($con);

@@ -1,24 +1,18 @@
 ---
-# Instalación del servidor Web III (PhpMyAdmin)
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Web Server installation (PhpMyAdmin)
 
 - name: Be sure phpMyAdmin is installed (yum)
   yum: pkg={{ item }} enablerepo={{ labelEpel }} state=installed
   with_items: "{{ packagePhpMyAdmin }}"
   notify: restart apache
   when: ansible_pkg_mgr == "yum"
-
-#- name: prevent phpMyAdmin install dialog (apt)
-#  shell: echo {{ item }} | debconf-set-selections
-#  with_items:
-#  - phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2
-#  - phpmyadmin phpmyadmin/dbconfig-install boolean false 
-#  when: ansible_pkg_mgr == "apt"
-
-#- name: Be sure phpMyAdmin is installed (apt)
-#  apt: pkg={{ item }} state=installed update_cache=yes force=yes
-#  with_items: "{{ packagePhpMyAdmin }}"
-#  notify: restart apache
-#  when: ansible_pkg_mgr == "apt"
 
 - name: Enlazar /etc/phpmyadmin -> /etc/phpMyAdmin (Centos)
   file: path=/etc/phpmyadmin state=link src=/etc/phpMyAdmin force=yes
@@ -28,10 +22,8 @@
   file: path=/usr/share/phpmyadmin state=link src=/usr/share/phpMyAdmin force=yes
   when: ansible_os_family == "RedHat"
 
-#- name: Copy apache.conf to /etc/phpmyadmin (Debian)
-#  template: src=etc/phpmyadmin/apache.conf.j2 dest=/etc/phpmyadmin/apache.conf owner=root group=root mode=0644
-#  notify: restart apache
-#  when: ansible_os_family == "Debian"
+- name: Allow iframes in /usr/share/phpMyAdmin/libraries/config.default.php file
+  lineinfile: name=/usr/share/phpMyAdmin/libraries/config.default.php state=present regexp="^\$cfg\['AllowThirdPartyFraming'\]" line="$cfg['AllowThirdPartyFraming'] = true;"
 
 - name: Copy phpmyadmin.conf to /etc/httpd/conf.d (Centos)
   template: src=etc/httpd/conf.d/phpmyadmin.conf.j2 dest=/etc/httpd/conf.d/phpMyAdmin.conf owner=root group=root mode=0644
@@ -39,10 +31,26 @@
   when: ansible_os_family == "RedHat" 
 
 - name: Unable PMA warnings in /etc/phpmyadmin/config.inc.php file
-  lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['PmaNoRelation_DisableWarning'\] = true;" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['PmaNoRelation_DisableWarning'] = true;"
+  lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['PmaNoRelation_DisableWarning'\] = TRUE;" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['PmaNoRelation_DisableWarning'] = TRUE;"
 
 - name: Unable Suhosin warnings in /etc/phpmyadmin/config.inc.php file
-  lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['SuhosinDisableWarning'\] = true;" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['SuhosinDisableWarning'] = true;"
+  lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['SuhosinDisableWarning'\] = TRUE;" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['SuhosinDisableWarning'] = TRUE;"
+
+- name: Unable controlpass in /etc/phpmyadmin/config.inc.php file
+  lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['Servers'\]\[2\]\['controlpass'\] = '';" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['Servers'][2]['controlpass'] = '';"
+  when: hostnameWeb == hostnameMysql
+
+- name: Unable controluser in /etc/phpmyadmin/config.inc.php file
+  lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['Servers'\]\[2\]\['controluser'\] = '';" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['Servers'][2]['controluser'] = '';"
+  when: hostnameWeb == hostnameMysql
+
+- name: Config Auth Type as HTTP in /etc/phpmyadmin/config.inc.php file
+  lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['Servers'\]\[2\]\['auth_type'\] = 'http';" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['Servers'][2]['auth_type'] = 'http';"
+  when: hostnameWeb == hostnameMysql
+
+- name: Configure server as localhost in /etc/phpmyadmin/config.inc.php file
+  lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['Servers'\]\[2\]\['host'\] = 'localhost';" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['Servers'][2]['host'] = 'localhost';"
+  when: hostnameWeb == hostnameMysql
 
 - name: Unable controlpass in /etc/phpmyadmin/config.inc.php file
   lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['Servers'\]\[1\]\['controlpass'\] = '';" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['Servers'][1]['controlpass'] = '';"
@@ -50,10 +58,9 @@
 - name: Unable controluser in /etc/phpmyadmin/config.inc.php file
   lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['Servers'\]\[1\]\['controluser'\] = '';" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['Servers'][1]['controluser'] = '';"
 
-- name: Configure server as localhost in /etc/phpmyadmin/config.inc.php file
-  lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['Servers'\]\[2\]\['host'\] = 'localhost';" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['Servers'][2]['host'] = 'localhost';"
-  when: inventory_hostname == hostnameMysql
+- name: Config Auth Type as HTTP in /etc/phpmyadmin/config.inc.php file
+  lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['Servers'\]\[1\]\['auth_type'\] = 'http';" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['Servers'][1]['auth_type'] = 'http';"
 
 - name: Configure server as hostnameMysql in /etc/phpmyadmin/config.inc.php file
-  lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['Servers'\]\[1\]\['host'\] = '{{ hostnameMysql }}';" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['Servers'][1]['host'] = '{{ hostnameMysql }}';"
+  lineinfile: name=/etc/phpmyadmin/config.inc.php state=present regexp="^\$cfg\['Servers'\]\[1\]\['host'\]" insertafter="^\$cfg\['SaveDir'\]" line="$cfg['Servers'][1]['host'] = '{{ hostnameMysql }}';"
 

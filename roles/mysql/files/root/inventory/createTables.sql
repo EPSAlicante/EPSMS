@@ -1,3 +1,10 @@
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
 # root/inventory/createTables.sql
 
 CREATE TABLE IF NOT EXISTS Server (
@@ -70,7 +77,7 @@ CREATE TABLE IF NOT EXISTS Software (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
    
 CREATE TABLE IF NOT EXISTS Interface (
-  Name varchar(30) NOT NULL,
+  Name varchar(100) NOT NULL,
   Server varchar(100) NOT NULL,
   Address varchar(15),
   NameDNS varchar(100),
@@ -716,7 +723,7 @@ CREATE TABLE IF NOT EXISTS FileHostAlias (
 
 CREATE TABLE IF NOT EXISTS IPTablesPolicy (
   IPTable varchar(20) NOT NULL,
-  Chain varchar(20) NOT NULL,
+  Chain varchar(100) NOT NULL,
   Server varchar(100) NOT NULL,
   Policy varchar(20) NOT NULL,
   Init DateTime NOT NULL,
@@ -733,9 +740,9 @@ CREATE TABLE IF NOT EXISTS IPTablesPolicy (
 
 CREATE TABLE IF NOT EXISTS IPTables (
   Num int(5) NOT NULL,
-  Rule varchar(190) NOT NULL,
+  Rule varchar(255) NOT NULL,
   IPTable varchar(20) NOT NULL,
-  Chain varchar(20) NOT NULL,
+  Chain varchar(100) NOT NULL,
   Server varchar(100) NOT NULL,
   InterfaceIN varchar(30),
   InterfaceOUT varchar(30),

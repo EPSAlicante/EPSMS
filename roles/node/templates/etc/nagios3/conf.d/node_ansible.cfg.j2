@@ -1,9 +1,18 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Made by EPS Monitoring System
+
 # Checking Load
 define service{
         use                             generic-service         ; Name of service template to use
         host_name                       {{ inventory_hostname }}
         service_description            	Load 
-        check_command                   check_nrpe_1arg!check_Ansible_load
+        check_command                   {{ "%s!check_Ansible_load" % ("check_nrpe_nossl_1arg" if checkNRPEnoSSL.stdout == "OK" else "check_nrpe_1arg") }}
         }
 
 # Checking Disk Root
@@ -11,7 +20,7 @@ define service{
         use                             generic-service         ; Name of service template to use
         host_name                       {{ inventory_hostname }}
         service_description             Disk Root 
-        check_command                   check_nrpe_1arg!check_Ansible_diskRoot
+        check_command                   {{ "%s!check_Ansible_diskRoot" % ("check_nrpe_nossl_1arg" if checkNRPEnoSSL.stdout == "OK" else "check_nrpe_1arg") }}
         }
 
 # Checking TCP ports of {{ inventory_hostname }}
@@ -22,7 +31,7 @@ define service{
         use                             generic-service         ; Name of service template to use
         host_name                       {{ inventory_hostname }} 
         service_description             TCP Port {{ portTCP.port }} INSIDE
-        check_command                   check_nrpe_1arg!check_portTCP_{{ portTCP.port }}
+        check_command                   {{ "%s!check_portTCP_%s" % ("check_nrpe_nossl_1arg" if checkNRPEnoSSL.stdout == "OK" else "check_nrpe_1arg", portTCP.port) }}
         }
 
 {% endfor %}
@@ -34,7 +43,7 @@ define service{
         use                             generic-service         ; Name of service template to use
         host_name                       {{ inventory_hostname }}
         service_description             UDP Port {{ portUDP.port }} INSIDE
-        check_command                   check_nrpe_1arg!check_portUDP_{{ portUDP.port }}
+        check_command                   {{ "%s!check_portUDP_%s" % ("check_nrpe_nossl_1arg" if checkNRPEnoSSL.stdout == "OK" else "check_nrpe_1arg", portUDP.port) }}
         }
 
 {% endfor %}

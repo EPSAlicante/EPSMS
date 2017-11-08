@@ -1,27 +1,34 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
 [[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
 
 
-==== Server {{ inventory_hostname }}: Baseboard ====
+==== Host {{ inventory_hostname }}: Baseboard ====
 
 {% if hostvars[inventory_hostname]["baseboard"] is defined -%}
 
 {% for board in hostvars[inventory_hostname]["baseboard"]|sort -%}
-^  BASEBOARD: {{ board["Product Name"] }}  ^^
+^  BASEBOARD: {{ board["Product Name"]|default("") }}  ^^
 ^ Handle | {{ board["Handle"] }} |
-^ Manufacturer | {{ board["Manufacturer"] }} | 
-^ Product Name | {{ board["Product Name"] }} |
-^ Version | {{ board["Version"] }} |
-^ Serial Number | {{ board["Serial Number"] }} |
+^ Manufacturer | {{ board["Manufacturer"]|default("") }} | 
+^ Product Name | {{ board["Product Name"]|default("") }} |
+^ Version | {{ board["Version"]|default("") }} |
+^ Serial Number | {{ board["Serial Number"]|default("") }} |
 
 {% endfor %}
 {% endif %}
 {% if hostvars[inventory_hostname]["baseboarddevice"] is defined -%}
 
 {% for device in hostvars[inventory_hostname]["baseboarddevice"]|sort -%}
-^  DEVICE: {{ device["Description"] }}  ^^
+^  DEVICE: {{ device["Description"]|default("") }}  ^^
 ^ Handle | {{ device["Handle"] }} |
-^ Type | {{ device["Type"] }} |
-^ Description | {{ device["Description"] }} |
+^ Type | {{ device["Type"]|default("") }} |
+^ Description | {{ device["Description"]|default("") }} |
 ^ Enabled |  {{ "X" if device["Enabled"]=="true" else " " }}  |
 
 {% endfor %}

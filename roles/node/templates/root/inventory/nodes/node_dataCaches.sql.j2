@@ -1,14 +1,21 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
 # Generating SQL for Caches of {{ inventory_hostname }}
 
 {% if hostvars[inventory_hostname]["cache"] is defined %}
 
 {% for cache in hostvars[inventory_hostname]["cache"] -%}
 
-CHECK_CACHE_{{ cache["Handle"] }}: SELECT * FROM Cache WHERE Server='{{ inventory_hostname }}' AND Handle='{{ cache["Handle"] }}' AND Designation='{{ cache["Socket Designation"] }}' AND Level='{{ cache["Level"] }}' AND Enabled='{{ cache["Enabled"] }}' AND Mode='{{ cache["Operational Mode"] }}' AND Location='{{ cache["Location"] }}' AND InstSize='{{ cache["Installed Size"] }}' AND MaxSize='{{ cache["Maximum Size"] }}' AND Auto AND End IS NULL;
+CHECK_CACHE_{{ cache["Handle"] }}: SELECT * FROM Cache WHERE Server='{{ inventory_hostname }}' AND Handle='{{ cache["Handle"] }}' AND Designation='{{ cache["Socket Designation"]|default("") }}' AND Level='{{ cache["Level"]|default("") }}' AND Enabled='{{ cache["Enabled"]|default("") }}' AND Mode='{{ cache["Operational Mode"]|default("") }}' AND Location='{{ cache["Location"]|default("") }}' AND InstSize='{{ cache["Installed Size"]|default("") }}' AND MaxSize='{{ cache["Maximum Size"]|default("") }}' AND Auto AND End IS NULL;
 
-UPDATE_CACHE_{{ cache["Handle"] }}: UPDATE Cache SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ cache["Handle"] }}' AND Designation='{{ cache["Socket Designation"] }}' AND Level='{{ cache["Level"] }}' AND Enabled='{{ cache["Enabled"] }}' AND Mode='{{ cache["Operational Mode"] }}' AND Location='{{ cache["Location"] }}' AND InstSize='{{ cache["Installed Size"] }}' AND MaxSize='{{ cache["Maximum Size"] }}' AND Auto AND End IS NULL;
+UPDATE_CACHE_{{ cache["Handle"] }}: UPDATE Cache SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Handle='{{ cache["Handle"] }}' AND Designation='{{ cache["Socket Designation"]|default("") }}' AND Level='{{ cache["Level"]|default("") }}' AND Enabled='{{ cache["Enabled"]|default("") }}' AND Mode='{{ cache["Operational Mode"]|default("") }}' AND Location='{{ cache["Location"]|default("") }}' AND InstSize='{{ cache["Installed Size"]|default("") }}' AND MaxSize='{{ cache["Maximum Size"]|default("") }}' AND Auto AND End IS NULL;
 
-INSERT_CACHE_{{ cache["Handle"] }}: INSERT INTO Cache (Handle,Server,Designation,Level,Enabled,Mode,Location,InstSize,MaxSize,Init,Checked,Auto) VALUES ('{{ cache["Handle"] }}','{{ inventory_hostname }}', '{{ cache["Socket Designation"] }}', '{{ cache["Level"] }}', '{{ cache["Enabled"] }}', '{{ cache["Operational Mode"] }}', '{{ cache["Location"] }}', '{{ cache["Installed Size"] }}', '{{ cache["Maximum Size"] }}', NOW(), NOW(), 1);
+INSERT_CACHE_{{ cache["Handle"] }}: INSERT INTO Cache (Handle,Server,Designation,Level,Enabled,Mode,Location,InstSize,MaxSize,Init,Checked,Auto) VALUES ('{{ cache["Handle"] }}','{{ inventory_hostname }}', '{{ cache["Socket Designation"]|default("") }}', '{{ cache["Level"]|default("") }}', '{{ cache["Enabled"]|default("") }}', '{{ cache["Operational Mode"]|default("") }}', '{{ cache["Location"]|default("") }}', '{{ cache["Installed Size"]|default("") }}', '{{ cache["Maximum Size"]|default("") }}', NOW(), NOW(), 1);
 
 {% endfor %}
 

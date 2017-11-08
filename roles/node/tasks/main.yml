@@ -1,5 +1,12 @@
 ---
-#  Tareas Hosts con acceso
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Nodes tasks 
 
 - include: installBase.yml 
   tags: [ node, install, installBase ]
@@ -7,9 +14,9 @@
   tags: [ node, install, munin-node ]
 - include: nagios-nrpe.yml 
   tags: [ node, install, nagios-nrpe ]
-- include: dataDB.yml 
-  tags: [ node, dataDB ]
 - include: dataPackagesDB.yml 
-  tags: [ node, dataPackagesDB ]
+  tags: [ node, data, dataPackagesDB ]
 - include: dataExesDB.yml 
-  tags: [ node, dataExesDB ]
+  tags: [ node, data, dataExesDB ]
+- include: dataDB.yml
+  tags: [ node, data, dataDB ]

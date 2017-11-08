@@ -1,40 +1,51 @@
 <html>
 <head>
+<style type="text/css">
+.caption:hover {
+  font-weight:bold;
+}
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+li {
+    float: left;
+}
+li a {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+li a:hover {
+    background-color: #111;
+}
+img {
+  width:25;
+  height:25;
+}
+</style>
 </head>
-<body style="background:#A4BBC7">
-
-<div align="center">
-<H1>MONITORING SYSTEM</H1>
-<table border='0' col='2' cellpadding='10'>
-<tr>
-<td>Nagios</td>
-<td><a href="https://{{ hostnameNagios }}/nagios" target="_blank">https://{{ hostnameNagios }}/nagios</a></td>
-</tr>
-<tr>
-<td>Munin</td>
-<td><a href="https://{{ hostnameMunin }}/munin" target="_blank">https://{{ hostnameMunin }}/munin</a></td>
-</tr>
-<tr>
-<td>Wiki</td>
-<td><a href="https://{{ hostnameWeb }}/wiki" target="_blank">https://{{ hostnameWeb }}/wiki</a></td>
-</tr>
-<tr>
-<td>Web</td>
-<td><a href="https://{{ hostnameWeb }}/web" target="_blank">https://{{ hostnameWeb }}/web</a></td>
-</tr>
-<tr>
-<td>Openvas</td>
-<td><a href="https://{{ hostnameOpenvas }}:9392" target="_blank">https://{{ hostnameOpenvas }}:9392</a></td>
-</tr>
-<td>PhpMyAdmin</td>
-<td><a href="https://{{ hostnameWeb }}/phpmyadmin" target="_blank">https://{{ hostnameWeb }}/phpmyadmin</a></td>
-</tr>
-<tr>
-<td>Help</td>
-<td><a href="https://{{ inventory_hostname }}/help" target="_blank">https://{{ inventory_hostname }}/help</a></td>
-</tr>
-</table>
+<body width="100%" style="background:#A4BBC7">
+<div width="100%" height="10%">
+<ul>
+  <li><a href="table.html" title="Main Panel" target="epsms">Main Panel</a></li>
+  <li><a href="https://{{ hostnameNagios }}/nagios" title="Open Nagios in same tab" target="epsms">Nagios</a></li>
+  <li><a href="https://{{ hostnameMunin }}/munin" title="Open Munin in same tab" target="epsms">Munin</a></li>
+  <li><a href="https://{{ hostnameWeb }}/wiki" title="Open Wiki in same tab" target="epsms">Wiki</a></li>
+  <li><a href="https://{{ hostnameWeb }}/web" title="Open Web Apps Menu in same tab" target="epsms">Web Apps</a></li>
+  <li><a href="https://{{ hostnameWeb }}/influxdb" title="Open InfluxDB in same tab" target="epsms">InfluxDB</a></li>
+  <li><a href="https://{{ hostnameWeb }}/grafana" title="Open Grafana in same tab" target="epsms">Grafana</a></li>
+  <li><a href="https://{{ hostnameWeb }}/phpmyadmin" title="Open PhpMyAdmin in same tab" target="epsms">Mysql</a></li>
+  <li><a href="https://{{ hostnameWeb }}/openvas" title="Open Openvas in same tab" target="epsms">Openvas</a></li>
+  <li><a href="https://{{ inventory_hostname }}/help" title="Open Help Menu in same tab" target="epsms">Help</a></li>
+  <li><a href="ca.crt" title="Download CA certificate" target="epsms"><img id="cert" src="images/Cert.png" title="Download CA certificate"></a></li>
+</ul>
 </div>
-
+<iframe name="epsms" src="logo.html" width="100%" height="88%">No iframes</iframe>
 </body>
 </html>

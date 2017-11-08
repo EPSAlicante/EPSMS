@@ -11,7 +11,7 @@ class Rest_Hardware
 	
         // GET /hardware/system
         static public function getHardwareSystem() {
-	  $query = "SELECT H.Server, MAX(if(HardType='Architecture' and H.Name='Architecture',Value,'')) as 'Architecture', MAX(if(HardType='System' and H.Name='Manufacturer',Value,'')) as 'Manufacturer', MAX(if(HardType='System' and H.Name='Product Name',Value,'')) as 'Product Name', MAX(if(HardType='System' and H.Name='Version',Value,'')) as 'Version', MAX(if(HardType='System' and H.Name='Serial Number',Value,'')) as 'Serial Number', MAX(if(HardType='System' and H.Name='UUID',Value,'')) as 'UUID', MAX(if(HardType='System' and H.Name='Wake-Up Type',Value,'')) as 'Wake-Up Type' FROM Hardware as H, Server as S WHERE H.Server=S.Name and S.Node='1' and H.Auto and H.End is Null and ((HardType='Architecture' and H.Name='Architecture') or (HardType='System' and H.Name='Manufacturer') or (HardType='System' and H.Name='Product Name') or (HardType='System' and H.Name='Version') or (HardType='System' and H.Name='Serial Number') or (HardType='System' and H.Name='UUID') or (HardType='System' and H.Name='Wake-Up Type')) GROUP BY 1 ORDER BY H.Server";
+	  $query = "SELECT H.Server, MAX(if(HardType='Architecture' and H.Name='Architecture',Value,'')) as 'Architecture', MAX(if(HardType='System' and H.Name='Manufacturer',Value,'')) as 'Manufacturer', MAX(if(HardType='System' and H.Name='Product Name',Value,'')) as 'Product Name', MAX(if(HardType='System' and H.Name='Version',Value,'')) as 'Version', MAX(if(HardType='System' and H.Name='Serial Number',Value,'')) as 'Serial Number', MAX(if(HardType='System' and H.Name='UUID',Value,'')) as 'UUID', MAX(if(HardType='System' and H.Name='Wake-Up Type',Value,'')) as 'Wake-Up Type' FROM Hardware as H, Server as S WHERE H.Server=S.Name and S.Node='1' and S.Auto and S.end is Null and H.Auto and H.End is Null and ((HardType='Architecture' and H.Name='Architecture') or (HardType='System' and H.Name='Manufacturer') or (HardType='System' and H.Name='Product Name') or (HardType='System' and H.Name='Version') or (HardType='System' and H.Name='Serial Number') or (HardType='System' and H.Name='UUID') or (HardType='System' and H.Name='Wake-Up Type')) GROUP BY 1 ORDER BY H.Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -25,7 +25,7 @@ class Rest_Hardware
 
         // GET /hardware/wsystem
         static public function getHardwareWSystem() {
-          $query = "SELECT H.Server, MAX(if(HardType='System' and H.Name='Description',Value,'')) as 'Description', MAX(if(HardType='System' and H.Name='SystemType',Value,'')) as 'System Type', MAX(if(HardType='System' and H.Name='PCSystemType',Value,'')) as 'PC System Type', MAX(if(HardType='System' and H.Name='Manufacturer',Value,'')) as 'Manufacturer', MAX(if(HardType='System' and H.Name='Model',Value,'')) as 'Model', MAX(if(HardType='System' and H.Name='InfraredSupported',Value,'')) as 'Infrared Supported', MAX(if(HardType='System' and H.Name='WakeUp Type',Value,'')) as 'Wake-Up Type' FROM Hardware as H, Server as S WHERE H.Server=S.Name and S.Node='2' and H.Auto and H.End is Null and ((HardType='System' and H.Name='Description') or (HardType='System' and H.Name='SystemType') or (HardType='System' and H.Name='PCSystemType') or (HardType='System' and H.Name='Manufacturer') or (HardType='System' and H.Name='Model') or (HardType='System' and H.Name='InfraredSupported') or (HardType='System' and H.Name='WakeUpType')) GROUP BY 1 ORDER BY H.Server";
+          $query = "SELECT H.Server, MAX(if(HardType='System' and H.Name='Description',Value,'')) as 'Description', MAX(if(HardType='System' and H.Name='SystemType',Value,'')) as 'System Type', MAX(if(HardType='System' and H.Name='PCSystemType',Value,'')) as 'PC System Type', MAX(if(HardType='System' and H.Name='Manufacturer',Value,'')) as 'Manufacturer', MAX(if(HardType='System' and H.Name='Model',Value,'')) as 'Model', MAX(if(HardType='System' and H.Name='InfraredSupported',Value,'')) as 'Infrared Supported', MAX(if(HardType='System' and H.Name='WakeUp Type',Value,'')) as 'Wake-Up Type' FROM Hardware as H, Server as S WHERE H.Server=S.Name and S.Node='2' and S.Auto and S.end is Null and H.Auto and H.End is Null and ((HardType='System' and H.Name='Description') or (HardType='System' and H.Name='SystemType') or (HardType='System' and H.Name='PCSystemType') or (HardType='System' and H.Name='Manufacturer') or (HardType='System' and H.Name='Model') or (HardType='System' and H.Name='InfraredSupported') or (HardType='System' and H.Name='WakeUpType')) GROUP BY 1 ORDER BY H.Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -39,7 +39,7 @@ class Rest_Hardware
 
         // GET /hardware/processor
         static public function getHardwareProcessor() {
-          $query = "SELECT Server, MAX(if(HardType='Processor' and Name='Processor Type',Value,'')) as 'Processor Type', MAX(if(HardType='Processor' and Name='Processor count',Value,'')) as 'Processor count', MAX(if(HardType='Processor' and Name='Processor cores',Value,'')) as 'Processor cores', MAX(if(HardType='Processor' and Name='Core threads',Value,'')) as 'Core threads', MAX(if(HardType='Processor' and Name='Total virtual CPUs',Value,'')) as 'Total virtual CPUs' FROM Hardware WHERE Auto and End is Null and ((HardType='Processor' and Name='Processor Type') or (HardType='Processor' and Name='Processor count') or (HardType='Processor' and Name='Processor cores') or (HardType='Processor' and Name='Core threads') or (HardType='Processor' and Name='Total virtual CPUs')) GROUP BY 1 ORDER BY Server";
+          $query = "SELECT H.Server, MAX(if(HardType='Processor' and H.Name='Processor Type',Value,'')) as 'Processor Type', MAX(if(HardType='Processor' and H.Name='Processor count',Value,'')) as 'Processor count', MAX(if(HardType='Processor' and H.Name='Processor cores',Value,'')) as 'Processor cores', MAX(if(HardType='Processor' and H.Name='Core threads',Value,'')) as 'Core threads', MAX(if(HardType='Processor' and H.Name='Total virtual CPUs',Value,'')) as 'Total virtual CPUs' FROM Hardware as H, Server as S WHERE H.Server=S.Name and S.Node='1' and S.Auto and S.end is NUll and H.Auto and H.End is Null and ((HardType='Processor' and H.Name='Processor Type') or (HardType='Processor' and H.Name='Processor count') or (HardType='Processor' and H.Name='Processor cores') or (HardType='Processor' and H.Name='Core threads') or (HardType='Processor' and H.Name='Total virtual CPUs')) GROUP BY 1 ORDER BY H.Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -59,7 +59,7 @@ class Rest_Hardware
 
         // GET /hardware/wprocessor
         static public function getHardwareWProcessor() {
-          $query = "SELECT Server, MAX(if(HardType='Processor' and Name='NumberOfProcessors',Value,'')) as 'Number Of Processors', MAX(if(HardType='Processor' and Name='NumberOfLogicalProcessors',Value,'')) as 'Number Of Logical Processors' FROM Hardware WHERE Auto and End is Null and ((HardType='Processor' and Name='NumberOfProcessors') or (HardType='Processor' and Name='NumberOfLogicalProcessors')) GROUP BY 1 ORDER BY Server";
+          $query = "SELECT H.Server, MAX(if(HardType='Processor' and H.Name='NumberOfProcessors',Value,'')) as 'Number Of Processors', MAX(if(HardType='Processor' and H.Name='NumberOfLogicalProcessors',Value,'')) as 'Number Of Logical Processors' FROM Hardware as H, Server as S WHERE H.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and H.Auto and H.End is Null and ((HardType='Processor' and H.Name='NumberOfProcessors') or (HardType='Processor' and H.Name='NumberOfLogicalProcessors')) GROUP BY 1 ORDER BY H.Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -77,7 +77,7 @@ class Rest_Hardware
 
         // GET /hardware/memory
         static public function getHardwareMemory() {
-          $query = "SELECT Server, MAX(if(HardType='Memory' and Name='Memory',Value,'')) as 'Memory', MAX(if(HardType='Memory' and Name='Maximum Memory Module Size',Value,'')) as 'Maximum Memory Module Size', MAX(if(HardType='Memory' and Name='Associated Memory Slots',Value,'')) as 'Associated Memory Slots' FROM Hardware WHERE Auto and End is Null and ((HardType='Memory' and Name='Memory') or (HardType='Memory' and Name='Maximum Memory Module Size') or (HardType='Memory' and Name='Associated Memory Slots')) GROUP BY 1 ORDER BY Server";
+          $query = "SELECT H.Server, MAX(if(HardType='Memory' and H.Name='Memory',Value,'')) as 'Memory', MAX(if(HardType='Memory' and H.Name='Maximum Memory Module Size',Value,'')) as 'Maximum Memory Module Size', MAX(if(HardType='Memory' and H.Name='Associated Memory Slots',Value,'')) as 'Associated Memory Slots' FROM Hardware as H, Server as S WHERE H.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and H.Auto and H.End is Null and ((HardType='Memory' and H.Name='Memory') or (HardType='Memory' and H.Name='Maximum Memory Module Size') or (HardType='Memory' and H.Name='Associated Memory Slots')) GROUP BY 1 ORDER BY H.Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -97,7 +97,7 @@ class Rest_Hardware
 
         // GET /hardware/wmemory
         static public function getHardwareWMemory() {
-          $query = "SELECT Server, MAX(if(HardType='Memory' and Name='TotalPhysicalMemory',Value,'')) as 'Total Physical Memory' FROM Hardware WHERE Auto and End is Null and (HardType='Memory' and Name='TotalPhysicalMemory') GROUP BY 1 ORDER BY Server";
+          $query = "SELECT H.Server, MAX(if(HardType='Memory' and H.Name='TotalPhysicalMemory',Value,'')) as 'Total Physical Memory' FROM Hardware as H, Server as S WHERE H.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and H.Auto and H.End is Null and (HardType='Memory' and H.Name='TotalPhysicalMemory') GROUP BY 1 ORDER BY H.Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -117,7 +117,7 @@ class Rest_Hardware
 
         // GET /hardware/bios
         static public function getHardwareBios() {
-	  $query = "SELECT Server, MAX(if(HardType='bios' and Name='Vendor',Value,'')) as 'Vendor', MAX(if(HardType='bios' and Name='Release Date',Value,'')) as 'Release Date', MAX(if(HardType='bios' and Name='Version',Value,'')) as 'Version',  MAX(if(HardType='bios' and Name='ROM Size',Value,'')) as 'ROM Size', MAX(if(HardType='bios' and Name='Runtime Size',Value,'')) as 'Runtime Size' FROM Hardware WHERE Auto and End is Null and ((HardType='bios' and Name='Vendor') or (HardType='bios' and Name='Release Date') or (HardType='bios' and Name='Version') or (HardType='bios' and Name='ROM Size') or (HardType='bios' and Name='Runtime Size')) GROUP BY 1 ORDER BY Server";
+	  $query = "SELECT H.Server, MAX(if(HardType='bios' and H.Name='Vendor',Value,'')) as 'Vendor', MAX(if(HardType='bios' and H.Name='Release Date',Value,'')) as 'Release Date', MAX(if(HardType='bios' and H.Name='Version',Value,'')) as 'Version',  MAX(if(HardType='bios' and H.Name='ROM Size',Value,'')) as 'ROM Size', MAX(if(HardType='bios' and H.Name='Runtime Size',Value,'')) as 'Runtime Size' FROM Hardware as H, Server as S WHERE H.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and H.Auto and H.End is Null and ((HardType='bios' and H.Name='Vendor') or (HardType='bios' and H.Name='Release Date') or (HardType='bios' and H.Name='Version') or (HardType='bios' and H.Name='ROM Size') or (HardType='bios' and H.Name='Runtime Size')) GROUP BY 1 ORDER BY H.Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -133,7 +133,7 @@ class Rest_Hardware
 
         // GET /hardware/wbios
         static public function getHardwareWBios() {
-          $query = "SELECT Server, Name, Caption, SoftwareElementID as 'Software Element ID', SoftwareElementState as 'Software Element State', TargetOperatingSystem as 'Target Operating System', Version as 'Version', BuildNumber as 'Build Number', CodeSet as 'Code Set', CurrentLanguage as 'Current Language', IdentificationCode as 'Identification Code', LanguageEdition as 'Language Edition', Manufacturer, PrimaryBIOS as 'Primary BIOS', ReleaseDate as 'Release Date', SerialNumber as 'Serial Number', Status FROM WinBios WHERE Auto and End is Null GROUP BY 1 ORDER BY Server";
+          $query = "SELECT H.Server, H.Name, Caption, SoftwareElementID as 'Software Element ID', SoftwareElementState as 'Software Element State', TargetOperatingSystem as 'Target Operating System', Version as 'Version', BuildNumber as 'Build Number', CodeSet as 'Code Set', CurrentLanguage as 'Current Language', IdentificationCode as 'Identification Code', LanguageEdition as 'Language Edition', Manufacturer, PrimaryBIOS as 'Primary BIOS', ReleaseDate as 'Release Date', SerialNumber as 'Serial Number', Status FROM WinBios as H, Server as S WHERE H.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and H.Auto and H.End is Null GROUP BY 1 ORDER BY H.Server";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -149,7 +149,7 @@ class Rest_Hardware
 
         // GET /hardware/baseboard
         static public function getHardwareBaseboard() {
-          $query = "SELECT Server, Handle, Manufacturer, ProductName as 'Product Name', Version, SerialNumber as 'Serial Number' FROM Baseboard WHERE Auto and End is Null ORDER BY Server, Handle";
+          $query = "SELECT H.Server, Handle, Manufacturer, ProductName as 'Product Name', Version, SerialNumber as 'Serial Number' FROM Baseboard as H, Server as S WHERE H.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and H.Auto and H.End is Null ORDER BY H.Server, Handle";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -165,7 +165,7 @@ class Rest_Hardware
 
         // GET /hardware/wbaseboard
         static public function getHardwareWBaseboard() {
-          $query = "SELECT Server, Tag, Caption, Manufacturer, Product, Model, Version, SerialNumber as 'Serial Number', HostingBoard as 'Hosting Board', HotSwappable as 'Hot Swappable', PoweredOn as 'Powered On' FROM WinBaseBoard WHERE Auto and End is Null ORDER BY Server, Tag";
+          $query = "SELECT H.Server, Tag, Caption, Manufacturer, Product, Model, Version, SerialNumber as 'Serial Number', HostingBoard as 'Hosting Board', HotSwappable as 'Hot Swappable', PoweredOn as 'Powered On' FROM WinBaseBoard as H, Server as S WHERE H.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and H.Auto and H.End is Null ORDER BY H.Server, Tag";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -181,7 +181,7 @@ class Rest_Hardware
 
         // GET /hardware/chassis
         static public function getHardwareChassis() {
-          $query = "SELECT Server, MAX(if(HardType='chassis' and Name='Manufacturer',Value,'')) as 'Manufacturer', MAX(if(HardType='chassis' and Name='Type',Value,'')) as 'Type', MAX(if(HardType='chassis' and Name='Version',Value,'')) as 'Version',  MAX(if(HardType='chassis' and Name='Serial Number',Value,'')) as 'Serial Number' FROM Hardware WHERE Auto and End is Null and ((HardType='chassis' and Name='Manufacturer') or (HardType='chassis' and Name='Type') or (HardType='chassis' and Name='Version') or (HardType='chassis' and Name='Serial Number')) GROUP BY 1 ORDER BY Server";
+          $query = "SELECT H.Server, MAX(if(HardType='chassis' and H.Name='Manufacturer',Value,'')) as 'Manufacturer', MAX(if(HardType='chassis' and H.Name='Type',Value,'')) as 'Type', MAX(if(HardType='chassis' and H.Name='Version',Value,'')) as 'Version',  MAX(if(HardType='chassis' and H.Name='Serial Number',Value,'')) as 'Serial Number' FROM Hardware as H, Server as S WHERE H.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and H.Auto and H.End is Null and ((HardType='chassis' and H.Name='Manufacturer') or (HardType='chassis' and H.Name='Type') or (HardType='chassis' and H.Name='Version') or (HardType='chassis' and H.Name='Serial Number')) GROUP BY 1 ORDER BY H.Server";
 	  $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -195,7 +195,7 @@ class Rest_Hardware
 
         // GET /hardware/devices
         static public function getHardwareDevices() {
-	  $query = "SELECT Server, Name, Model, Scheduler, Size, Vendor FROM Device WHERE Auto and End is Null ORDER BY Server, Name";
+	  $query = "SELECT H.Server, H.Name, Model, Scheduler, Size, Vendor FROM Device as H, Server as S WHERE H.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and H.Auto and H.End is Null ORDER BY H.Server, H.Name";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -211,7 +211,7 @@ class Rest_Hardware
 
         // GET /hardware/wdevices
         static public function getHardwareWDevices() {
-          $query = "SELECT Server, DeviceID as 'Device ID', Caption, DiskIndex as 'Disk Index', InterfaceType as 'Interface Type', Model, Size, Availability, TotalHeads as 'Total Heads', TotalCylinders as 'Total Cylinders', TracksPerCylinder as 'Tracks Per Cylinder', TotalTracks as 'Total Tracks', SectorsPerTrack as 'Sectors Per Track', TotalSectors as 'Total Sectors', BytesPerSector as 'Bytes Per Sector', DefaultBlockSize as 'Default Block Size', MediaType as 'Media Type', Partitions as 'Partition ID', ConfigManagerErrorCode as 'Config Manager Error Code', SerialNumber as 'Serial Number', SCSIBus as 'SCSI Bus', SCSIPort as 'SCSI Port', SCSITargetID as 'SCSI Target ID', SCSILogicalUnit as 'SCSI Logical Unit' FROM WinDiskDrive WHERE Auto and End is Null ORDER BY Server, DeviceID";
+          $query = "SELECT H.Server, DeviceID as 'Device ID', Caption, DiskIndex as 'Disk Index', InterfaceType as 'Interface Type', Model, Size, Availability, TotalHeads as 'Total Heads', TotalCylinders as 'Total Cylinders', TracksPerCylinder as 'Tracks Per Cylinder', TotalTracks as 'Total Tracks', SectorsPerTrack as 'Sectors Per Track', TotalSectors as 'Total Sectors', BytesPerSector as 'Bytes Per Sector', DefaultBlockSize as 'Default Block Size', MediaType as 'Media Type', Partitions as 'Partition ID', ConfigManagerErrorCode as 'Config Manager Error Code', SerialNumber as 'Serial Number', SCSIBus as 'SCSI Bus', SCSIPort as 'SCSI Port', SCSITargetID as 'SCSI Target ID', SCSILogicalUnit as 'SCSI Logical Unit' FROM WinDiskDrive as H, Server as S WHERE H.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and H.Auto and H.End is Null ORDER BY H.Server, DeviceID";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -227,7 +227,7 @@ class Rest_Hardware
 
         // GET /hardware/interfaces
         static public function getHardwareInterfaces() {
-          $query = "SELECT Server, Name, Address, NameDNS as 'Name DNS', Network, Netmask, MAC, Type, Module, Active FROM Interface WHERE Auto and End is null Order by Server, Name";
+          $query = "SELECT H.Server, H.Name, Address, NameDNS as 'Name DNS', Network, Netmask, MAC, Type, Module, Active FROM Interface as H, Server as S WHERE H.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and H.Auto and H.End is null Order by H.Server, H.Name";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -241,7 +241,7 @@ class Rest_Hardware
 	
         // GET /hardware/winterfaces
         static public function getHardwareWInterfaces() {
-          $query = "SELECT Server, DeviceID as 'Device ID', Name, AdapterType as 'Adapter Type', Manufacturer, MACAddress as 'MAC Address', Availability, ConfigManagerErrorCode as 'Config Manager Error Code', AdapterIndex as 'Adapter Index', NetConnectionID as 'Net Connection ID', NetConnectionStatus as 'Net Connection Status', ServiceName as 'Service Name' FROM WinNetworkAdapter WHERE Auto and End is null Order by Server, DeviceID";
+          $query = "SELECT H.Server, DeviceID as 'Device ID', H.Name, AdapterType as 'Adapter Type', Manufacturer, MACAddress as 'MAC Address', Availability, ConfigManagerErrorCode as 'Config Manager Error Code', AdapterIndex as 'Adapter Index', NetConnectionID as 'Net Connection ID', NetConnectionStatus as 'Net Connection Status', ServiceName as 'Service Name' FROM WinNetworkAdapter as H, Server as S WHERE H.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and H.Auto and H.End is null Order by H.Server, DeviceID";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -257,7 +257,7 @@ class Rest_Hardware
 
         // GET /hardware/cache
         static public function getHardwareCache() {
-          $query = "SELECT Server, Designation as 'Socket Designation', Handle, Level, Enabled, Mode, Location, InstSize as 'Installed Size', MaxSize as 'Maximum Size' FROM Cache WHERE Auto and End is null Order by Server, Designation";
+          $query = "SELECT H.Server, Designation as 'Socket Designation', Handle, Level, Enabled, Mode, Location, InstSize as 'Installed Size', MaxSize as 'Maximum Size' FROM Cache as H, Server as S WHERE H.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and H.Auto and H.End is null Order by H.Server, Designation";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -271,7 +271,7 @@ class Rest_Hardware
 
         // GET /hardware/connectors
         static public function getHardwareConnectors() {
-          $query = "SELECT Server, IntDesignator as 'Internal Reference Designator', Handle, IntType as 'Internal Connector Type', ExtDesignator as 'External Reference Designator', ExtType as 'External Connector Type', PortType as 'Port Type' FROM Connector WHERE Auto and End is Null Order by Server, IntDesignator";
+          $query = "SELECT H.Server, IntDesignator as 'Internal Reference Designator', Handle, IntType as 'Internal Connector Type', ExtDesignator as 'External Reference Designator', ExtType as 'External Connector Type', PortType as 'Port Type' FROM Connector as H, Server as S WHERE H.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and H.Auto and H.End is Null Order by H.Server, IntDesignator";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -285,7 +285,7 @@ class Rest_Hardware
 
         // GET /hardware/wconnectors
         static public function getHardwareWConnectors() {
-          $query = "SELECT Server, Tag, ConnectorType as 'Connector Type', ExternalReferenceDesignator as 'External Reference Designator', InternalReferenceDesignator as 'Internal Reference Designator', PortType as 'Port Type' FROM WinPortConnector WHERE Auto and End is Null Order by Server, Tag";
+          $query = "SELECT H.Server, Tag, ConnectorType as 'Connector Type', ExternalReferenceDesignator as 'External Reference Designator', InternalReferenceDesignator as 'Internal Reference Designator', PortType as 'Port Type' FROM WinPortConnector as H, Server as S WHERE H.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and H.Auto and H.End is Null Order by H.Server, Tag";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -299,7 +299,7 @@ class Rest_Hardware
 
         // GET /hardware/slots
         static public function getHardwareSlots() {
-          $query = "SELECT Server, Designation, Handle, SlotType as 'Slot Type', SlotBusWidth as 'Slot Bus Width', CurrentUsage as 'Current Usage', SlotLength as 'Slot Length', SlotId as 'Slot ID' FROM Slot WHERE Auto and End is Null Order by Server, Designation";
+          $query = "SELECT H.Server, Designation, Handle, SlotType as 'Slot Type', SlotBusWidth as 'Slot Bus Width', CurrentUsage as 'Current Usage', SlotLength as 'Slot Length', SlotId as 'Slot ID' FROM Slot as H, Server as S WHERE H.Server=S.Name and S.Node='1' and S.Auto and S.End is Null and H.Auto and H.End is Null Order by H.Server, Designation";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {
@@ -313,7 +313,7 @@ class Rest_Hardware
 
         // GET /hardware/wbuses
         static public function getHardwareWBuses() {
-          $query = "SELECT Server, DeviceID as 'Device ID', Caption, BusType as 'Bus Type', BusNum as 'Bus Num', Availability, ConfigManagerErrorCode as 'Config Manager Error Code' FROM WinBus WHERE Auto and End is Null Order by Server, DeviceID";
+          $query = "SELECT H.Server, DeviceID as 'Device ID', Caption, BusType as 'Bus Type', BusNum as 'Bus Num', Availability, ConfigManagerErrorCode as 'Config Manager Error Code' FROM WinBus as H, Server as S WHERE H.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and H.Auto and H.End is Null Order by H.Server, DeviceID";
           $data = getDatabase()->all($query);
           $result = array();
           foreach ($data as $val) {

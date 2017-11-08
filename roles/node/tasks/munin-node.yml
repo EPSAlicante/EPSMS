@@ -1,5 +1,12 @@
 ---
-# Configuracion del munin-node 
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
+
+# Munin-node configuration
 
 - name: Getting Path Data from node
   action: path_facts
@@ -63,10 +70,11 @@
   when: packageManager|default("") == "emerge" and packageMuninNode != [] 
 
 - name: Be sure munin-node is installed (freebsd_pkg)
-  shell: 'out=`{{ path.pkg_add }} -r {{ item }} 2>&1`; ret=$?; echo "$out"; [ $ret -eq 0 ] || echo "$out"|{{ path.grep }} -iq "already installed" executable={{ path.bash }}'
+  #shell: 'out=`{{ path.pkg }} install {{ item }} 2>&1`; ret=$?; echo "$out"; [ $ret -eq 0 ] || echo "$out"|{{ path.grep }} -iq "already installed" executable={{ path.bash }}'
+  package: name="{{ item }}" state="present"
   with_items: "{{ packageMuninNode }}"
-  register: freebsdOutput
-  changed_when: freebsdOutput.stdout != "already installed"
+  #register: freebsdOutput
+  #changed_when: freebsdOutput.stdout != "already installed"
   ignore_errors: yes
   when: packageManager|default("") == "freebsd_pkg" and packageMuninNode != [] 
 
@@ -94,8 +102,14 @@
   ignore_errors: yes
   when: packageManager|default("") == "pkgutil" and packageMuninNode != [] 
 
+- name: Be sure munin-node is installed (slackpkg)
+  slackpkg: name={{ item }} state=present
+  with_items: "{{ packageMuninNode }}"
+  ignore_errors: yes
+  when: packageManager|default("") == "slackpkg" and packageMuninNode != []
+
 - name: Be sure munin-node is installed (yum)
-  yum: pkg={{ item }} enablerepo={{ labelEpel }} state=installed
+  yum: pkg={{ item }} enablerepo={{ labelEpel|default("epel") }} state=installed
   with_items: "{{ packageMuninNode }}"
   ignore_errors: yes
   when: packageManager|default("") == "yum" and packageMuninNode != [] 
@@ -130,6 +144,13 @@
   ignore_errors: yes
   when: confFileMuninNode|default("") != ""
 
+- name: Get Facts in munin master
+  setup:
+  delegate_to: "{{ hostnameMunin }}"
+  delegate_facts: True
+  ignore_errors: yes
+  when: confFileMuninNode|default("") != "" and checkMuninNode|success
+
 - name: Configure /etc/rc.conf (BSD)
   lineinfile: name=/etc/rc.conf state=present regexp="^munin_node_enable=\"YES\"" line="munin_node_enable=\"YES\""
   register: rcConf
@@ -158,7 +179,8 @@
   when: confFileMuniNode|default("") != "" and checkMuninNode|success and daemonMuninNode|default("") == "xinetd" and xinetdMuninNode.stdout|default("") != ""
 
 - name: Config munin-node in xinetd (only_from)
-  shell: (((({{ path.grep }} 'only_from' {{ xinetdMuninNode.stdout }} |{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ hostMunin }} >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@$({{ path.grep }} 'only_from' {{ xinetdMuninNode.stdout }}|{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ hostMunin }}|head -1)@$({{ path.grep }} 'only_from' {{ xinetdMuninNode.stdout }}|{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ hostMunin }}|head -1) {{ hostMunin }}@g" {{ xinetdMuninNode.stdout }})) || (! ({{ path.grep }} 'only_from' {{ xinetdMuninNode.stdout }}|{{ path.grep }} $'^[ \t]*only_from' >/dev/null 2>/dev/null) && ({{ path.sed }} -i 's/}/\tonly_from \t\t= {{ hostMunin }}\n}/' {{ xinetdMuninNode.stdout }}))) && echo "Changed") || echo "No" executable={{ path.bash }}
+  shell: (((({{ path.grep }} 'only_from' {{ xinetdMuninNode.stdout }} |{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ item }} >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@$({{ path.grep }} 'only_from' {{ xinetdMuninNode.stdout }}|{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ item }}|head -1)@$({{ path.grep }} 'only_from' {{ xinetdMuninNode.stdout }}|{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ item }}|head -1) {{ item }}@g" {{ xinetdMuninNode.stdout }})) || (! ({{ path.grep }} 'only_from' {{ xinetdMuninNode.stdout }}|{{ path.grep }} $'^[ \t]*only_from' >/dev/null 2>/dev/null) && ({{ path.sed }} -i 's/}/\tonly_from \t\t= {{ item }}\n}/' {{ xinetdMuninNode.stdout }}))) && echo "Changed") || echo "No" executable={{ path.bash }}
+  with_items: "{{ hostvars[hostnameMunin]['ansible_all_ipv4_addresses'] }}"
   register: onlyFromXinetdMuninNode
   changed_when: onlyFromXinetdMuninNode.stdout == "Changed"
   ignore_errors: yes
@@ -184,28 +206,33 @@
   ignore_errors: yes
   when: confFileMuninNode|default("") != "" and checkMuninNode|success
 
-- name: Convert IP munin master in munin-node format
-  shell: echo "{{ hostMunin }}"|{{ path.sed }} 's/\./\\\./g' executable={{ path.bash }}
+- name: Convert IP munin master list in munin-node format
+  shell: echo "{{ item }}"|{{ path.sed }} 's/\./\\\./g' executable={{ path.bash }}
+  with_items: "{{ hostvars[hostnameMunin]['ansible_all_ipv4_addresses'] }}"
   register: allowMunin
   changed_when: False
   ignore_errors: yes
   when: confFileMuninNode|default("") != "" and checkMuninNode|success
 
-- name: Convert IP munin master in regexp format
-  shell: echo "{{ hostMunin }}"|{{ path.sed }} 's/\./\.\./g' executable={{ path.bash }}
+- name: Convert IP munin master list in regexp format
+  shell: echo "{{ item }}"|{{ path.sed }} 's/\./\.\./g' executable={{ path.bash }}
+  with_items: "{{ hostvars[hostnameMunin]['ansible_all_ipv4_addresses'] }}"
   register: regexpMunin
   changed_when: False
   ignore_errors: yes
   when: confFileMuninNode|default("") != "" and checkMuninNode|success
 
 - name: Configure munin-node.conf file with allow 
-  lineinfile: name={{ confFileMuninNode }} state=present regexp="^allow .{{ regexpMunin.stdout }}.$" line='allow ^{{ allowMunin.stdout }}$'
+  lineinfile: name={{ confFileMuninNode }} state=present regexp="^allow .{{ item.0.stdout }}.$" line='allow ^{{ item.1.stdout }}$'
+  with_together:
+    - "{{ regexpMunin.results }}"
+    - "{{ allowMunin.results }}"
   register: allowFile
   ignore_errors: yes
   when: confFileMuninNode|default("") != "" and checkMuninNode|success
 
 - name: Copy node (address) to /etc/munin/munin-conf.d
-  template: src=etc/munin/munin-conf.d/node.j2 dest=/etc/munin/munin-conf.d/{{ ansible_hostname }} owner=root group=root mode=0644
+  template: src=etc/munin/munin-conf.d/node.j2 dest=/etc/munin/munin-conf.d/{{ inventory_hostname }} owner=root group=0 mode=0644
   delegate_to: "{{ hostMunin }}"
   ignore_errors: yes
   when: confFileMuninNode|default("") != "" and checkMuninNode|success
@@ -243,4 +270,99 @@
   shell: '{{ path.svcadm }} restart {{ daemonMuninNode }}'
   ignore_errors: yes
   when: confFileMuninNode|default("") != "" and checkMuninNode|success and daemonMuninNode.startswith('svc:') and (hostnameFile|changed or allowFile|changed or rcConf|changed or pluginsConf|changed or portMuninNode.stdout|default("open") != "open" or (daemonMuninNode|default("") == "xinetd" and (userXinetdMuninNode|changed or groupXinetdMuninNode|changed or onlyFromXinetdMuninNode|changed)))
+
+- name: Check TCP connection from Munin Server to Munin Node (TCP/4949)
+  shell: ((nmap -p 4949 {{ inventory_hostname }}|grep 4949|grep open) >/dev/null 2>/dev/null && echo "OK") || echo "no"
+  register: tcpconnMuninNode
+  changed_when: False
+  ignore_errors: yes
+  delegate_to: "{{ hostnameMunin }}"
+
+- debug: 'msg="TCP connection: Munin Server -> {{ inventory_hostname }}:4949 FAILED. Check port and firewall"'
+  when: tcpconnMuninNode.stdout != "OK"
+
+- name: Check Connection to Munin Node 
+  shell: ((timeout 10s ncat {{ inventory_hostname }} 4949|grep '^# munin node') >/dev/null 2>/dev/null && echo "OK") || echo "no"
+  register: connMuninNode
+  changed_when: False
+  ignore_errors: yes
+  delegate_to: "{{ hostnameMunin }}"
+  when: tcpconnMuninNode.stdout == "OK"
+
+- name: Error Munin Node connection (disable munin-node in xinetd)
+  shell: ((({{ path.grep }} 'disable' {{ xinetdiMuninNode.stdout }} |{{ path.grep }} $'^[ \t]*disable'|{{ path.grep }} -iv "yes" >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@$({{ path.grep }} 'disable' {{ xinetdMuninNode.stdout }}|{{ path.grep }} $'^[ \t]*disable'|{{ path.grep }} -iv "yes")@\tdisable\t= yes@g" {{ xinetdMuninNode.stdout }})) && echo "Changed") || echo "No" executable={{ path.bash }}
+  register: disableXinetdMuninNode
+  changed_when: disableXinetdMuninNode.stdout == "Changed"
+  ignore_errors: yes
+  when: confFileMuninNode|default("") != "" and checkMuninNode|success and daemonMuninNode|default("") == "xinetd" and xinetdMuninNode.stdout|default("") != "" and connMuninNode is defined and connMuninNode.stdout == "no"
+
+- name: Error Munin Node connection (Check connection to Munin Node)
+  shell: ((timeout 10s ncat {{ inventory_hostname }} 4949|grep '^# munin node') >/dev/null 2>/dev/null && echo "OK") || echo "no"
+  register: testMuninNode
+  ignore_errors: yes
+  delegate_to: "{{ hostnameMunin }}"
+  when: confFileMuninNode|default("") != "" and checkMuninNode|success and connMuninNode is defined and connMuninNode.stdout is defined and connMuninNode.stdout == "no"
+
+- name: Error Munin Node connection (Watching logs for connection not allowed)
+  shell: "({{ path.grep }} -i 'Denying connection from: ' $({{ path.grep }} '^log_file ' {{ confFileMuninNode }}|cut -d' ' -f2|tr -s ' ')|tail -1|{{ path.sed }} 's/.*Denying connection from: //'|{{ path.sed }} 's/::ffff://') 2>/dev/null executable={{ path.bash }}"
+  register: refusedIP
+  ignore_errors: yes
+  when: confFileMuninNode|default("") != "" and checkMuninNode|success and connMuninNode is defined and connMuninNode.stdout is defined and connMuninNode.stdout == "no" and testMuninNode is defined and testMuninNode.stdout == "no"
+
+- debug: msg="Found IP {{ refusedIP.stdout }} refused by Munin Node (probably Munin server is doing NAT)"
+  when: confFileMuninNode|default("") != "" and checkMuninNode|success and connMuninNode is defined and connMuninNode.stdout is defined and connMuninNode.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+- name: Error Munin Node connection (enable munin-node in xinetd)
+  shell: ((({{ path.grep }} 'disable' {{ xinetdiMuninNode.stdout }} |{{ path.grep }} $'^[ \t]*disable'|{{ path.grep }} -iv "no" >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@$({{ path.grep }} 'disable' {{ xinetdMuninNode.stdout }}|{{ path.grep }} $'^[ \t]*disable'|{{ path.grep }} -iv "no")@\tdisable\t= no@g" {{ xinetdMuninNode.stdout }})) && echo "Changed") || echo "No" executable={{ path.bash }}
+  register: enableXinetdMuninNode
+  changed_when: enableXinetdMuninNode.stdout == "Changed"
+  ignore_errors: yes
+  when: confFileMuninNode|default("") != "" and checkMuninNode|success and daemonMuninNode|default("") == "xinetd" and xinetdMuninNode.stdout|default("") != "" and connMuninNode is defined and connMuninNode.stdout is defined and connMuninNode.stdout == "no" and disableXinetdMuninNode is defined and disableXinetdMuninNode.stdout == "Changed"
+
+- name: Error Munin Node connection (Config munin-node in xinetd (only_from) with refused IP)
+  shell: (((({{ path.grep }} 'only_from' {{ xinetdMuninNode.stdout }} |{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ refusedIP.stdout }} >/dev/null 2>/dev/null) && ({{ path.sed }} -i "s@$({{ path.grep }} 'only_from' {{ xinetdMuninNode.stdout }}|{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ refusedIP.stdout }}|head -1)@$({{ path.grep }} 'only_from' {{ xinetdMuninNode.stdout }}|{{ path.grep }} $'^[ \t]*only_from'|{{ path.grep }} -v {{ refusedIP.stdout }}|head -1) {{ refusedIP.stdout }}@g" {{ xinetdMuninNode.stdout }})) || (! ({{ path.grep }} 'only_from' {{ xinetdMuninNode.stdout }}|{{ path.grep }} $'^[ \t]*only_from' >/dev/null 2>/dev/null) && ({{ path.sed }} -i 's/}/\tonly_from \t\t= {{ refusedIP.stdout }}\n}/' {{ xinetdMuninNode.stdout }}))) && echo "Changed") || echo "No" executable={{ path.bash }}
+  register: onlyFromXinetdMuninNodeRefused
+  changed_when: onlyFromXinetdMuninNodeRefused.stdout == "Changed"
+  ignore_errors: yes
+  when: confFileMuninNode|default("") != "" and checkMuninNode|success and daemonMuninNode|default("") == "xinetd" and xinetdMuninNode.stdout|default("") != "" and connMuninNode is defined and connMuninNode.stdout is defined and connMuninNode.stdout == "no" and refusedIP is defined and refusedIP.stdout and refusedIP.stdout != ""
+
+- name: Error Munin Node connection (Convert refused IP in munin-node format)
+  shell: echo "{{ refusedIP.stdout }}"|{{ path.sed }} 's/\./\\\./g' executable={{ path.bash }}
+  register: allowRefusedIP
+  changed_when: False
+  ignore_errors: yes
+  when: confFileMuninNode|default("") != "" and checkMuninNode|success and connMuninNode is defined and connMuninNode.stdout is defined and connMuninNode.stdout == "no" and refusedIP is defined and refusedIP.stdout and refusedIP.stdout != ""
+
+- name: Error Munin Node connection (Convert refused IP in regexp format)
+  shell: echo "{{ refusedIP.stdout }}"|{{ path.sed }} 's/\./\.\./g' executable={{ path.bash }}
+  register: regexpRefusedIP
+  changed_when: False
+  ignore_errors: yes
+  when: confFileMuninNode|default("") != "" and checkMuninNode|success and connMuninNode is defined and connMuninNode.stdout is defined and connMuninNode.stdout == "no" and refusedIP is defined and refusedIP.stdout and refusedIP.stdout != ""
+
+- name: Error Munin Node connection (Configure munin-node.conf file with allow)
+  lineinfile: name={{ confFileMuninNode }} state=present regexp="^allow .{{ regexpRefusedIP.stdout }}.$" line='allow ^{{ allowRefusedIP.stdout }}$'
+  register: allowFileRefusedIP
+  ignore_errors: yes
+  when: confFileMuninNode|default("") != "" and checkMuninNode|success and connMuninNode is defined and connMuninNode.stdout is defined and connMuninNode.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+- name: Error Munin Node connection (Restart munin-node service)
+  service: name={{ serviceName.stdout }} state=restarted enabled=yes
+  ignore_errors: yes
+  when: checkService.stdout == "True" and confFileMuninNode|default("") != "" and checkMuninNode|success and serviceName.stdout|default("") != "" and (not daemonMuninNode.startswith('svc:')) and connMuninNode is defined and connMuninNode.stdout is defined and connMuninNode.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+- name: Error Munin Node connection (Restart munin-node daemon with systemctl)
+  shell: '{{ path.systemctl }} restart {{ serviceName.stdout }}'
+  ignore_errors: yes
+  when: checkSystemctl.stdout == "True" and confFileMuninNode|default("") != "" and checkMuninNode|success and serviceName.stdout|default("") != "" and (not daemonMuninNode.startswith('svc:')) and connMuninNode is defined and connMuninNode.stdout is defined and connMuninNode.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+- name: Error Munin Node connection (Restart munin-node daemon)
+  shell: '{{ daemonMuninNode }} restart'
+  ignore_errors: yes
+  when: checkService.stdout != "True" and checkSystemctl.stdout != "True" and confFileMuninNode|default("") != "" and checkMuninNode|success and daemonMuninNode|default("") != "" and (not daemonMuninNode.startswith('svc:')) and connMuninNode is defined and connMuninNode.stdout is defined  and connMuninNode.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
+
+- name: Error Munin Node connection (Restart munin-node daemon with SMF (Solaris))
+  shell: '{{ path.svcadm }} restart {{ daemonMuninNode }}'
+  ignore_errors: yes
+  when: confFileMuninNode|default("") != "" and checkMuninNode|success and daemonMuninNode.startswith('svc:') and connMuninNode is defined and connMuninNode.stdout is defined and connMuninNode.stdout == "no" and refusedIP is defined and refusedIP.stdout is defined and refusedIP.stdout != ""
 

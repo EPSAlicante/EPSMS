@@ -1,10 +1,12 @@
 ---
-# Configuración del servidor Nagios
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
 
-#- name: Copy apache2.conf to /etc/nagios3 (Debian)
-#  template: src=etc/nagios3/apache2.conf.j2 dest=/etc/nagios3/apache2.conf owner=root group=root mode=0644
-#  notify: restart apache
-#  when: ansible_os_family == "Debian"
+
+# Nagios Server configuration
 
 - name: Copy nagios.conf to /etc/httpd/conf.d (Centos)
   template: src=etc/httpd/conf.d/nagios.conf.j2 dest=/etc/httpd/conf.d/nagios.conf owner=root group=root mode=0644
@@ -31,6 +33,16 @@
      - { find: '^authorized_for_all_host_commands', new: 'authorized_for_all_host_commands=*' }
   notify: restart nagios
 
+- name: Configure authorized_for_read_only deny in /etc/nagios3/cgi.cfg file if read only user changed 
+  lineinfile: name=/etc/nagios3/cgi.cfg state=present regexp='^authorized_for_read_only' line='#authorized_for_read_only=*'
+  notify: restart nagios
+  when: readUserOld|default('') != "" and readUser != readUserOld|default('')
+
+- name: Configure authorized_for_read_only access in /etc/nagios3/cgi.cfg file
+  lineinfile: name=/etc/nagios3/cgi.cfg state=present regexp='^authorized_for_read_only' line='authorized_for_read_only={{ readUser }}'
+  notify: restart nagios
+  when: readUser != ""
+
 - name: Copy /etc/nagios3/objects/command-nrpe.cfg file (Definition of check_nrpe_1arg command) (Centos)
   template: src=etc/nagios3/objects/command-nrpe.cfg.j2 dest=/etc/nagios3/objects/command-nrpe.cfg owner=root group=root mode=0664
   notify: restart nagios
@@ -49,25 +61,7 @@
   notify: restart nagios
   when: ansible_os_family == "RedHat" 
 
-#- name: Copy template 'linux-server' to /etc/nagios3/conf.d (Debian)
-#  template: src=etc/nagios3/conf.d/linux-server_ansible.cfg.j2 dest=/etc/nagios3/conf.d/linux-server_ansible.cfg owner=root group=root mode=0644
-#  when: ansible_os_family == "Debian"
-
-#- name: Delete localhost_ansible.cfg in /etc/nagios3/conf.d (Debian) 
-#  file: path={{ item }} state=absent
-#  with_items:
-#    - /etc/nagios3/conf.d/localhost_ansible.cfg 
-#    - /etc/nagios3/conf.d/hostgroups_ansible.cfg
-#    - /etc/nagios3/conf.d/services_ansible.cfg
-#    - /etc/nagios3/conf.d/extinfo_ansible.cfg
-#  notify: restart nagios
-#  when: ansible_os_family == "Debian"
-
 - name: Copy localhost to /etc/nagios3/conf.d
   template: src=etc/nagios3/conf.d/localhost_ansible.cfg.j2 dest=/etc/nagios3/conf.d/localhost_ansible.cfg owner=root group=root mode=0644
   notify: restart nagios
-
-#- name: Change permissions to /var/lib/nagios3/rw directory (Debian) 
-#  shell: chmod -R 770 /var/lib/nagios3/rw
-#  when: ansible_os_family == "Debian"
 

@@ -1,4 +1,10 @@
 #!/usr/bin/python
+# The source code packaged with this file is Free Software, Copyright (C) 2016 by
+# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>.
+# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise.
+# You can get copies of the licenses here: http://www.affero.org/oagpl.html
+# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE".
+
 
 import MySQLdb
 import sys
@@ -92,7 +98,7 @@ def main():
 
     # DB Configuration Files
     database = "inventory"
-    user = "inventory"
+    user = "admin"
     passwd = ""
     hostMysql = ""
     labelStr = ""
@@ -114,8 +120,14 @@ def main():
           if key == "hostMysql":
             hostMysql = value
 
+	  if key == "user":
+	    user = value
+
           if key == "passwd":
             passwd = value
+
+	  if key == "db":
+	    database = value
 
           if key == "label":
             labelStr = value

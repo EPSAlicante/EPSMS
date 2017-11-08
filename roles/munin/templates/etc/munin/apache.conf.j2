@@ -1,3 +1,12 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Made by EPS Monitoring System
+
 # required because we serve out of the cgi directory and URLs are relative
 Alias /munin-cgi/munin-cgi-html/static {{ muninHtml }}/static 
 RedirectMatch ^/munin$ /munin-cgi/munin-cgi-html/
@@ -26,15 +35,35 @@ ScriptAlias /munin-cgi/munin-cgi-graph {{ muninCgi }}/munin-cgi-graph
         <IfModule !mod_fcgid.c>
             SetHandler cgi-script
         </IfModule>
-        Order deny,allow
-        Deny from all
-        {% for admins in hostsAdmins -%}
-        Allow from {{ admins }}/32
-        {% endfor %}
+
+        Order Deny,Allow
+        Deny from ALL 
+{% if hostsAdmins|count > 0 %}
+{%  for host in hostsAdmins %}
+        Allow from {{ host }}/32
+{%  endfor %}
+{% else %}
+        Allow from ALL
+{% endif %}
+
+{% if readUser != "" %}
+{%  if hostsReadUser is defined and hostsReadUser|count > 0 %}
+{%   for host in hostsReadUser %}
+        Allow from {{ host }}/32
+{%   endfor %}
+{%  else %}
+        Allow from ALL
+{%  endif %}
+{% endif %}
+
 	AuthType Basic
 	AuthName "Authentication Required"
 	AuthUserFile "{{ pathApache }}/.passwdFile"
 	Require user admin
+{% if readUser != "" %}
+        Require user {{ readUser }}
+{% endif %}
+
 </Location>
 
 ScriptAlias /munin-cgi/munin-cgi-html {{ muninCgi }}/munin-cgi-html
@@ -46,15 +75,35 @@ ScriptAlias /munin-cgi/munin-cgi-html {{ muninCgi }}/munin-cgi-html
         <IfModule !mod_fcgid.c>
             SetHandler cgi-script
         </IfModule>
-        Order deny,allow
-        Deny from all
-        {% for admins in hostsAdmins -%}
-        Allow from {{ admins }}/32
-        {% endfor %}
+
+        Order Deny,Allow
+        Deny from ALL 
+{% if hostsAdmins|count > 0 %}
+{%  for host in hostsAdmins %}
+        Allow from {{ host }}/32
+{%  endfor %}
+{% else %}
+        Allow from ALL
+{% endif %}
+
+{% if readUser != "" %}
+{%  if hostsReadUser is defined and hostsReadUser|count > 0 %}
+{%   for host in hostsReadUser %}
+        Allow from {{ host }}/32
+{%   endfor %}
+{%  else %}
+        Allow from ALL
+{%  endif %}
+{% endif %}
+
 	AuthType Basic
 	AuthName "Authentication Required"
 	AuthUserFile "{{ pathApache }}/.passwdFile"
 	Require user admin
+{% if readUser != "" %}
+        Require user {{ readUser }}
+{% endif %}
+
 </Location>
 
 <Location /munin-cgi/munin-cgi-html/static>

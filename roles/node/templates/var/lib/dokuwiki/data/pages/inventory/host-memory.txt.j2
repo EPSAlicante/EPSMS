@@ -1,7 +1,14 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
 [[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
 
 
-==== Server {{ inventory_hostname }}: Memory ====
+==== Host {{ inventory_hostname }}: Memory ====
 
 ^ Total Memory | {{ "%s MB" % hostvars[inventory_hostname]["ansible_memtotal_mb"] if hostvars[inventory_hostname]["ansible_memtotal_mb"] is defined else "?" }} |
 {% if hostvars[inventory_hostname]["memory"] is defined -%}
@@ -13,11 +20,11 @@
 {% for array in hostvars[inventory_hostname]["memory"]["arrays"]|sort -%}
 ^  ARRAY: {{ array["Handle"] }}  ^^
 ^ Handle | {{ array["Handle"] }} |
-^ Location | {{ array["Location"] }} |
-^ Use | {{ array["Use"] }} |
-^ Error Correction Type | {{ array["Error Correction Type"] }} |
-^ Maximum Capacity | {{ array["Maximum Capacity"] }} |
-^ Number Of Devices | {{ array["Number Of Devices"] }} |
+^ Location | {{ array["Location"]|default("") }} |
+^ Use | {{ array["Use"]|default("") }} |
+^ Error Correction Type | {{ array["Error Correction Type"]|default("") }} |
+^ Maximum Capacity | {{ array["Maximum Capacity"]|default("") }} |
+^ Number Of Devices | {{ array["Number Of Devices"]|default("") }} |
 
 {% endfor %}
 {% endif %}
@@ -25,14 +32,14 @@
 
 {% if hostvars[inventory_hostname]["memory"]["slots"] is defined -%}
 {% for slot in hostvars[inventory_hostname]["memory"]["slots"]|sort -%}
-^  SLOT: {{ slot["Locator"] }}  ^^ 
+^  SLOT: {{ slot["Locator"]|default("") }}  ^^ 
 ^ Handle | {{ slot["Handle"] }} |
-^ Locator | {{ slot["Locator"] }} |
-^ Array | {{ slot["Array"] }} |
-^ Bank Locator | {{ slot["Bank Locator"] }} |
-^ Size | {{ slot["Size"] }} |
-^ Speed | {{ slot["Speed"] }} |
-^ Type | {{ slot["Type"] }} |
+^ Locator | {{ slot["Locator"]|default("") }} |
+^ Array | {{ slot["Array"]|default("") }} |
+^ Bank Locator | {{ slot["Bank Locator"]|default("") }} |
+^ Size | {{ slot["Size"]|default("") }} |
+^ Speed | {{ slot["Speed"]|default("") }} |
+^ Type | {{ slot["Type"]|default("") }} |
 
 {% endfor %}
 {% endif %}

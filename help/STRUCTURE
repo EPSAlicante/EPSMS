@@ -1,325 +1,632 @@
-######################################################
-                   Developer Guide 
-######################################################
-
-
-Directory Structure: '/etc/ansible'
-
-
-    Files:
-
-	
-	* 'ansible.cfg' -> Ansible configuration file
-
-	* 'configure.py' -> System configuration python script
-
-	* 'configExtra.py' -> Extra variables configuration python script
-
-	* 'help.py' -> Help menu python script
-
-	* 'menu.py' -> User menu python script
-
-
-    Playbook files:
-
-
-	* 'ansible.yml' -> Configuration of Control server (Ansible)
-
-	* 'group_by.yml' -> Auxiliar file used for playbooks to get information about Operating System and Version
-
-	* 'munin.yml' -> Installation and configuration of Munin server
-
-	* 'mysql.yml' -> Installation and configuration of Mysql server
-
-	* 'nagios.yml' -> Installation and configuration of Nagios server
-
-	* 'nodes.yml' -> Installation, configuration and getting information of Nodes (Linux/Unix)
-
-	* 'openvas.yml' -> Scanning of vulnerabilities of hosts (outsiders, winNodes and nodes) with Openvas
-
-	* 'outsiders.yml' -> Scanning and clasifying (nodes and outsiders) of hosts discovered in working subnets 
-
-	* 'web.yml' -> Configuration of Web Server (Apache Server, Dokuwiki Server, REST API, PHP and Angularjs Apps)
- 
-	* 'winNodes.yml' -> Getting information of Windows Nodes
-
-
-    Directories:
-
-
-	* 'config_files/' -> configuration files (variables by default)
-
-	    - 'main.conf' (default values of variables. Updated every configuration with values introduced)
-
-	    - 'extra.conf' (variables not required in configuration)
-
-
-	* 'group_vars/' -> group variables (required parameters in configuration) 
-
-	    - 'all' (global variables for every host)
-
-	    - 'CentOS-6' (variables for CentOS-6 hosts, overwriting global variables)
-
-	    - 'CentOS-7' (variables for CentOS-7 hosts, overwriting global variables)
-
-	    - 'Debian-6' (variables for Debian-6 hosts, overwriting global variables)
-
-	    - 'Debian-7' (variables for Debian-7 hosts, overwriting global variables)
-
-	    - 'Distribution-Version.template' (template as a example to create a Distribution-Version file)
-
-	    Every file with 'OS-Version' format will have the same function, overwriting global variables
-
-
-	* 'help/' -> help files
-
-	    Documentation files
-
-
-	* 'host_vars/' -> host variables
-
-	    - 'node.template' (template a a example to create a hostname file)
-
-	    Every file with a host name will overwrite global variables 
-
-
-	* 'inventory/' -> inventory files
-
-	    - ansible (Control server's name)
-	
-	    - munin (Munin server's name)
-
-	    - nagios (Nagios server's name)
-
-	    - nodes (Linux/Unix nodes' names)
-
-	    - outsiders (Outsiders' names)
-
-	    - servers (Servers' names: Control, Munin, Nagios and Web)
-
-	    - web (Web server's name)
-
-	    - winNodes (Windows nodes' names)
-
-
-	* 'roles/' -> playbooks code by roles
-
-	    - 'ansible/' (Ansible code to install and configure Control server. Called by ansible.yml playbook)
-
-		+ 'files/' (files called by tasks' files to copy to Control server)
-
-		+ 'tasks/'
-
-		    * 'main.yml' (Main Yaml file, that calls the rest of Yaml files) 
-
-		    * 'install.yml' (Installs needed tools: nmap, wmic, etc.)
-
-		    * 'config.yml' (Configures Ansible and prepares python scripts to be used by playbooks)  
-
-		    * 'cronStart.yml' (Adds entries to crontab with all the playbooks) 
-
-		    * 'cronStop.yml' (Deletes all entries about plaubooks from crontab) 
-
-
-	    - 'apache/' (Ansible code to install and configure Apache Web server. Called by web.yml, munin.yml and nagios.yml playbooks)
-
-		+ 'handlers/' (Daemons' restarts called by tasks' files)
-		
-		+ 'tasks/'
-
-		    * 'main.yml' (Main Yaml file, that calls the rest of Yaml files) 
-
-		    * 'install.yml' (Installs apache ans needed libraries)
-
-		    * 'openssl.yml' (Installs openssl and creates self-signed certificate)
-
-		    * 'config.yml' (Configure apache with SSL)
-
-		+ 'templates/' (templates called by tasks' files to modify with variables' values and copy to Web server)
-
-
-	    - 'munin/' (Ansible code to install and configure Munin server. Called by munin.yml playbook)
-
-		+ 'handlers/' (Daemons' restarts called by tasks' files)
-		
-		+ 'tasks/'
-
-		    * 'main.yml' (Main Yaml file, that calls the rest of Yaml files)
-
-		    * 'install.yml' (Installs munin)
-
-		    * 'config.yml' (Configures munin server)
-
-		+ 'templates/' (templates called by tasks' files to modify with variables' values and copy to Munin server)
-
-
-	    - 'mysql/' (Ansible code to install and configure Mysql server. Called by mysql.yml playbook)
-
-		+ 'files/' (files called by tasks' files to copy to Mysql server)
-
-		+ 'handlers/' (Daemons' restarts called by tasks' files)
-		
-		+ 'tasks/'
-
-		    * 'main.yml' (Main Yaml file, that calls the rest of Yaml files)
-
-		    * 'install.yml' (Installs mysql-server)
-
-		    * 'config.yml' (Configures mysql server)
-
-		    * 'createDB.yml' (Creates inventory user and inventory database and tables)
-
-		+ 'templates/' (templates called by tasks' files to modify with variables' values and copy to Mysql server)
-
-
-	    - 'nagios/' (Ansible code to install and configure Nagios server. Called by nagios.yml playbook)
-
-		+ 'handlers/' (Daemons' restarts called by tasks' files)
-		
-		+ 'tasks/'
-
-		    * 'main.yml' (Main Yaml file, that calls the rest of Yaml files)
-
-		    * 'install.yml' (Installs nagios)
-
-		    * 'config.yml' (Configures nagios server)
-
-		+ 'templates/' (templates called by tasks' files to modify with variables' values and copy to Nagios server)
-
-	    - 'node/' (Ansible code to get information about nodes. Called by node.yml playbook)
-
-		+ 'files/' (files called by tasks' files to copy to nodes)
-
-		+ 'handlers/' (Daemons' restarts called by tasks' files)
-		
-		+ 'tasks/'
-
-		    * 'main.yml' (Main Yaml file, that calls the rest of Yaml files)
-
-		    * 'installBase.yml' (Installs needed packages in nodes to get information)
-
-		    * 'munin-node.yml' (Installs and configures munin-node)
-
-		    * 'nagios-nrpe.yml' (Installs and configures nagios-nrpe)
-
-		    * 'dataDB.yml' (Gets basic information from nodes executing site_facts script, updates inventory database, Nagios client and Nagios and Wiki servers)
-
-		    * 'dataExesDB.yml' (Gets executables information from nodes executing site_facts.exes script, updates inventory database and Wiki server)
-
-		    * 'dataPackagesDB.yml' (Gets packages information from nodes executing site_facts.packages script, updates inventory database and Wiki server)
-
-		+ 'templates/' (templates called by tasks' files to modify with variables' values and copy to nodes and Mysql, Nagios, Munin and Wiki servers)
-
-
-	    - 'openvas/' (Ansible code to scan vulnerabilities of hosts with Openvas software)
-
-		+ 'handlers/' (Daemons' restarts called by tasks' files)
-
-		+ 'tasks/'
-
-		    * 'main.yml' (Main Yaml file, that calls the rest of Yaml files)
-
-		    * 'install.yml' (Install Openvas software)
-
-		    * 'config.yml' (Config Openvas to be ready for sccaning)
-
-		    * 'update.yml' (Update Openvas database)
-
-		    * 'dataDB.yml' (Scans hosts executing 'omp' Openvas client, and get information with openvas_facts scripts, stores inventory database and makes reports available on wiki server in different formats: html, pdf, txt and xml)
-
-		+ 'templates/' (templates called by tasks' files to modify with variables' values and copy to Mysql server)
-		
-
-	    - 'outsider/' (Ansible code to scan working subnets to discover and clasify hosts as nodes and outsiders)
-
-		+ 'handlers/' (Daemons' restarts called by tasks' files)
-		
-		+ 'tasks/'
-
-		    * 'main.yml' (Main Yaml file, that calls the rest of Yaml files)
-
-		    * 'getData.yml' (Installs needed packages for scanning)
-
-		    * 'dataDB.yml' (Scans nodes and outsiders from working subnets executing net_facts script, updates inventory database, Nagios and Wiki servers)
-
-		+ 'templates/' (templates called by tasks' files to modify with variables' values and copy to Control, Mysql, Nagios and Wiki servers)
-
-
-	    - 'web/' (Ansible code to install and configure Web applications: PHP & Angularjs Apps, REST API and phpMyAdmin. Called by web.yml playbook)
-
-		+ 'files/' (files called by tasks' files to copy to Web server)
-
-		+ 'handlers/' (Daemons' restarts called by tasks' files)
-		
-		+ 'tasks/'
-
-		    * 'main.yml' (Main Yaml file, that calls the rest of Yaml files)
-
-		    * 'php.yml' (Installs PHP)
-
-		    * 'phpMyAdmin.yml' (Installs and configures phpMyAdmin)
-
-		    * 'config.yml' (Configures Web application and sync pages)
-
-		+ 'templates/' (templates called by tasks' files to modify with variables' values and copy to Web server)
-
-
-	    - 'wiki/' (Ansible code to install and configure Wiki server. Called by web.yml playbook)
-
-		+ 'files/' (files called by tasks' files to copy to Wiki server)
-
-		+ 'handlers/' (Daemons' restarts called by tasks' files)
-		
-		+ 'tasks/'
-
-		    * 'main.yml' (Main Yaml file, that calls the rest of Yaml files)
-
-		    * 'install.yml' (Installs dokuwiki)
-
-		    * 'config.yml' (Configures Wiki server)
-
-		+ 'templates/' (templates called by tasks' files to modify with variables' values and copy to Wiki server)
-
-
-	    - 'winNode/' (Ansible code to get information about windows nodes. Called by winNode.yml playbook)
-
-		+ 'tasks/'
-
-		    * 'main.yml' (Main Yaml file, that calls the rest of Yaml files)
-
-		    * 'dataDB.yml' (Gets information from windows nodes executing win_facts script, updates inventory database and Wiki server)
-
-		+ 'templates/' (templates called by tasks' files to modify with variables' values and copy to Mysql and Wiki servers)
-
-
-	* 'scripts/' -> scripts needed by playbooks
-
-	    - 'base_facts.py' (Python script to get base information about the node connnected. It contains information about Package Manager and info about munin and nagios client files)
-
-	    - 'checkSO.py' (Python script to check Operating System and Version of a host. It's called with three parameters: hostname or IP address of host to check, remote user to connect and role to check. Depending the role, host need a special OS and Version, and script returns 'OK' if host has correct OS and Version).
-
-	    - 'db_facts.py' (Python script to get information from inventory database and show it in Dokuwiki server. It's called with one parameter: SQL string and returns SQL results in JSON format that playbooks can use)
-
-	    - 'net_facts.py' (Python script to scan and discover hosts in 'working subnets' with 'nmap' tool. It discovers live hosts and scans their open ports. If TCP/22 port is open, will try to connect with 'remote user'. If connection is done, host will be clasified as 'node' and will be 'outsider' in other case)
-
-	    - 'openvas_facts.py' (Python script to get information from hosts about vulnerabilites scanned with Openvas. Get general and detailed information about vulnerabilities)
-
-	    - 'path_facts.py' (Python script to get information about command's path on node connnected)
-
-	    - 'setupLocal.yml' (Yaml script to make python scripts 'path_facts.py' and 'base_facts.py' able to be called from playbooks)
-
-	    - 'setupNode.py' (Python script to transform a host in a 'node'. It's called with two parameters: hostname or IP address of host and 'remote user' to permit access. It has to connect to host as 'root' user and call 'setupNode.yml' to make the transformation. Finally will check the connection to host as 'remote user' to validate host as a 'node')
-
-	    - 'setupNode.yml' (Yaml script to prepare a host to be a 'node', permitting ansible access from 'Control server' with 'remote user' and without password. It creates 'remote user', permits access with no password from 'Control server' using authorized_key, and installs and configures sudo to able 'remote user' executing everything)
-
-	    - 'site_facts.py' (Python script to get basic information from nodes. It get info about software and hardware except packages and executables. It returns information in JSON format that playbooks can use)
-
-	    - 'site_facts.exes.py' (Python script to get executables information from nodes. It returns information in JSON format that playbooks can use)
-
-	    - 'site_facts.packages.py' (Python script to get packages information from nodes. It returns information in JSON format that playbooks can use)
-
-	    - 'win_facts.py' (Python script to get information from windows nodes. It get info about software and hardware except packages and executables. It returns information in JSON format that playbooks can use)
-
-
-
-######################################################
+<html>
+<head>
+<title>Menu</title>
+</head>
+<body style="background:#A4BBC7">
+<div align="center">
+<table width="80%">
+<tr><td>
+<center><h1>Structure</h1></center>
+<p>&nbsp;</p>
+<p><strong>Directory Structure: '/etc/ansible' </strong></p>
+<h2>&nbsp;</h2>
+<h2>Files:</h2>
+<ul>
+<li><strong>ansible.cfg</strong>
+<p>Ansible configuration file</p>
+</li>
+<li><strong>configure.py</strong>
+<p>System configuration python script</p>
+</li>
+<li><strong>configExtra.py</strong>
+<p>Extra variables configuration python script</p>
+</li>
+<li><strong>help.py</strong>
+<p>Help menu python script</p>
+</li>
+<li><strong>menu.py</strong>
+<p>User menu python script</p>
+</li>
+</ul>
+<h2>&nbsp;</h2>
+<h2>Playbook files:</h2>
+<ul>
+<li><strong>ansible.yml</strong>
+<p>Configuration of Control server (Ansible)</p>
+</li>
+<li><strong>grafana.yml</strong>
+<p>Installation and configuration of Grafana & InfluxDB server</p>
+</li>
+<li><strong>group_by.yml</strong>
+<p>Auxiliar file used for playbooks to get information about Operating System and Version</p>
+</li>
+<li><strong>munin.yml</strong>
+<p>Installation and configuration of Munin server</p>
+</li>
+<li><strong>mysql.yml</strong>
+<p>Installation and configuration of Mysql server</p>
+</li>
+<li><strong>nagios.yml</strong>
+<p>Installation and configuration of Nagios server</p>
+</li>
+<li><strong>nodes.yml</strong>
+<p>Installation, configuration and getting information of Nodes (Linux/Unix)</p>
+</li>
+<li><strong>openvas.yml</strong>
+<p>Scanning of vulnerabilities of hosts (outsiders, winNodes and nodes) with Openvas</p>
+</li>
+<li><strong>outsiders.yml</strong>
+<p>Scanning and clasifying (nodes and outsiders) of hosts discovered in working subnets</p>
+</li>
+<li><strong>web.yml</strong>
+<p>Configuration of Web Server (Apache Server, Dokuwiki Server, REST API, PHP and Angularjs Apps)</p>
+</li>
+<li><strong>winNodes.yml</strong>
+<p>Getting information of Windows Nodes</p>
+</li>
+</ul>
+<h2>&nbsp;</h2>
+<h2>Directories:</h2>
+<ul>
+<li><strong>config_files/</strong>
+<p>Configuration files (variables by default)</p>
+<ul>
+<li><strong>main.conf</strong>
+<p>Default values of variables. Updated every configuration with values introduced</p>
+</li>
+<li><strong>extra.conf</strong>
+<p>Variables not required in configuration (extra configuration)</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<li><strong>group_vars/</strong>
+<p>Group variables (required parameters in configuration)</p>
+<ul>
+<li><strong>all</strong>
+<p>Global variables for every host</p>
+</li>
+<li><strong>CentOS-6</strong>
+<p>Variables for CentOS-6 hosts, overwriting global variables</p>
+</li>
+<li><strong>CentOS-7</strong>
+<p>Variables for CentOS-7 hosts, overwriting global variables</p>
+</li>
+<li><strong>Debian-6</strong>
+<p>Variables for Debian-6 hosts, overwriting global variables</p>
+</li>
+<li><strong>Debian-7</strong>
+<p>Variables for Debian-7 hosts, overwriting global variables</p>
+</li>
+<li><strong>Distribution-Version.template</strong>
+<p>Template as a example to create a Distribution-Version file</p>
+</li>
+</ul>
+<p>Every file with 'OS-Version' format will have the same function, overwriting global variables</p>
+</li>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<li><strong>help/</strong>
+<p>Help files Documentation files</p>
+</li>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<li><strong>host_vars/</strong>
+<p>Host variables</p>
+<ul>
+<li><strong>node.template</strong>
+<p>Template as an example to create a hostname file</p>
+</li>
+</ul>
+<p>Every file with a host name will overwrite global variables</p>
+</li>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<li><strong>inventory/</strong>
+<p>Inventory files</p>
+<ul>
+<li><strong>ansible</strong>
+<p>Control server's name</p>
+</li>
+<li><strong>grafana</strong>
+<p>Grafana & InfluxDB's name</p>
+</li>
+<li><strong>munin</strong>
+<p>Munin server's name</p>
+</li>
+<li><strong>nagios</strong>
+<p>Nagios server's name</p>
+</li>
+<li><strong>nodes</strong>
+<p>Linux/Unix nodes' names</p>
+</li>
+<li><strong>openvas</strong>
+<p>Openvas server's name</p>
+</li>
+<li><strong>outsiders</strong>
+<p>Outsiders' names</p>
+</li>
+<li><strong>servers</strong>
+<p>Servers' names: Control, Munin, Nagios, Web, Grafana and Openvas</p>
+</li>
+<li><strong>web</strong>
+<p>Web server's name</p>
+</li>
+<li><strong>winNodes</strong>
+<p>Windows nodes' names</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<li><strong>roles/</strong>
+<p>Playbooks code by roles</p>
+<ul>
+<li><strong>ansible/</strong>
+<p>Ansible code to install and configure Control server.</p>
+<p>Called by ansible.yml playbook</p>
+<ul>
+<li><strong>files/</strong>
+<p>Files called by tasks' files to copy to Control server</p>
+</li>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>install.yml</strong>
+<p>Installs needed tools: nmap, wmic, etc.</p>
+</li>
+<li><strong>config.yml</strong>
+<p>Configures Ansible and prepares python scripts to be used by playbooks</p>
+</li>
+<li><strong>cronStart.yml</strong>
+<p>Adds entries to crontab with all the playbooks</p>
+</li>
+<li><strong>cronStop.yml</strong>
+<p>Deletes all entries about plaubooks from crontab</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>apache/</strong>
+<p>Ansible code to install and configure Apache Web server.</p>
+<p>Called by web.yml, munin.yml and nagios.yml playbooks</p>
+<ul>
+<li><strong>handlers/</strong>
+<p>Daemons' restarts called by tasks' files</p>
+</li>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>install.yml</strong>
+<p>Installs apache ans needed libraries</p>
+</li>
+<li><strong>openssl.yml</strong>
+<p>Installs openssl and creates self-signed CA & Server certificates</p>
+</li>
+<li><strong>config.yml</strong>
+<p>Configure apache with SSL</p>
+</li>
+</ul>
+</li>
+<li><strong>templates/</strong>
+<p>Templates called by tasks' files to modify with variables' values and copy to Web server</p>
+</li>
+</ul>
+</li>
+<li><strong>firewall/</strong>
+<p>Ansible code to install and configure firewall for services.</p>
+<p>Called by web.yml, munin.yml, nagios.yml, mysql.yml, grafana.yml and openvas.yml playbooks</p>
+<ul>
+<li><strong>handlers/</strong>
+<p>Daemons' restarts called by tasks' files</p>
+</li>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>install.yml</strong>
+<p>Installs iptables</p>
+</li>
+<li><strong>config.yml</strong>
+<p>Configure iptables to permit access to services only from 'hostsAdmins' and 'hostsReadUser' IP addreses. It creates a firewall service '/etc/init.d/epsms-firewall' for every server (Web, Munin, Nagios, Mysql, Grafana & InfluxDB and Openvas)</p>
+</li>
+</ul>
+</li>
+<li><strong>templates/</strong>
+<p>Templates called by tasks' files to modify with variables' values and copy to Web server</p>
+</li>
+</ul>
+</li>
+<li><strong>grafana/</strong>
+<p>Ansible code to install and configure Grafana & InfluxDB server.</p>
+<p>Called by grafana.yml playbook</p>
+<ul>
+<li><strong>files/</strong>
+<p>Files called by tasks' files to copy to Grafana & InfluxDB server</p>
+</li>
+<li><strong>handlers/</strong>
+<p>Daemons' restarts called by tasks' files</p>
+</li>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>install.yml</strong>
+<p>Installs grafana software</p>
+</li>
+<li><strong>openssl.yml</strong>
+<p>Installs openssl and creates self-signed Server certificate</p>
+</li>
+<li><strong>config.yml</strong>
+<p>Configures grafana software</p>
+</li>
+<li><strong>influxdb.yml</strong>
+<p>Installs and configures influxDB database</p>
+</li>
+<li>
+<p><strong>munininfluxdb.yml</strong></p>
+<p>Installs and configures munininfluxdb in Munin server to get munin data and insert into influxDB database</p>
+</li>
+<li><strong>graphios.yml</strong>
+<p>Installs and configures graphios in Nagios server to get nagios data and insert into influxdb database</p>
+</li>
+<li><strong>dahsboards.yml</strong>
+<p>Creates grafana dahsboards for new nodes and outsiders</p>
+</li>
+</ul>
+</li>
+<li><strong>templates/</strong>
+<p>Templates called by tasks' files to modify with variables' values and copy to Grafana & InfluxDB server</p>
+</li>
+</ul>
+</li>
+<li><strong>munin/</strong>
+<p>Ansible code to install and configure Munin server.</p>
+<p>Called by munin.yml playbook</p>
+<ul>
+<li><strong>handlers/</strong>
+<p>Daemons' restarts called by tasks' files</p>
+</li>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>install.yml</strong>
+<p>Installs munin</p>
+</li>
+<li><strong>config.yml</strong>
+<p>Configures munin server</p>
+</li>
+</ul>
+</li>
+<li><strong>templates/</strong>
+<p>Templates called by tasks' files to modify with variables' values and copy to Munin server</p>
+</li>
+</ul>
+</li>
+<li><strong>mysql/</strong>
+<p>Ansible code to install and configure Mysql server.</p>
+<p>Called by mysql.yml playbook</p>
+<ul>
+<li><strong>files/</strong>
+<p>Files called by tasks' files to copy to Mysql server</p>
+</li>
+<li><strong>handlers/</strong>
+<p>Daemons' restarts called by tasks' files</p>
+</li>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>install.yml</strong>
+<p>Installs mysql-server</p>
+</li>
+<li><strong>config.yml</strong>
+<p>Configures mysql server</p>
+</li>
+<li><strong>createDB.yml</strong>
+<p>Creates admin user and inventory database and tables</p>
+</li>
+</ul>
+</li>
+<li><strong>templates/</strong>
+<p>Templates called by tasks' files to modify with variables' values and copy to Mysql server</p>
+</li>
+</ul>
+</li>
+<li><strong>nagios/</strong>
+<p>Ansible code to install and configure Nagios server.</p>
+<p>Called by nagios.yml playbook</p>
+<ul>
+<li><strong>handlers/</strong>
+<p>Daemons' restarts called by tasks' files</p>
+</li>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>install.yml</strong>
+<p>Installs nagios</p>
+</li>
+<li><strong>config.yml</strong>
+<p>Configures nagios server</p>
+</li>
+</ul>
+</li>
+<li><strong>templates/</strong>
+<p>Templates called by tasks' files to modify with variables' values and copy to Nagios server)</p>
+</li>
+</ul>
+</li>
+<li><strong>node/</strong>
+<p>Ansible code to get information about nodes.</p>
+<p>Called by node.yml playbook</p>
+<ul>
+<li><strong>files/</strong>
+<p>Files called by tasks' files to copy to nodes</p>
+</li>
+<li><strong>handlers/</strong>
+<p>Daemons' restarts called by tasks' files</p>
+</li>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>installBase.yml</strong>
+<p>Installs needed packages in nodes to get information</p>
+</li>
+<li><strong>munin-node.yml</strong>
+<p>Installs and configures munin-node</p>
+</li>
+<li><strong>nagios-nrpe.yml</strong>
+<p>Installs and configures nagios-nrpe</p>
+</li>
+<li><strong>dataDB.yml</strong>
+<p>Gets basic information from nodes executing site_facts script, updates inventory database, Nagios client and Nagios and Wiki servers</p>
+</li>
+<li><strong>dataExesDB.yml</strong>
+<p>Gets executables information from nodes executing site_facts.exes script, updates inventory database and Wiki server</p>
+</li>
+<li><strong>dataPackagesDB.yml</strong>
+<p>Gets packages information from nodes executing site_facts.packages script, updates inventory database and Wiki server</p>
+</li>
+</ul>
+</li>
+<li><strong>templates/</strong>
+<p>Templates called by tasks' files to modify with variables' values and copy to nodes and Mysql, Nagios, Munin and Wiki servers</p>
+</li>
+</ul>
+</li>
+<li><strong>openvas/</strong>
+<p>Ansible code to scan vulnerabilities of hosts with Openvas software</p>
+<p>Called by openvas.yml playbook</p>
+<ul>
+<li><strong>handlers/</strong>
+<p>Daemons' restarts called by tasks' files</p>
+</li>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>install.yml</strong>
+<p>Install Openvas software</p>
+</li>
+<li><strong>openssl.yml</strong>
+<p>Installs openssl and creates self-signed Server & OMP Client certificates</p>
+</li>
+<li><strong>config.yml</strong>
+<p>Config Openvas to be ready for scanning</p>
+</li>
+<li><strong>readUser.yml</strong>
+<p>Config Openvas read only user</p>
+</li>
+<li><strong>update.yml</strong>
+<p>Update Openvas database</p>
+</li>
+<li><strong>dataDB.yml</strong>
+<p>Scans hosts executing 'omp' Openvas client, and gets information with openvas_facts scripts, stores results on database and makes reports available on wiki server in different formats: html, pdf, txt and xml</p>
+<p>It calls: preScan.yml, startScan.yml and updateWiki.yml</p>
+<li><strong>preScan.yml</strong>
+<p>Prepares list of hosts to be scanned</p>
+<li><strong>startScan.yml</strong>
+<p>Check host vulnerabilities and save results on Mysql database</p>
+<li><strong>updateWiki.yml</strong>
+<p>Updates wiki pages with results obtained</p>
+</li>
+</ul>
+</li>
+<li><strong>templates/</strong>
+<p>Templates called by tasks' files to modify with variables' values and copy to Mysql server</p>
+</li>
+</ul>
+</li>
+<li><strong>outsider/</strong>
+<p>Ansible code to scan working subnets to discover and clasify hosts as nodes and outsiders</p>
+<p>Called by outsider.yml playbook</p>
+<ul>
+<li><strong>handlers/</strong>
+<p>Daemons' restarts called by tasks' files</p>
+</li>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>getData.yml</strong>
+<p>Installs needed packages for scanning</p>
+</li>
+<li><strong>dataDB.yml</strong>
+<p>Scans nodes and outsiders from working subnets executing net_facts script, updates inventory database, Nagios and Wiki servers</p>
+</li>
+</ul>
+</li>
+<li><strong>templates/</strong>
+<p>Templates called by tasks' files to modify with variables' values and copy to Control, Mysql, Nagios and Wiki servers</p>
+</li>
+</ul>
+</li>
+<li><strong>web/</strong>
+<p>Ansible code to install and configure Web applications: PHP & Angularjs Apps, REST API and phpMyAdmin.</p>
+<p>Called by web.yml playbook</p>
+<ul>
+<li><strong>files/</strong>
+<p>Files called by tasks' files to copy to Web server</p>
+</li>
+<li><strong>handlers/</strong>
+<p>Daemons' restarts called by tasks' files</p>
+</li>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>php.yml</strong>
+<p>Installs PHP</p>
+</li>
+<li><strong>phpMyAdmin.yml</strong>
+<p>Installs and configures phpMyAdmin</p>
+</li>
+<li><strong>config.yml</strong>
+<p>Configures Web application and sync pages</p>
+</li>
+</ul>
+</li>
+<li><strong>templates/</strong>
+<p>Templates called by tasks' files to modify with variables' values and copy to Web server</p>
+</li>
+</ul>
+</li>
+<li><strong>wiki/</strong>
+<p>Ansible code to install and configure Wiki server.</p>
+<p>Called by web.yml playbook)</p>
+<ul>
+<li><strong>files/</strong>
+<p>Files called by tasks' files to copy to Wiki server</p>
+</li>
+<li><strong>handlers/</strong>
+<p>Daemons' restarts called by tasks' files</p>
+</li>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>install.yml</strong>
+<p>Installs dokuwiki</p>
+</li>
+<li><strong>config.yml</strong>
+<p>Configures Wiki server</p>
+</li>
+</ul>
+</li>
+<li><strong>templates/</strong>
+<p>Templates called by tasks' files to modify with variables' values and copy to Wiki server</p>
+</li>
+</ul>
+</li>
+<li><strong>winNode/</strong>
+<p>Ansible code to get information about windows nodes.</p>
+<p>Called by winNode.yml playbook</p>
+<ul>
+<li><strong>tasks/</strong>
+<ul>
+<li><strong>main.yml</strong>
+<p>Main Yaml file, that calls the rest of Yaml files</p>
+</li>
+<li><strong>dataDB.yml</strong>
+<p>Gets information from windows nodes executing win_facts script, updates inventory database and Wiki server</p>
+</li>
+</ul>
+</li>
+<li><strong>templates/</strong>
+<p>Templates called by tasks' files to modify with variables' values and copy to Mysql and Wiki servers</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<ul>
+<li><strong>scripts/</strong>
+<p>Scripts needed by playbooks</p>
+<ul>
+<li><strong>base_facts.py</strong>
+<p>Python script to get base information about the node connnected. It contains information about Package Manager and info about munin and nagios client files</p>
+</li>
+<li><strong>checkSO.py</strong>
+<p>Python script to check Operating System and Version of a host. It's called with three parameters: hostname or IP address of host to check, remote user to connect and role to check.</p>
+<p>Depending the role, host need a special OS and Version, and script returns 'OK' if host has correct OS and Version</p>
+</li>
+<li><strong>db_facts.py</strong>
+<p>Python script to get information from inventory database and show it in Dokuwiki server.</p>
+<p>It's called with one parameter: SQL string and returns SQL results in JSON format that playbooks can use</p>
+</li>
+<li><strong>net_facts.py</strong>
+<p>Python script to scan and discover hosts in 'working subnets' with 'nmap' tool.</p>
+<p>It discovers live hosts and scans their open ports.</p>
+<p>If TCP/22 port is open, will try to connect with 'remote user'.</p>
+<p>If connection is done, host will be clasified as 'node' and will be 'outsider' in other case)</p>
+</li>
+<li><strong>openvas_facts.py</strong>
+<p>Python script to get information from hosts about vulnerabilites scanned with Openvas.</p>
+<p>Get general and detailed information about vulnerabilities</p>
+</li>
+<li><strong>path_facts.py</strong>
+<p>Python script to get information about command's path on node connnected</p>
+</li>
+<li><strong>setupLocal.yml</strong>
+<p>Yaml script to make python scripts 'path_facts.py' and 'base_facts.py' able to be called from playbooks</p>
+</li>
+<li><strong>setupNode.py</strong>
+<p>Python script to transform a host in a 'node'.</p>
+<p>It's called with two parameters: hostname or IP address of host and 'remote user' to permit access.</p>
+<p>It has to connect to host as 'root' user and call 'setupNode.yml' to make the transformation.</p>
+<p>Finally will check the connection to host as 'remote user' to validate host as a 'node'</p>
+</li>
+<li><strong>setupNode.yml</strong>
+<p>Yaml script to prepare a host to be a 'node', permitting ansible access from 'Control server' with 'remote user' and without password.</p>
+<p>It creates 'remote user', permits access with no password from 'Control server' using authorized_key, and installs and configures sudo to able 'remote user' executing everything</p>
+</li>
+<li><strong>site_facts.py</strong>
+<p>Python script to get basic information from nodes.</p>
+<p>It get info about software and hardware except packages and executables.</p>
+<p>It returns information in JSON format that playbooks can use</p>
+</li>
+<li><strong>site_facts.exes.py</strong>
+<p>Python script to get executables information from nodes.</p>
+<p>It returns information in JSON format that playbooks can use)</p>
+</li>
+<li><strong>site_facts.packages.py</strong>
+<p>Python script to get packages information from nodes.</p>
+<p>It returns information in JSON format that playbooks can use</p>
+</li>
+<li><strong>win_facts.py</strong>
+<p>Python script to get information from windows nodes. It get info about software and hardware except packages and executables. It returns information in JSON format that playbooks can use</p>
+</li>
+</ul>
+</li>
+</ul>
+</td></tr>
+</table>
+</div>
+</body>
+</html>
