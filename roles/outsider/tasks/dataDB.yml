@@ -50,9 +50,7 @@
   delegate_to: "{{ hostMysql }}"
 
 - name: Get timeStamp
-  #shell: echo $(date "+%Y-%m-%d %H:%M:%S") executable=/bin/bash
-  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="timeStamp" query="Select now()"
-  #register: timeStamp
+  action: db_facts hostMysql="{{ hostMysql }}" passwd="{{ passwdAdmin }}" label="timeStamp" query="Select now() as data"
   delegate_to: "{{ hostMysql }}"
  
 # Interesting if we need execute something before save outsiders data
@@ -66,7 +64,7 @@
   delegate_to: "{{ hostMysql }}"
 
 - name: Execute script out.py (in Mysql Server) POST-outsiders
-  shell: '{{ pathInventoryDirectory }}/outsiders/out.py POST "{{ PID.stdout }}" "{{ timeStamp }}" > /dev/null 2> /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp; [ -s /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp ] && (echo "### ERROR outsiders - out.py POST {{ PID.stdout }} {{ timeStamp }} - $(date) ###" >> /var/log/ansible/mysql-errors.log; cat /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp >> /var/log/ansible/mysql-errors.log); rm -f /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp executable=/bin/bash'
+  shell: '{{ pathInventoryDirectory }}/outsiders/out.py POST "{{ PID.stdout }}" "{{ timeStamp[0]["data"] }}" > /dev/null 2> /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp; [ -s /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp ] && (echo "### ERROR outsiders - out.py POST {{ PID.stdout }} {{ timeStamp[0]["data"] }} - $(date) ###" >> /var/log/ansible/mysql-errors.log; cat /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp >> /var/log/ansible/mysql-errors.log); rm -f /var/log/ansible/.out_{{ PID.stdout }}-mysql-errors.tmp executable=/bin/bash'
   delegate_to: "{{ hostMysql }}"
 
 - name: Add nodes to inventory
