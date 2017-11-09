@@ -1,0 +1,16 @@
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
+
+==== Server {{ inventory_hostname }}: Filesystems ====
+
+^  Filesystems  ^^^^^
+^  Name  ^  Type  ^  Mount  ^  Options  ^  Size  ^
+{% for fs in hostvars[inventory_hostname]["ansible_mounts"]|sort -%}
+| {{ fs.device }} | {{ fs.fstype }} | {{ fs.mount }} | {{ fs.options }} | {{ fs.size_total|filesizeformat if fs.size_total is defined else "0" }} |
+{% endfor %}
+
+
+
+
+[[{{ inventory_hostname }} | Back to {{ inventory_hostname }} page]]
+
