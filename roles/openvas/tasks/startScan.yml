@@ -139,6 +139,7 @@
   register: openvasFacts
   changed_when: False
   ignore_errors: yes
+  when: runTasksList.stdout is defined and runTasksList.stdout != ""
 
 - name: Generate sql file for Openvas (in Mysql Server)
   template: src=root/inventory/outsiders/out_dataOpenvas.sql.j2 dest={{ pathInventoryDirectory }}/outsiders/{{ hostScan }}_openvas.{{ PID.stdout }}.sql owner=root group=root mode=0640
