@@ -57,6 +57,6 @@
   delegate_to: "{{ hostMunin }}"
 
 - name: Add to crontab 'bin/fetch.py' execution to get data in Munin server
-  cron: name="fetch data from munin to influxdb" minute="*/{{ minutesCronMuninInfluxDB }}" job="scl enable python27 '/root/munin-influxdb/bin/fetch.py --no-interactive --rrd /var/lib/munin/{{ ansible_domain }} -c admin:$(cat /root/munin-influxdb/adminpw)@{{ hostnameGrafana }}:8086/db/munin'" 
+  cron: name="fetch data from munin to influxdb" minute="*/{{ minutesCronMuninInfluxDB }}" job="[ $(ps xau|grep 'scl enable python27 /root/munin-influxdb/bin/fetch.py'|grep -v 'grep'|wc -l) -lt 2 ] && scl enable python27 '/root/munin-influxdb/bin/fetch.py --no-interactive --rrd /var/lib/munin/{{ ansible_domain }} -c admin:$(cat /root/munin-influxdb/adminpw)@{{ hostnameGrafana }}:8086/db/munin'" 
   delegate_to: "{{ hostMunin }}"
 
