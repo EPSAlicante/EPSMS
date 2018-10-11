@@ -8,9 +8,33 @@
 
 # Munin Server installation 
 
-- name: Be sure munin is installed (yum)
-  yum: pkg={{ item }} enablerepo={{ labelEpel }} state=installed
-  with_items: "{{ packageMunin }}"
-  register: instMunin
+- name: Check munin installation
+  shell: (rpm -q munin > /dev/null 2> /dev/null && echo "OK") || echo "No" executable=/bin/bash
+  register: MuninInstalled
+  changed_when: False
   when: ansible_pkg_mgr == "yum"
 
+- name: Create Munin directory
+  file: path=/root/munin state=directory owner=root group=root mode=0750
+  when: ansible_pkg_mgr == "yum" and MuninInstalled.stdout != "OK" 
+
+- name: Copy Munin packages to Munin Server
+  copy: src=root/munin/{{ item }} dest=/root/munin owner=root group=root mode=0644
+  with_items: "{{ packageMunin }}"
+  when: ansible_pkg_mgr == "yum" and MuninInstalled.stdout != "OK"
+
+- name: Install Munin 
+  shell: yum -y --enablerepo={{ labelEpel }} --nogpgcheck localinstall /root/munin/*.rpm  executable=/bin/bash
+  register: muninInst
+  when: ansible_pkg_mgr == "yum" and MuninInstalled.stdout == "No"
+
+- name: Be sure needed tools are installed
+  yum: pkg={{ item }} state=installed
+  with_items: "{{ toolsMunin }}"
+  when: ansible_pkg_mgr == "yum"
+
+- name: Exclude munin package from updates
+  shell: (grep '^exclude=.*munin.*' /etc/yum.conf >/dev/null 2>/dev/null && echo "No") || (grep '^exclude=' /etc/yum.conf && sed -i 's/^exclude=/exclude=munin* /g' /etc/yum.conf) || echo 'exclude=munin*' executable=/bin/bash
+  register: excludeMunin
+  changed_when: excludeMunin.stdout != "No"
+  when: ansible_pkg_mgr == "yum"

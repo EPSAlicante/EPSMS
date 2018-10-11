@@ -42,7 +42,7 @@ daemonApache: httpd
 
 # Apache package
 packageApache: 
-- httpd 
+- httpd
 - python-passlib
 - mod_proxy_html
 
@@ -70,7 +70,12 @@ muninCgi: /var/www/cgi-bin
 
 # Munin package
 packageMunin:
-- munin
+- munin-2.0.33-1.el6.noarch.rpm
+- munin-common-2.0.33-1.el6.noarch.rpm 
+- munin-node-2.0.33-1.el6.noarch.rpm
+
+# Munin tools
+toolsMunin:
 - nmap
 - curl
 
@@ -224,3 +229,4 @@ labelEpel: epel
 
 # Rpmforge repository (label)
 labelRpmforge: rpmforge
+

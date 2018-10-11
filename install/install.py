@@ -18,6 +18,7 @@ findModArgs = "/usr/lib/python2.?/site-packages/ansible/parsing/mod_args.py"
 findFactsLib = "/usr/lib/python2.?/site-packages/ansible/module_utils/facts.py"
 fileTGZ = "ansible.tgz"
 versionAnsible = "ansible-2.3.2.0"
+versionAnsibleRPM = "ansible-2.3.2.0-1.el6.noarch.rpm"
 yumConf = "/etc/yum.conf"
 
 
@@ -110,8 +111,7 @@ def main():
     # Installing ansible
     print
     print "Installing %s" % (versionAnsible)
-    ret1Code = subprocess.call("yum -y install %s" % (versionAnsible), shell=True)
-
+    ret1Code = subprocess.call("yum -y --nogpgcheck localinstall %s" % (versionAnsibleRPM), shell=True)
     if ret1Code == 0:
       print
       print "Installing required tools"
@@ -177,7 +177,7 @@ def main():
               print "%s directory created" % (pathAnsibleLogs)
 
 	    # Set scp_if_ssh = True in fileAnsibleCFG 
-	    retCode = subprocess.call("(grep '^scp_if_ssh' %s && (grep '^scp_if_ssh' %s|grep -i true || (sed -i 's/scp_if_ssh/#scp_if_ssh/' %s && false)) || sed -i 's/\[ssh_connection\]/\[ssh_connection\]\\nscp_if_ssh = True/' %s) > /dev/null" % (fileAnsibleCFG,fileAnsibleCFG,fileAnsibleCFG,fileAnsibleCFG), shell=True)	
+	    retCode = subprocess.call("(grep '^scp_if_ssh' %s && (grep '^scp_if_ssh' %s|grep -i true || (sed -i 's/scp_if_ssh/#scp_if_ssh/' %s && false)) || sed -i 's/\[ssh_connection\]/\[ssh_connection\]\\nscp_if_ssh = True/' %s) > /dev/null" % (fileAnsibleCFG,fileAnsibleCFG,fileAnsibleCFG,fileAnsibleCFG), shell=True)
 	    print
 	    print "'scp_if_ssh = True' verified in %s" % (fileAnsibleCFG)
 
