@@ -43,7 +43,7 @@ Basically, 'EPS MS' **provide us**:
 
 OK, I want to try this software. But, how much time do I have to spend? Just a few minutes. These are the steps to **install and configure**:
 
-1. Download ***'epsms.tgz'*** file of **install** directory and decompress it on a CentOS 6 host (this will be our 'Control Server'). 
+1. Copy tgz package **'ansible.tgz'** and installation script **'install.py'** (located in **install** directory) in a directory on a CentOS 6 host (this will be our 'Control Server'). 
 
 2. Execute **'install.py'** script to install 'EPS MS'.
 
