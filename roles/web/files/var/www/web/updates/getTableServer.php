@@ -162,6 +162,8 @@ if ($s=="All Hosts") {
   $sql = $sql . " UNION Select End as TimeUpdate, Server, Concat('Deleted Windows Service (', Name, '): ', Caption, ' (', State, ')') as Event from WinService where " . $sqlFilterOld;
   $sql = $sql . " UNION Select Init as TimeUpdate, Server, Concat('New Windows Share (', Name, '): ', Caption, ' ', PathShare, ' (', TypeShare, ')') as Event from WinShare where " . $sqlFilterNew;
   $sql = $sql . " UNION Select End as TimeUpdate, Server, Concat('Deleted Windows Share (', Name, '): ', Caption, ' ', PathShare, ' (', TypeShare, ')') as Event from WinShare where " . $sqlFilterOld;
+  $sql = $sql . " UNION Select Init as TimeUpdate, Server, Concat('New Windows Package (', Name, '): ', Caption, ' ', InstallState, ' (', InstallDate, ')') as Event from WinPackage where " . $sqlFilterNew;
+  $sql = $sql . " UNION Select End as TimeUpdate, Server, Concat('Deleted Windows Package (', Name, '): ', Caption, ' ', InstallState, ' (', InstallDate, ')') as Event from WinPackage where " . $sqlFilterOld;
   $sql = $sql . " ORDER BY 1 DESC, 2";
 
 } else {
@@ -286,6 +288,8 @@ if ($s=="All Hosts") {
   $sql = $sql . " UNION Select End as TimeUpdate, Server, Concat('Deleted Windows Service (', Name, '): ', Caption, ' (', State, ')') as Event from WinService where " . $sqlFilterOld . " and Server = '" . $s . "'";
   $sql = $sql . " UNION Select Init as TimeUpdate, Server, Concat('New Windows Share (', Name, '): ', Caption, ' ', PathShare, ' (', TypeShare, ')') as Event from WinShare where " . $sqlFilterNew . " and Server = '" . $s . "'";
   $sql = $sql . " UNION Select End as TimeUpdate, Server, Concat('Deleted Windows Share (', Name, '): ', Caption, ' ', PathShare, ' (', TypeShare, ')') as Event from WinShare where " . $sqlFilterOld . " and Server = '" . $s . "'";
+  $sql = $sql . " UNION Select Init as TimeUpdate, Server, Concat('New Windows Package (', Name, '): ', Caption, ' ', InstallState, ' (', InstallDate, ')') as Event from WinPackage where " . $sqlFilterNew . " and Server = '" . $s . "'";
+  $sql = $sql . " UNION Select End as TimeUpdate, Server, Concat('Deleted Windows Package (', Name, '): ', Caption, ' ', InstallState, ' (', InstallDate, ')') as Event from WinPackage where " . $sqlFilterOld . " and Server = '" . $s . "'";
   $sql = $sql . " ORDER BY 1 DESC, 2";
 
 }

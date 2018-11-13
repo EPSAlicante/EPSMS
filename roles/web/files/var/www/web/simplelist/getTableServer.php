@@ -73,6 +73,7 @@ if ($q == "Historical") {
   $sqlWinProcessors="SELECT * FROM WinProcessor WHERE Server = '" . $s . "' ORDER BY DeviceID";
   $sqlWinServices="SELECT * FROM WinService WHERE Server = '" . $s . "' ORDER BY Name";
   $sqlWinShares="SELECT * FROM WinShare WHERE Server = '" . $s . "' ORDER BY Name";
+  $sqlWinPackages="SELECT * FROM WinPackage WHERE Server = '" . $s . "' ORDER BY Name";
 } else {
   $sqlServer="SELECT * FROM Server WHERE End IS NULL AND Name = '" . $s . "' ORDER BY Init";
   $sqlPorts="SELECT * FROM ServerPort WHERE End IS NULL AND Server = '" . $s . "' ORDER BY Access, Protocol, Port";
@@ -142,6 +143,7 @@ if ($q == "Historical") {
   $sqlWinProcessors="SELECT * FROM WinProcessor WHERE End IS NULL AND Server = '" . $s . "' ORDER BY DeviceID";
   $sqlWinServices="SELECT * FROM WinService WHERE End IS NULL AND Server = '" . $s . "' ORDER BY Name";
   $sqlWinShares="SELECT * FROM WinShare WHERE End IS NULL AND Server = '" . $s . "' ORDER BY Name";
+  $sqlWinPackages="SELECT * FROM WinPackage WHERE End IS NULL AND Server = '" . $s . "' ORDER BY Name";
 }
 
 $resultServer = mysql_query($sqlServer);
@@ -2754,6 +2756,47 @@ if ($nrowsWinShares > 0) {
     echo "</tr>";
   }
   echo "<tr style='background:#2D7297; color:white'><td colspan='8'>Total: " . $nrowsWinShares . " regs.</td></tr></table>";
+
+}
+
+
+$resultWinPackages = mysql_query($sqlWinPackages);
+$nrowsWinPackages = mysql_num_rows($resultWinPackages);
+
+if ($nrowsWinPackages > 0) {
+
+  echo "<table border='1' cellpadding='5' style='background:#75B9E4'>
+  <caption><H2>Windows Packages</H2></caption>
+  <tr style='background:#2D7297; color:white'>
+  <th>Name</th>
+  <th>Caption</th>
+  <th>Description</th>
+  <th>Install Date</th>
+  <th>Install Location</th>
+  <th>Install State</th>
+  <th>Vendor</th>
+  <th>Version</th>
+  <th>Init</th>
+  <th>End</th>
+  <th>Checked</th>
+  </tr>";
+
+  while($row = mysql_fetch_array($resultWinPackages)) {
+    echo "<tr>";
+    echo "<td>" . (isset($row['Name']) ? $row['Name'] : "&nbsp;") . "</td>";
+    echo "<td>" . (isset($row['Caption']) ? $row['Caption'] : "&nbsp;") . "</td>";
+    echo "<td>" . (isset($row['Description']) ? $row['Description'] : "&nbsp;") . "</td>";
+    echo "<td>" . (isset($row['InstallDate']) ? $row['InstallDate'] : "&nbsp;") . "</td>";
+    echo "<td>" . (isset($row['InstallLocation']) ? $row['InstallLocation'] : "&nbsp;") . "</td>";
+    echo "<td>" . (isset($row['InstallState']) ? $row['InstallState'] : "&nbsp;") . "</td>";
+    echo "<td>" . (isset($row['Vendor']) ? $row['Vendor'] : "&nbsp;") . "</td>";
+    echo "<td>" . (isset($row['Version']) ? $row['Version'] : "&nbsp;") . "</td>";
+    echo "<td>" . (isset($row['Init']) ? $row['Init'] : "&nbsp;") . "</td>";
+    echo "<td>" . (isset($row['End']) ? $row['End'] : "&nbsp;") . "</td>";
+    echo "<td>" . (isset($row['Checked']) ? $row['Checked'] : "&nbsp;") . "</td>";
+    echo "</tr>";
+  }
+  echo "<tr style='background:#2D7297; color:white'><td colspan='11'>Total: " . $nrowsWinPackages . " regs.</td></tr></table>";
 
 }
 

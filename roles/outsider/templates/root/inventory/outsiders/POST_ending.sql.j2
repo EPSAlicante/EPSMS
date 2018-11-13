@@ -415,4 +415,9 @@ END-UPDATE_WINSHARES: UPDATE WinShare INNER JOIN Server ON WinShare.Server=Serve
 END-CHECK_WINSHARES_HIST: SELECT * from WinShare, Server WHERE WinShare.Server=Server.Name AND WinShare.Auto AND WinShare.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
 END-UPDATE_WINSHARES_HIST: UPDATE WinShare INNER JOIN Server ON WinShare.Server=Server.Name SET WinShare.End=NOW() WHERE WinShare.Auto AND WinShare.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
 
+END-CHECK_WINPACKAGES: SELECT * from WinPackage, Server WHERE WinPackage.Server=Server.Name AND WinPackage.Auto AND WinPackage.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+END-UPDATE_WINPACKAGES: UPDATE WinPackage INNER JOIN Server ON WinPackage.Server=Server.Name SET WinPackage.End=NOW() WHERE WinPackage.Auto AND WinPackage.End IS NULL AND Server.Auto AND Server.End IS NULL AND (NOT Server.Node OR Server.Checked<'##checkedTime##');
+
+END-CHECK_WINPACKAGES_HIST: SELECT * from WinPackage, Server WHERE WinPackage.Server=Server.Name AND WinPackage.Auto AND WinPackage.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
+END-UPDATE_WINPACKAGES_HIST: UPDATE WinPackage INNER JOIN Server ON WinPackage.Server=Server.Name SET WinPackage.End=NOW() WHERE WinPackage.Auto AND WinPackage.End IS NULL AND Server.Auto AND Server.Name NOT IN (Select Name from Server WHERE End IS NULL);
 {% endif %}

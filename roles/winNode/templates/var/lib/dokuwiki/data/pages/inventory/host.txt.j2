@@ -36,10 +36,11 @@
 
 ^  Software (Security)  ^^
 ^ Ports (External Scan) | {{ "[[ %s-portsext | TCP ports ]]" % (inventory_hostname) }} |
+^ Packages | {{ "[[ %s-packages | %s packages ]]" % (inventory_hostname,hostvars[inventory_hostname]["Package"]|count) if hostvars[inventory_hostname]["Package"] is defined else "?" }} |
 ^ Users & Groups | {{ "[[ %s-accounts | %s System Accounts & %s User Accounts & %s Groups ]]" % (inventory_hostname,hostvars[inventory_hostname]["SystemAccount"]|count if hostvars[inventory_hostname]["SystemAccount"] is defined else "?", hostvars[inventory_hostname]["UserAccount"]|count if hostvars[inventory_hostname]["UserAccount"] is defined else "?" ,hostvars[inventory_hostname]["Group"]|count if hostvars[inventory_hostname]["Group"] is defined else "?") }} |
 ^ Drivers | {{ "[[ %s-drivers | %s drivers ]]" % (inventory_hostname,hostvars[inventory_hostname]["SystemDriver"]|count) if hostvars[inventory_hostname]["SystemDriver"] is defined else "?" }} |
 ^ Services | {{ "[[ %s-services | %s services ]]" % (inventory_hostname,hostvars[inventory_hostname]["Service"]|count) if hostvars[inventory_hostname]["Service"] is defined else "?" }} |
-^ Shares | {{ "[[ %s-shares | %s Shares ]]" % (inventory_hostname,hostvars[inventory_hostname]["Share"]|count if hostvars[inventory_hostname]["Share"] is defined else "?") }} |
+^ Shares | {{ "[[ %s-shares | %s shares ]]" % (inventory_hostname,hostvars[inventory_hostname]["Share"]|count) if hostvars[inventory_hostname]["Share"] is defined else "?" }} |
 
 
 

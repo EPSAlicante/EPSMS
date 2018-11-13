@@ -1442,6 +1442,30 @@ CREATE TABLE IF NOT EXISTS WinShare (
   PRIMARY KEY(Name, Server, Init)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS WinPackage (
+  Name varchar(100) NOT NULL,
+  Server varchar(100) NOT NULL,
+  Caption varchar(100) NOT NULL,
+  Description varchar(255) NOT NULL,
+  InstallDate Date NOT NULL,
+  InstallLocation varchar(255) NOT NULL,
+  InstallState varchar(25) NOT NULL,
+  Vendor varchar(100) NOT NULL,
+  Version varchar(50) NOT NULL,
+  Init DateTime NOT NULL,
+  End DateTime DEFAULT NULL,
+  Checked DateTime DEFAULT NULL,
+  Auto Boolean DEFAULT 0,
+  KEY (Name),
+  KEY (Server),
+  KEY (InstallDate),
+  KEY (InstallState),
+  KEY (Vendor),
+  KEY (Init),
+  KEY (End),
+  PRIMARY KEY(Name, Server, Init)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS WinService (
   Name varchar(50) NOT NULL,
   Server varchar(100) NOT NULL,

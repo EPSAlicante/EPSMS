@@ -89,6 +89,7 @@ $sql = $sql . " UNION Select Server from WinPortConnector where " . $sqlFilter .
 $sql = $sql . " UNION Select Server from WinProcessor where " . $sqlFilter . " group by Server";
 $sql = $sql . " UNION Select Server from WinService where " . $sqlFilter . " group by Server";
 $sql = $sql . " UNION Select Server from WinShare where " . $sqlFilter . " group by Server";
+$sql = $sql . " UNION Select Server from WinPackage where " . $sqlFilter . " group by Server";
 $sql = $sql . " ORDER BY 1";
 
 

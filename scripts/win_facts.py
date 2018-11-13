@@ -482,6 +482,32 @@ def getType(code):
     return retValue
 
 
+def getInstallType(code):
+
+    arrayTypes = {'-6':'Bad Configuration', '-2':'Invalid Argument', '-1':'Unknown Package', '1':'Advertised', '2':'Absent', '5':'Installed'}
+    try:
+      if arrayTypes.has_key(code):
+        retValue = arrayTypes[code]
+      else:
+        retValue = "%s (Installed Type)" % (code) if code.strip() != "" else ""
+
+    except:
+      retValue = "%s (Installed Type)" % (code) if code.strip() != "" else ""
+
+    return retValue
+
+
+def getInstallDate(cad):
+
+    try:
+      retValue = "%s/%s/%s" % (cad[:4], cad[4:6], cad[6:8])
+    
+    except:
+      retValue = "%s" % cad
+
+    return retValue 
+
+
 def show_ComputerSystem():
 
     print "    \"ComputerSystem\": {"
@@ -730,7 +756,7 @@ def show_OperatingSystem():
 def show_SystemDriver():
 
     # Getting Total System Drivers 
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name from win32_SystemDriver') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Name$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name from win32_SystemDriver') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Name$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"SystemDriver\": ["
       # Getting System Drivers
@@ -802,7 +828,7 @@ def show_SystemDriver():
 def show_Service():
 
     # Getting Total Services
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name from win32_Service') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Name$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name from win32_Service') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Name$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"Service\": ["
       # Getting Services
@@ -874,7 +900,7 @@ def show_Service():
 def show_SystemAccount():
 
     # Getting Total System Accounts 
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Domain,Name from win32_SystemAccount') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Domain|Name$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Domain,Name from win32_SystemAccount') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Domain|Name$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"SystemAccount\": ["
       # Getting System Accounts
@@ -942,7 +968,7 @@ def show_SystemAccount():
 def show_UserAccount():
 
     # Getting Total User Accounts
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Domain,Name from win32_UserAccount') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Domain|Name$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Domain,Name from win32_UserAccount') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Domain|Name$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"UserAccount\": ["
       # Getting User Accounts
@@ -1045,7 +1071,7 @@ def show_UserAccount():
 def show_Group():
 
     # Getting Total Groups
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Domain,Name from win32_Group') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Domain|Name$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Domain,Name from win32_Group') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Domain|Name$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"Group\": ["
       # Getting Groups
@@ -1113,7 +1139,7 @@ def show_Group():
 def show_GroupUser():
 
     # Getting Total Groups-Users
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select GroupComponent,PartComponent from win32_GroupUser') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^GroupComponent|PartComponent$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select GroupComponent,PartComponent from win32_GroupUser') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^GroupComponent|PartComponent$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"GroupUser\": ["
       # Getting Groups-Users
@@ -1237,7 +1263,7 @@ def show_BIOS():
 def show_Processor():
 
     # Getting Total Processors
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select DeviceID from win32_Processor') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^DeviceID$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select DeviceID from win32_Processor') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^DeviceID$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"Processor\": ["
       # Getting Processors
@@ -1360,7 +1386,7 @@ def show_Processor():
 def show_NetworkAdapter():
 
     # Getting Total Network Adapters
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select DeviceID from win32_NetworkAdapter') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^DeviceID$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select DeviceID from win32_NetworkAdapter') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^DeviceID$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"NetworkAdapter\": ["
       # Getting Network Adapters 
@@ -1448,7 +1474,7 @@ def show_NetworkAdapter():
 def show_NetworkAdapterConfiguration():
 
     # Getting Total Network Adapter Configurations
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Index from win32_NetworkAdapterConfiguration') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Index$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Index from win32_NetworkAdapterConfiguration') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Index$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"NetworkAdapterConfiguration\": ["
       # Getting Network Adapter Configurations
@@ -1598,7 +1624,7 @@ def show_NetworkAdapterConfiguration():
 def show_NetworkAdapterSetting():
 
     # Getting Total Network Adapter Settings
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Element,Setting from win32_NetworkAdapterSetting') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Element|Setting$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Element,Setting from win32_NetworkAdapterSetting') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Element|Setting$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"NetworkAdapterSetting\": ["
       # Getting Network Adapter Settings 
@@ -1625,7 +1651,7 @@ def show_NetworkAdapterSetting():
 def show_PhysicalMemoryArray():
 
     # Getting Total Physical Memory Arrays 
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Tag from win32_PhysicalMemoryArray') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Tag$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Tag from win32_PhysicalMemoryArray') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Tag$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"PhysicalMemoryArray\": ["
       # Getting Physical Memory Arrays
@@ -1698,7 +1724,7 @@ def show_PhysicalMemoryArray():
 def show_PhysicalMemory():
 
     # Getting Total Physical Memories
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Tag from win32_PhysicalMemory') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Tag$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Tag from win32_PhysicalMemory') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Tag$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"PhysicalMemory\": ["
       # Getting Physical Memories
@@ -1790,7 +1816,7 @@ def show_PhysicalMemory():
 def show_PhysicalMemoryLocation():
 
     # Getting Total Physical Memory Locations 
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select GroupComponent,PartComponent from win32_PhysicalMemoryLocation') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^GroupComponent|PartComponent$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select GroupComponent,PartComponent from win32_PhysicalMemoryLocation') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^GroupComponent|PartComponent$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"PhysicalMemoryLocation\": ["
       # Getting Network Adapter Settings
@@ -1817,7 +1843,7 @@ def show_PhysicalMemoryLocation():
 def show_DiskDrive():
 
     # Getting Total Disk Drives
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select DeviceID,Index from win32_DiskDrive') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^DeviceID|Index$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select DeviceID,Index from win32_DiskDrive') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^DeviceID|Index$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"DiskDrive\": ["
       # Getting Disk Drives 
@@ -1977,7 +2003,7 @@ def show_DiskDrive():
 def show_DiskPartition():
 
     # Getting Total Disk Partitions
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select DeviceID from win32_DiskPartition') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^DeviceID$'|grep -v '^$'|wc -l)  || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select DeviceID from win32_DiskPartition') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^DeviceID$'|grep -v '^$'|grep -v '^\"\"$'|wc -l)  || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"DiskPartition\": ["
       # Getting Disk Partitions 
@@ -2075,7 +2101,7 @@ def show_DiskPartition():
 def show_DiskDriveToDiskPartition():
 
     # Getting Total Disk Drive To Disk Partitions
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Antecedent,Dependent from win32_DiskDriveToDiskPartition') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Antecedent|Dependent$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Antecedent,Dependent from win32_DiskDriveToDiskPartition') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Antecedent|Dependent$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"DiskDriveToDiskPartition\": ["
       # Getting Disk Drive To Disk Partitions
@@ -2103,7 +2129,7 @@ def show_DiskDriveToDiskPartition():
 def show_LogicalDisk():
 
     # Getting Total Logical Disks
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select DeviceID from win32_LogicalDisk') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^DeviceID$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select DeviceID from win32_LogicalDisk') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^DeviceID$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"LogicalDisk\": ["
       # Getting Logical Disks
@@ -2205,7 +2231,7 @@ def show_LogicalDisk():
 def show_LogicalDiskToPartition():
 
     # Getting Total Logical Disk To Partitions
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Antecedent,Dependent from win32_LogicalDiskToPartition') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Antecedent|Dependent$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Antecedent,Dependent from win32_LogicalDiskToPartition') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Antecedent|Dependent$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"LogicalDiskToPartition\": ["
       # Getting Logical Disk To Partitions
@@ -2232,7 +2258,7 @@ def show_LogicalDiskToPartition():
 def show_BaseBoard():
 
     # Getting Total Base Boards
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Tag from win32_BaseBoard') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Tag$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Tag from win32_BaseBoard') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Tag$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"BaseBoard\": ["
       # Getting Base Boards
@@ -2290,7 +2316,7 @@ def show_BaseBoard():
 def show_OnBoardDevice():
 
     # Getting Total On Board Devices
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Tag from win32_OnBoardDevice') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Tag$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Tag from win32_OnBoardDevice') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Tag$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"OnBoardDevice\": ["
       # Getting On Board Devices
@@ -2377,7 +2403,7 @@ def show_OnBoardDevice():
 def show_Bus():
 
     # Getting Total Buses 
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select DeviceID from win32_Bus') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^DeviceID$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select DeviceID from win32_Bus') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^DeviceID$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"Bus\": ["
       # Getting Buses 
@@ -2439,7 +2465,7 @@ def show_Bus():
 def show_PortConnector():
 
     # Getting Total Port Connectors 
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Tag from win32_PortConnector') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Tag$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Tag from win32_PortConnector') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Tag$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"PortConnector\": ["
       # Getting Port Connectors
@@ -2497,7 +2523,7 @@ def show_PortConnector():
 def show_Share():
 
     # Getting Total Shares
-    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name from win32_Share') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Name$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name from win32_Share') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Name$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
     if total > 0:
       print "    \"Share\": ["
       # Getting Shares
@@ -2509,7 +2535,7 @@ def show_Share():
         directLoop = "true"
 
       else:
-        data = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name from win32_Share') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Tag$'|grep -v '^$') || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
+        data = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name from win32_Share') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^AccessMask$'|grep -v '^$') || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
         directLoop = "false"
 
       for line in data.stdout.readlines():
@@ -2522,9 +2548,9 @@ def show_Share():
         else:
           Name = line.strip()
 	  retName = Name
-          retCaption = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Caption,Name from Win32_Share where Name=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Caption|Name$'|cut -d'|' -f1) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Tag, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
-          retPathShare = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name,Path from Win32_Share where Tag=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Name|Path$'|cut -d'|' -f2) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Tag, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
-          retTypeShare = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name,Type from Win32_Share where Tag=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Name|Type$'|cut -d'|' -f2) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Tag, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+          retCaption = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Caption,Name from Win32_Share where Name=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Caption|Name$'|cut -d'|' -f1) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Name, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+          retPathShare = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name,Path from Win32_Share where Name=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Name|Path$'|cut -d'|' -f2) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Name, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+          retTypeShare = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name,Type from Win32_Share where Name=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Name|Type$'|cut -d'|' -f2) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Name, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
 
         print "      {"
 
@@ -2539,6 +2565,79 @@ def show_Share():
 
 	### Type ###
     	print "        \"typeShare\": \"%s\"" % (formatCad(getType(retTypeShare)))
+
+        print "      }%s" % (("",",") [ count < total ])
+        count += 1
+
+      print "    ],"
+
+
+def show_Package():
+
+    # Getting Total Packages
+    total = int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name from win32_Product') && echo \"${ret}\"|grep '|'|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^IdentifyingNumber|Name|Version$'|grep -v '^$'|grep -v '^\"\"$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read())
+    if total > 0:
+      print "    \"Package\": ["
+      # Getting Packages
+      count = 1
+
+      if int(subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Caption, Description, InstallDate, InstallLocation, InstallState, Name, Vendor, Version from win32_Product') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Caption|Description|IdentifyingNumber|InstallDate|InstallLocation|InstallState|Name|Vendor|Version$'|grep -v '^$'|wc -l) || echo '0') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read()) > 0:
+
+        data = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Caption, Description, InstallDate, InstallLocation, InstallState, Name, Vendor, Version from win32_Product') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Caption|Description|IdentifyingNumber|InstallDate|InstallLocation|InstallState|Name|Vendor|Version$'|grep -v '^$') || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
+        directLoop = "true"
+
+      else:
+        data = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name from win32_Product') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^IdentifyingNumber|Name|Version$'|grep -v '^$'|grep -v '^\"\"$') || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE)
+        directLoop = "false"
+
+      for line in data.stdout.readlines():
+
+        if directLoop == "true":
+          retCaption = line.split('|')[0].strip()
+          retDescription = line.split('|')[1].strip()
+          retIDNumber = line.split('|')[2].strip()
+          retInstallDate = line.split('|')[3].strip()
+          retInstallLocation = line.split('|')[4].strip()
+          retInstallState = line.split('|')[5].strip()
+          retName = line.split('|')[6].strip()
+          retVendor = line.split('|')[7].strip()
+	  retVersion = line.split('|')[8].strip()
+        else:
+          Name = line.split('|')[1].strip()
+          retName = Name
+          retCaption = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Caption,Name from Win32_Product where Name=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Caption|IdentifyingNumber|Name|Version$'|cut -d'|' -f1) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Name, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+          retDescription = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Description,Name from Win32_Product where Name=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^Description|IdentifyingNumber|Name|Version$'|cut -d'|' -f1) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Name, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+          retInstallDate = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select InstallDate,Name from Win32_Product where Name=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^IdentifyingNumber|InstallDate|Name|Version$'|cut -d'|' -f2) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Name, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+          retInstallLocation = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select InstallLocation,Name from Win32_Product where Name=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^IdentifyingNumber|InstallLocation|Name|Version$'|cut -d'|' -f2) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Name, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+          retInstallState = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select InstallState,Name from Win32_Product where Name=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^IdentifyingNumber|InstallState|Name|Version$'|cut -d'|' -f2) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Name, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+          retVendor = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name,Vendor from Win32_Product where Name=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^IdentifyingNumber|Name|Vendor|Version$'|cut -d'|' -f3) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Name, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+          retVersion = subprocess.Popen("((ret=$(%s -U %s%%%s //%s 'Select Name,Version from Win32_Product where Name=\"%s\"') && echo \"${ret}\"|grep -iv 'failed NT status'|grep -iv '^CLASS:'|grep -iv '^IdentifyingNumber|Name|Version$'|cut -d'|' -f3) || echo '') 2>%s" % (path('wmic'), user, passwd, winNode, Name, errorLog), shell=True, executable='%s' % (bash), stdout=subprocess.PIPE).stdout.read().strip()
+
+        print "      {"
+
+        ### Name ###
+        print "        \"name\": \"%s\"," % (formatCad(retName))
+
+        ### Caption ###
+        print "        \"caption\": \"%s\"," % (formatCad(retCaption))
+
+        ### Description ###
+        print "        \"description\": \"%s\"," % (formatCad(retDescription))
+
+        ### InstallDate ###
+        print "        \"installDate\": \"%s\"," % (formatCad(getInstallDate(retInstallDate)))
+
+        ### InstallLocation ###
+        print "        \"installLocation\": \"%s\"," % (formatCad(retInstallLocation))
+
+        ### InstallState ###
+        print "        \"installState\": \"%s\"," % (formatCad(getInstallType(retInstallState)))
+
+        ### Vendor ###
+        print "        \"vendor\": \"%s\"," % (formatCad(retVendor))
+
+        ### Version ###
+        print "        \"version\": \"%s\"" % (formatCad(retVersion))
 
         print "      }%s" % (("",",") [ count < total ])
         count += 1
@@ -2625,6 +2724,7 @@ def main():
           show_Bus()
           show_PortConnector()
           show_Share()
+          show_Package()
 
 
         show_pie()

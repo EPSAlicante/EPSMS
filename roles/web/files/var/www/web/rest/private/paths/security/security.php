@@ -311,6 +311,20 @@ class Rest_Security
           echo $json_string;
         }
 
+        // GET /security/wpackages
+        static public function getSecurityWPackages() {
+          $query = "SELECT C.Server, C.Name, Caption, Description, InstallDate as 'Install Date' , InstallLocation as 'Install Location', InstallState as 'Install State', Vendor, Version FROM WinPackage as C, Server as S WHERE C.Server=S.Name and S.Node='2' and S.Auto and S.End is Null and C.Auto and C.End is Null Order by C.Server, C.Name";
+          $data = getDatabase()->all($query);
+          $result = array();
+          foreach ($data as $val) {
+            array_push($result, array('Server' => $val['Server'],'Name' => $val['Name'],'Caption' => $val['Caption'],'Description' => $val['Description'],'Install Date' => $val['Install Date'], 'Install Location' => $val['Install Location'], 'Install State' => $val['Install State'], 'Vendor' => $val['Vendor'], 'Version' => $val['Version']));
+          }
+
+          $json_string = json_encode($result);
+          //header("Content-Type: application/json");
+          echo $json_string;
+        }
+
         // GET /security/openvas
         static public function getSecurityOpenvas() {
 	  $query = "SELECT C.Server, C.IP, StartScan as 'Start Scan', CVSS, Severity, TotalHigh as 'Total High', TotalMedium as 'Total Medium', TotalLow as 'Total Low', TotalLog as 'Total Log', TotalFalsePositive as 'Total False Positive', ReportHTML as 'Report HTML', ReportPDF as 'Report PDF', ReportTXT as 'Report TXT', ReportXML as 'Report XML' FROM OpenvasHost as C, Server as S WHERE C.Server=S.Name and S.Auto and S.End is Null and C.Auto and C.End is Null Order by C.Server, StartScan desc";

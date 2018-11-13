@@ -60,6 +60,7 @@
     - NetworkAdapters
     - Memories
     - Disks
+    - Packages
   delegate_to: "{{ hostMysql }}"
   ignore_errors: yes
   when: winFacts|success
@@ -99,6 +100,7 @@
     - connectors
     - accounts
     - shares
+    - packages
   delegate_to: "{{ hostWeb }}"
   ignore_errors: yes
   when: winFacts|success
@@ -123,6 +125,7 @@
     - connectors
     - accounts
     - shares
+    - packages
   delegate_to: "{{ hostWeb }}"
   changed_when: False
   ignore_errors: yes
