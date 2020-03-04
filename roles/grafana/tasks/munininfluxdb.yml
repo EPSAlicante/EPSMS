@@ -48,7 +48,7 @@
   delegate_to: "{{ hostMunin }}"
 
 - name: Install munin-influxdb in Munin server
-  shell: scl enable python27 '(cd /root/munin-influxdb; pip install python-dateutil; python setup.py install) > /dev/null 2> /dev/null' executable="/bin/bash"
+  shell: scl enable python27 '(cd /root/munin-influxdb; pip install python-dateutil; pip install urllib3; pip install chardet; pip install idna; pip install pytz; python setup.py install) > /dev/null 2> /dev/null' executable="/bin/bash"
   delegate_to: "{{ hostMunin }}"
   ignore_errors: yes
   when: munininfluxdbCopy|changed

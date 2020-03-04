@@ -15,6 +15,7 @@
 - name: Be sure influxdb is installed
   yum: pkg={{ item }} enablerepo=influxdb state=installed update_cache=yes
   with_items: "{{ packageInfluxDB }}"
+  ignore_errors: yes
   notify: restart influxdb
   when: ansible_pkg_mgr == "yum"
 

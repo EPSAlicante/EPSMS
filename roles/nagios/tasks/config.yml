@@ -13,6 +13,10 @@
   notify: restart apache
   when: ansible_os_family == "RedHat" 
 
+- name: Configure cfg_dir=/etc/nagios3/conf.d in /etc/nagios3/nagios.cfg file
+  lineinfile: name=/etc/nagios3/nagios.cfg state=present regexp='^cfg_dir=/etc/nagios3/conf.d' line='cfg_dir=/etc/nagios3/conf.d'
+  notify: restart nagios
+
 - name: Configure check_external_command in /etc/nagios3/nagios.cfg file
   lineinfile: name=/etc/nagios3/nagios.cfg state=present regexp='^check_external_commands' line='check_external_commands=1'
   notify: restart nagios
@@ -60,6 +64,9 @@
   lineinfile: name=/etc/nagios3/nagios.cfg state=present regexp="^#?cfg_file=/etc/nagios/objects/localhost.cfg" line='#cfg_file=/etc/nagios/objects/localhost.cfg'
   notify: restart nagios
   when: ansible_os_family == "RedHat" 
+
+- name: Create /etc/nagios3/conf.d directory
+  file: path=/etc/nagios3/conf.d state=directory owner=root group=nagios mode=0750
 
 - name: Copy localhost to /etc/nagios3/conf.d
   template: src=etc/nagios3/conf.d/localhost_ansible.cfg.j2 dest=/etc/nagios3/conf.d/localhost_ansible.cfg owner=root group=root mode=0644
