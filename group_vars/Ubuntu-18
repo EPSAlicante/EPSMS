@@ -1,0 +1,38 @@
+# Package Manager
+packageManager: apt 
+
+# Base packages
+basePackages:
+- bash
+- coreutils
+- grep
+- sed
+- gawk
+- net-tools
+- iproute2
+- findutils
+- dmidecode
+- util-linux
+
+# Munin Node daemon
+daemonMuninNode: /etc/init.d/munin-node
+
+# Munin Node package
+packageMuninNode: 
+- munin-node
+
+# Munin Node configuration File
+confFileMuninNode: /etc/munin/munin-node.conf
+
+# Nagios Nrpe daemon
+daemonNagiosNrpe: /etc/init.d/nagios-nrpe-server
+
+# Nagios Nrpe package
+packageNagiosNrpe: 
+- nagios-nrpe-server
+
+# Nagios Nrpe configuration File
+confFileNagiosNrpe: /etc/nagios/nrpe.cfg
+
+# Nagios Nrpe plugins Path
+pluginsPathNagiosNrpe: /usr/lib/nagios/plugins

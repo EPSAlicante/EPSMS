@@ -1,0 +1,27 @@
+{# The source code packaged with this file is Free Software, Copyright (C) 2016 by #}
+{# Unidad de Laboratorios, Escuela Politecnica Superior, Universidad de Alicante :: <epsms at eps.ua.es>. #}
+{# It's licensed under the AFFERO GENERAL PUBLIC LICENSE unless stated otherwise. #}
+{# You can get copies of the licenses here: http://www.affero.org/oagpl.html #}
+{# AFFERO GENERAL PUBLIC LICENSE is also included in the file called "LICENSE". #}
+{#                                                                              #}
+{#                                                                              #}
+# Generating SQL for Shares of {{ inventory_hostname }}
+
+
+{% if hostvars[inventory_hostname]["Package"] is defined %}
+
+{% for package in hostvars[inventory_hostname]["Package"] -%}
+
+CHECK_PACKAGE_{{ loop.index }}: SELECT * FROM WinPackage WHERE Server='{{ inventory_hostname }}' AND Name='{{ package["name"] }}' AND Caption='{{ package["caption"] }}' AND Description='{{ package["description"] }}' AND InstallDate='{{ package["installDate"] }}' AND InstallLocation='{{ package["installLocation"] }}' AND InstallState='{{ package["installState"] }}' AND Vendor='{{ package["vendor"] }}' AND Version='{{ package["version"] }}' AND Auto AND End IS NULL;
+
+UPDATE_PACKAGE_{{ loop.index }}: UPDATE WinPackage SET Checked=NOW() WHERE Server='{{ inventory_hostname }}' AND Name='{{ package["name"] }}' AND Caption='{{ package["caption"] }}' AND Description='{{ package["description"] }}' AND InstallDate='{{ package["installDate"] }}' AND InstallLocation='{{ package["installLocation"] }}' AND InstallState='{{ package["installState"] }}' AND Vendor='{{ package["vendor"] }}' AND Version='{{ package["version"] }}' AND Auto AND End IS NULL; 
+
+INSERT_PACKAGE_{{ loop.index }}: INSERT INTO WinPackage (Name,Server,Caption,Description,InstallDate,InstallLocation,InstallState,Vendor,Version,Init,Checked,Auto) VALUES ('{{ package["name"] }}','{{ inventory_hostname }}', '{{ package["caption"] }}', '{{ package["description"] }}', '{{ package["installDate"] }}', '{{ package["installLocation"] }}', '{{ package["installState"] }}', '{{ package["vendor"] }}', '{{ package["version"] }}', NOW(), NOW(), 1);
+
+{% endfor %}
+
+{% endif %}
+
+
+END-CHECK_PACKAGE: SELECT * from WinPackage WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
+END-UPDATE_PACKAGE: UPDATE WinPackage SET End=NOW() WHERE Server='{{ inventory_hostname }}' AND Auto AND End IS NULL AND Checked<'##checkedTime##';
